@@ -5,8 +5,8 @@ from rest_framework.views import APIView
 from rest_framework.response import Response
 from django.contrib.auth import get_user_model
 
-from .serializers import RegisterSerializer
-from .models import Profile
+from .serializers import RegisterSerializer, PoleSerializer
+from .models import Profile, Pole
 
 User = get_user_model()
 
@@ -33,3 +33,20 @@ class MeView(APIView):
             "client_type": profile.client_type if profile else None,
         })
 
+class IsAdminUserProfile(permissions.BasePermission):
+    """
+    Autorise uniquement les users avec profile.role == 'admin'
+    """
+
+    def has_permission(self, request, view):
+        user = request.user
+        if not user or not user.is_authenticated:
+            return False
+        profile = getattr(user, 'profile', None)
+        return bool(profile and profile.role == 'admin')
+
+
+class PoleListCreateView(generics.ListCreateAPIView):
+    queryset = Pole.objects.all()
+    serializer_class = PoleSerializer
+    permission_classes = [IsAdminUserProfile]      

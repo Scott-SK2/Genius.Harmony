@@ -1,6 +1,6 @@
 from rest_framework import serializers
 from django.contrib.auth import get_user_model
-from .models import Profile
+from .models import Profile, Pole
 
 User = get_user_model()
 
@@ -33,3 +33,8 @@ class RegisterSerializer(serializers.ModelSerializer):
         profile.save()
 
         return user
+
+class PoleSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Pole
+        fields = ['id', 'name', 'description']
