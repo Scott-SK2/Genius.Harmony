@@ -45,6 +45,10 @@ class IsAdminUserProfile(permissions.BasePermission):
         profile = getattr(user, 'profile', None)
         return bool(profile and profile.role == 'admin')
 
+class PoleDetailView(generics.RetrieveUpdateDestroyAPIView):
+    queryset = Pole.objects.all()
+    serializer_class = PoleSerializer
+    permission_classes = [IsAdminUserProfile]
 
 class PoleListCreateView(generics.ListCreateAPIView):
     queryset = Pole.objects.all()

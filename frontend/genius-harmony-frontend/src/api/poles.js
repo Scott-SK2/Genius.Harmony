@@ -19,3 +19,20 @@ export async function createPole(token, payload) {
   });
   return res.data;
 }
+
+export async function updatePole(token, id, payload) {
+  const res = await axios.put(`${API_URL}/poles/${id}/`, payload, {
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+  });
+  return res.data;
+}
+
+export async function deletePole(token, id) {
+  await axios.delete(`${API_URL}/poles/${id}/`, {
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+  });
+}
