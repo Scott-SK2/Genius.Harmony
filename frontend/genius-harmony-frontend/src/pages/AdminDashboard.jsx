@@ -1,5 +1,6 @@
 // src/pages/AdminDashboard.jsx
 import { useEffect, useState } from "react";
+import { Link } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 import { fetchPoles, createPole, updatePole, deletePole } from "../api/poles";
 
@@ -83,6 +84,11 @@ export default function AdminDashboard() {
       <h1>Dashboard Admin – Genius.Harmony</h1>
       <p>
         Bienvenue, <strong>{user?.username}</strong> (rôle : {user?.role})
+      </p>
+
+      {/* 👇 Lien vers la page de gestion des utilisateurs */}
+      <p>
+        <Link to="/admin/users">Gérer les utilisateurs</Link>
       </p>
 
       <hr style={{ margin: "2rem 0" }} />

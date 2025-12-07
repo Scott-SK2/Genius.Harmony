@@ -5,7 +5,7 @@ from rest_framework.views import APIView
 from rest_framework.response import Response
 from django.contrib.auth import get_user_model
 
-from .serializers import RegisterSerializer, PoleSerializer
+from .serializers import RegisterSerializer, PoleSerializer, UserProfileSerializer
 from .models import Profile, Pole
 
 User = get_user_model()
@@ -53,4 +53,15 @@ class PoleDetailView(generics.RetrieveUpdateDestroyAPIView):
 class PoleListCreateView(generics.ListCreateAPIView):
     queryset = Pole.objects.all()
     serializer_class = PoleSerializer
-    permission_classes = [IsAdminUserProfile]      
+    permission_classes = [IsAdminUserProfile]
+
+class UserListView(generics.ListAPIView):
+    queryset = User.objects.all().select_related('profile', 'profile__pole')
+    serializer_class = UserProfileSerializer
+    permission_classes = [IsAdminUserProfile]
+
+
+class UserUpdateView(generics.UpdateAPIView):
+    queryset = User.objects.all().select_related('profile', 'profile__pole')
+    serializer_class = UserProfileSerializer
+    permission_classes = [IsAdminUserProfile]    

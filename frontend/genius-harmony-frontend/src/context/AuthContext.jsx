@@ -8,7 +8,7 @@ export function AuthProvider({ children }) {
   const [token, setToken] = useState(localStorage.getItem("access") || null);
   const [loading, setLoading] = useState(true);
 
-  // Au chargement de l'app : si on a un token, on va chercher /me
+  // Chargement initial : si on a un token, on va chercher /me
   useEffect(() => {
     if (!token) {
       setLoading(false);
