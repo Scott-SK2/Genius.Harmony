@@ -6,8 +6,7 @@ import { fetchProjets } from "../api/projets";
 const COLONNES = [
   { id: "a_faire", label: "À faire", color: "#95a5a6" },
   { id: "en_cours", label: "En cours", color: "#3498db" },
-  { id: "en_revision", label: "En révision", color: "#9b59b6" },
-  { id: "terminee", label: "Terminée", color: "#27ae60" },
+  { id: "termine", label: "Terminé", color: "#27ae60" },
 ];
 
 const PRIORITE_COLORS = {
@@ -269,7 +268,7 @@ export default function KanbanTaches() {
       <div
         style={{
           display: "grid",
-          gridTemplateColumns: "repeat(4, 1fr)",
+          gridTemplateColumns: "repeat(3, 1fr)",
           gap: "1rem",
           minHeight: "500px",
         }}

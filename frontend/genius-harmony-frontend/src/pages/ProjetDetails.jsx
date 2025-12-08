@@ -34,8 +34,7 @@ const STATUT_COLORS = {
 const TACHE_STATUT_LABELS = {
   a_faire: "À faire",
   en_cours: "En cours",
-  en_revision: "En révision",
-  terminee: "Terminée",
+  termine: "Terminé",
 };
 
 const TACHE_PRIORITE_LABELS = {
