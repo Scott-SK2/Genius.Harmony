@@ -1,20 +1,8 @@
 import { useEffect, useState } from "react";
 import { useAuth } from "../context/AuthContext";
+import { useTheme } from "../context/ThemeContext";
 import { fetchTaches, updateTache } from "../api/taches";
 import { fetchProjets } from "../api/projets";
-
-const COLONNES = [
-  { id: "a_faire", label: "À faire", color: "#95a5a6" },
-  { id: "en_cours", label: "En cours", color: "#3498db" },
-  { id: "termine", label: "Terminé", color: "#27ae60" },
-];
-
-const PRIORITE_COLORS = {
-  basse: "#95a5a6",
-  normale: "#3498db",
-  haute: "#f39c12",
-  urgente: "#e74c3c",
-};
 
 const PRIORITE_LABELS = {
   basse: "Basse",
@@ -25,6 +13,7 @@ const PRIORITE_LABELS = {
 
 export default function KanbanTaches() {
   const { token } = useAuth();
+  const { theme } = useTheme();
   const [taches, setTaches] = useState([]);
   const [projets, setProjets] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -74,6 +63,19 @@ export default function KanbanTaches() {
     })();
   }, [selectedProjet, selectedPriorite, token]);
 
+  const COLONNES = [
+    { id: "a_faire", label: "À faire", color: theme.text.secondary },
+    { id: "en_cours", label: "En cours", color: theme.colors.primary },
+    { id: "termine", label: "Terminé", color: theme.colors.success },
+  ];
+
+  const PRIORITE_COLORS = {
+    basse: theme.text.secondary,
+    normale: theme.colors.primary,
+    haute: theme.colors.warning,
+    urgente: theme.colors.danger,
+  };
+
   // Grouper les tâches par statut
   const tachesParStatut = COLONNES.reduce((acc, col) => {
     acc[col.id] = taches.filter((t) => t.statut === col.id);
@@ -122,20 +124,56 @@ export default function KanbanTaches() {
   };
 
   if (loading) {
-    return <div style={{ padding: "2rem" }}>Chargement du Kanban...</div>;
+    return (
+      <div
+        style={{
+          display: "flex",
+          justifyContent: "center",
+          alignItems: "center",
+          minHeight: "60vh",
+          color: theme.text.secondary,
+          fontSize: "1.1rem",
+        }}
+      >
+        <div style={{ textAlign: "center" }}>
+          <div style={{ fontSize: "3rem", marginBottom: "1rem" }}>⏳</div>
+          <div>Chargement du Kanban...</div>
+        </div>
+      </div>
+    );
   }
 
   if (error) {
     return (
-      <div style={{ padding: "2rem", color: "#e74c3c" }}>
+      <div
+        style={{
+          padding: "2rem",
+          backgroundColor: `${theme.colors.danger}10`,
+          border: `1px solid ${theme.colors.danger}`,
+          borderRadius: "12px",
+          color: theme.colors.danger,
+        }}
+      >
         <strong>Erreur :</strong> {error}
       </div>
     );
   }
 
   return (
-    <div style={{ padding: "2rem" }}>
-      <h1>Kanban - Gestion des Tâches</h1>
+    <div>
+      <h1
+        style={{
+          margin: 0,
+          marginBottom: "0.5rem",
+          color: theme.text.primary,
+          fontSize: "2rem",
+        }}
+      >
+        📊 Kanban - Gestion des Tâches
+      </h1>
+      <p style={{ margin: 0, marginBottom: "2rem", color: theme.text.secondary, fontSize: "1.05rem" }}>
+        Glissez-déposez les tâches pour changer leur statut
+      </p>
 
       {/* Filtres */}
       <div
@@ -143,17 +181,24 @@ export default function KanbanTaches() {
           display: "flex",
           gap: "1rem",
           marginBottom: "2rem",
-          padding: "1rem",
-          backgroundColor: "#f8f9fa",
-          borderRadius: "6px",
+          padding: "1.5rem",
+          backgroundColor: theme.bg.card,
+          borderRadius: "12px",
+          border: `1px solid ${theme.border.light}`,
+          boxShadow: theme.shadow.sm,
         }}
       >
         <div style={{ flex: 1 }}>
           <label
             htmlFor="filter-projet"
-            style={{ display: "block", marginBottom: "0.5rem", fontWeight: "500" }}
+            style={{
+              display: "block",
+              marginBottom: "0.75rem",
+              fontWeight: "600",
+              color: theme.text.primary,
+            }}
           >
-            Filtrer par projet
+            🔍 Filtrer par projet
           </label>
           <select
             id="filter-projet"
@@ -161,9 +206,12 @@ export default function KanbanTaches() {
             onChange={(e) => setSelectedProjet(e.target.value)}
             style={{
               width: "100%",
-              padding: "0.5rem",
-              borderRadius: "4px",
-              border: "1px solid #ccc",
+              padding: "0.75rem",
+              borderRadius: "8px",
+              border: `1px solid ${theme.border.medium}`,
+              backgroundColor: theme.bg.primary,
+              color: theme.text.primary,
+              fontSize: "1rem",
             }}
           >
             <option value="">Tous les projets</option>
@@ -178,9 +226,14 @@ export default function KanbanTaches() {
         <div style={{ flex: 1 }}>
           <label
             htmlFor="filter-priorite"
-            style={{ display: "block", marginBottom: "0.5rem", fontWeight: "500" }}
+            style={{
+              display: "block",
+              marginBottom: "0.75rem",
+              fontWeight: "600",
+              color: theme.text.primary,
+            }}
           >
-            Filtrer par priorité
+            ⚡ Filtrer par priorité
           </label>
           <select
             id="filter-priorite"
@@ -188,9 +241,12 @@ export default function KanbanTaches() {
             onChange={(e) => setSelectedPriorite(e.target.value)}
             style={{
               width: "100%",
-              padding: "0.5rem",
-              borderRadius: "4px",
-              border: "1px solid #ccc",
+              padding: "0.75rem",
+              borderRadius: "8px",
+              border: `1px solid ${theme.border.medium}`,
+              backgroundColor: theme.bg.primary,
+              color: theme.text.primary,
+              fontSize: "1rem",
             }}
           >
             <option value="">Toutes les priorités</option>
@@ -209,15 +265,26 @@ export default function KanbanTaches() {
                 setSelectedPriorite("");
               }}
               style={{
-                padding: "0.5rem 1rem",
-                backgroundColor: "#e74c3c",
-                color: "#fff",
+                padding: "0.75rem 1.5rem",
+                backgroundColor: theme.colors.danger,
+                color: theme.text.inverse,
                 border: "none",
-                borderRadius: "4px",
+                borderRadius: "8px",
                 cursor: "pointer",
+                fontWeight: "600",
+                transition: "all 0.2s",
+                boxShadow: theme.shadow.sm,
+              }}
+              onMouseEnter={(e) => {
+                e.target.style.transform = "translateY(-2px)";
+                e.target.style.boxShadow = theme.shadow.md;
+              }}
+              onMouseLeave={(e) => {
+                e.target.style.transform = "translateY(0)";
+                e.target.style.boxShadow = theme.shadow.sm;
               }}
             >
-              Réinitialiser filtres
+              ✕ Réinitialiser
             </button>
           </div>
         )}
@@ -226,42 +293,138 @@ export default function KanbanTaches() {
       {/* Statistiques */}
       <div
         style={{
-          display: "flex",
-          gap: "1rem",
-          marginBottom: "2rem",
+          display: "grid",
+          gridTemplateColumns: "repeat(auto-fit, minmax(200px, 1fr))",
+          gap: "1.5rem",
+          marginBottom: "2.5rem",
         }}
       >
         <div
           style={{
-            flex: 1,
-            padding: "1rem",
-            backgroundColor: "#ecf0f1",
-            borderRadius: "6px",
-            textAlign: "center",
+            backgroundColor: theme.bg.card,
+            borderRadius: "16px",
+            padding: "2rem",
+            boxShadow: theme.shadow.md,
+            border: `1px solid ${theme.border.light}`,
+            transition: "all 0.3s",
+            cursor: "default",
+          }}
+          onMouseEnter={(e) => {
+            e.currentTarget.style.transform = "translateY(-4px)";
+            e.currentTarget.style.boxShadow = theme.shadow.xl;
+          }}
+          onMouseLeave={(e) => {
+            e.currentTarget.style.transform = "translateY(0)";
+            e.currentTarget.style.boxShadow = theme.shadow.md;
           }}
         >
-          <div style={{ fontSize: "2rem", fontWeight: "bold", color: "#2c3e50" }}>
-            {taches.length}
-          </div>
-          <div style={{ fontSize: "0.9rem", color: "#7f8c8d" }}>Total tâches</div>
-        </div>
-        {COLONNES.map((col) => (
-          <div
-            key={col.id}
-            style={{
-              flex: 1,
-              padding: "1rem",
-              backgroundColor: col.color + "20",
-              borderRadius: "6px",
-              textAlign: "center",
-            }}
-          >
-            <div style={{ fontSize: "2rem", fontWeight: "bold", color: col.color }}>
-              {tachesParStatut[col.id]?.length || 0}
+          <div style={{ display: "flex", alignItems: "center", gap: "1rem" }}>
+            <div
+              style={{
+                width: "60px",
+                height: "60px",
+                borderRadius: "12px",
+                backgroundColor: `${theme.colors.primary}20`,
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                fontSize: "2rem",
+              }}
+            >
+              📋
             </div>
-            <div style={{ fontSize: "0.9rem", color: "#7f8c8d" }}>{col.label}</div>
+            <div>
+              <div
+                style={{
+                  fontSize: "0.9rem",
+                  color: theme.text.secondary,
+                  fontWeight: "500",
+                  marginBottom: "0.25rem",
+                }}
+              >
+                Total tâches
+              </div>
+              <div
+                style={{
+                  fontSize: "2.5rem",
+                  fontWeight: "700",
+                  color: theme.text.primary,
+                  lineHeight: 1,
+                }}
+              >
+                {taches.length}
+              </div>
+            </div>
           </div>
-        ))}
+        </div>
+        {COLONNES.map((col) => {
+          const icons = {
+            a_faire: "📝",
+            en_cours: "⚡",
+            termine: "✓",
+          };
+          return (
+            <div
+              key={col.id}
+              style={{
+                backgroundColor: theme.bg.card,
+                borderRadius: "16px",
+                padding: "2rem",
+                boxShadow: theme.shadow.md,
+                border: `1px solid ${theme.border.light}`,
+                transition: "all 0.3s",
+                cursor: "default",
+              }}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.transform = "translateY(-4px)";
+                e.currentTarget.style.boxShadow = theme.shadow.xl;
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.transform = "translateY(0)";
+                e.currentTarget.style.boxShadow = theme.shadow.md;
+              }}
+            >
+              <div style={{ display: "flex", alignItems: "center", gap: "1rem" }}>
+                <div
+                  style={{
+                    width: "60px",
+                    height: "60px",
+                    borderRadius: "12px",
+                    backgroundColor: `${col.color}20`,
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    fontSize: "2rem",
+                  }}
+                >
+                  {icons[col.id]}
+                </div>
+                <div>
+                  <div
+                    style={{
+                      fontSize: "0.9rem",
+                      color: theme.text.secondary,
+                      fontWeight: "500",
+                      marginBottom: "0.25rem",
+                    }}
+                  >
+                    {col.label}
+                  </div>
+                  <div
+                    style={{
+                      fontSize: "2.5rem",
+                      fontWeight: "700",
+                      color: theme.text.primary,
+                      lineHeight: 1,
+                    }}
+                  >
+                    {tachesParStatut[col.id]?.length || 0}
+                  </div>
+                </div>
+              </div>
+            </div>
+          );
+        })}
       </div>
 
       {/* Board Kanban */}
@@ -269,7 +432,7 @@ export default function KanbanTaches() {
         style={{
           display: "grid",
           gridTemplateColumns: "repeat(3, 1fr)",
-          gap: "1rem",
+          gap: "1.5rem",
           minHeight: "500px",
         }}
       >
@@ -279,34 +442,39 @@ export default function KanbanTaches() {
             onDragOver={handleDragOver}
             onDrop={(e) => handleDrop(e, colonne.id)}
             style={{
-              backgroundColor: "#f8f9fa",
-              borderRadius: "8px",
-              padding: "1rem",
+              backgroundColor: theme.bg.secondary,
+              borderRadius: "16px",
+              padding: "1.5rem",
               display: "flex",
               flexDirection: "column",
+              border: `1px solid ${theme.border.light}`,
+              boxShadow: theme.shadow.sm,
             }}
           >
             {/* En-tête de colonne */}
             <div
               style={{
                 backgroundColor: colonne.color,
-                color: "#fff",
-                padding: "0.75rem",
-                borderRadius: "6px",
-                marginBottom: "1rem",
-                fontWeight: "600",
+                color: theme.text.inverse,
+                padding: "1rem 1.25rem",
+                borderRadius: "12px",
+                marginBottom: "1.5rem",
+                fontWeight: "700",
+                fontSize: "1.05rem",
                 display: "flex",
                 justifyContent: "space-between",
                 alignItems: "center",
+                boxShadow: theme.shadow.sm,
               }}
             >
               <span>{colonne.label}</span>
               <span
                 style={{
-                  backgroundColor: "rgba(255,255,255,0.3)",
-                  padding: "0.25rem 0.5rem",
-                  borderRadius: "12px",
-                  fontSize: "0.85rem",
+                  backgroundColor: "rgba(255,255,255,0.25)",
+                  padding: "0.4rem 0.75rem",
+                  borderRadius: "20px",
+                  fontSize: "0.9rem",
+                  fontWeight: "700",
                 }}
               >
                 {tachesParStatut[colonne.id]?.length || 0}
@@ -314,7 +482,7 @@ export default function KanbanTaches() {
             </div>
 
             {/* Liste des tâches */}
-            <div style={{ flex: 1, display: "flex", flexDirection: "column", gap: "0.75rem" }}>
+            <div style={{ flex: 1, display: "flex", flexDirection: "column", gap: "1rem" }}>
               {tachesParStatut[colonne.id]?.map((tache) => (
                 <div
                   key={tache.id}
@@ -322,39 +490,50 @@ export default function KanbanTaches() {
                   onDragStart={(e) => handleDragStart(e, tache)}
                   onDragEnd={handleDragEnd}
                   style={{
-                    backgroundColor: "#fff",
-                    padding: "0.75rem",
-                    borderRadius: "6px",
-                    boxShadow: "0 2px 4px rgba(0,0,0,0.1)",
+                    backgroundColor: theme.bg.card,
+                    padding: "1.25rem",
+                    borderRadius: "12px",
+                    boxShadow: theme.shadow.md,
                     cursor: "grab",
-                    border: "1px solid #e0e0e0",
-                    transition: "transform 0.2s",
+                    border: `1px solid ${theme.border.light}`,
+                    transition: "all 0.2s",
                   }}
                   onMouseEnter={(e) => {
-                    e.currentTarget.style.transform = "translateY(-2px)";
-                    e.currentTarget.style.boxShadow = "0 4px 8px rgba(0,0,0,0.15)";
+                    e.currentTarget.style.transform = "translateY(-3px)";
+                    e.currentTarget.style.boxShadow = theme.shadow.lg;
+                    e.currentTarget.style.borderColor = theme.border.medium;
                   }}
                   onMouseLeave={(e) => {
                     e.currentTarget.style.transform = "translateY(0)";
-                    e.currentTarget.style.boxShadow = "0 2px 4px rgba(0,0,0,0.1)";
+                    e.currentTarget.style.boxShadow = theme.shadow.md;
+                    e.currentTarget.style.borderColor = theme.border.light;
                   }}
                 >
                   {/* Titre de la tâche */}
-                  <div style={{ fontWeight: "500", marginBottom: "0.5rem", fontSize: "0.95rem" }}>
+                  <div
+                    style={{
+                      fontWeight: "600",
+                      marginBottom: "0.75rem",
+                      fontSize: "1.05rem",
+                      color: theme.text.primary,
+                      lineHeight: "1.4",
+                    }}
+                  >
                     {tache.titre}
                   </div>
 
                   {/* Badge priorité */}
-                  <div style={{ marginBottom: "0.5rem" }}>
+                  <div style={{ marginBottom: "0.75rem" }}>
                     <span
                       style={{
                         display: "inline-block",
-                        padding: "0.2rem 0.5rem",
-                        borderRadius: "4px",
-                        fontSize: "0.75rem",
-                        fontWeight: "500",
-                        backgroundColor: PRIORITE_COLORS[tache.priorite] || "#999",
-                        color: "#fff",
+                        padding: "0.4rem 0.75rem",
+                        borderRadius: "8px",
+                        fontSize: "0.85rem",
+                        fontWeight: "600",
+                        backgroundColor: `${PRIORITE_COLORS[tache.priorite] || theme.text.secondary}20`,
+                        color: PRIORITE_COLORS[tache.priorite] || theme.text.secondary,
+                        border: `1px solid ${PRIORITE_COLORS[tache.priorite] || theme.text.secondary}40`,
                       }}
                     >
                       {PRIORITE_LABELS[tache.priorite] || tache.priorite}
@@ -362,14 +541,20 @@ export default function KanbanTaches() {
                   </div>
 
                   {/* Informations supplémentaires */}
-                  <div style={{ fontSize: "0.8rem", color: "#666" }}>
+                  <div
+                    style={{
+                      fontSize: "0.9rem",
+                      color: theme.text.secondary,
+                      lineHeight: "1.6",
+                    }}
+                  >
                     {tache.projet_details && (
-                      <div style={{ marginBottom: "0.25rem" }}>
+                      <div style={{ marginBottom: "0.5rem" }}>
                         📁 {tache.projet_details.titre}
                       </div>
                     )}
                     {tache.assigne_a_details && (
-                      <div style={{ marginBottom: "0.25rem" }}>
+                      <div style={{ marginBottom: "0.5rem" }}>
                         👤 {tache.assigne_a_details.username}
                       </div>
                     )}
@@ -386,15 +571,17 @@ export default function KanbanTaches() {
               {(!tachesParStatut[colonne.id] || tachesParStatut[colonne.id].length === 0) && (
                 <div
                   style={{
-                    padding: "2rem 1rem",
+                    padding: "3rem 1.5rem",
                     textAlign: "center",
-                    color: "#999",
-                    fontSize: "0.9rem",
-                    border: "2px dashed #ddd",
-                    borderRadius: "6px",
+                    color: theme.text.secondary,
+                    fontSize: "1rem",
+                    border: `2px dashed ${theme.border.medium}`,
+                    borderRadius: "12px",
+                    backgroundColor: `${theme.bg.card}50`,
                   }}
                 >
-                  Aucune tâche
+                  <div style={{ fontSize: "2rem", marginBottom: "0.5rem" }}>📭</div>
+                  <div>Aucune tâche</div>
                 </div>
               )}
             </div>
