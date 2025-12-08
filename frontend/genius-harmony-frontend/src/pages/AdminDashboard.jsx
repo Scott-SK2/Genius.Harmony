@@ -3,24 +3,55 @@ import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 import { fetchPoles, createPole, updatePole, deletePole } from "../api/poles";
+import { fetchProjets } from "../api/projets";
+import { fetchTaches } from "../api/taches";
+import { fetchUsers } from "../api/users";
 
 export default function AdminDashboard() {
-  const { user, token } = useAuth();
+  const { user, token, logout } = useAuth();
   const [poles, setPoles] = useState([]);
+  const [stats, setStats] = useState({
+    totalProjets: 0,
+    totalTaches: 0,
+    totalUtilisateurs: 0,
+    projetsEnCours: 0,
+    tachesAFaire: 0,
+    tachesEnCours: 0,
+  });
   const [newPole, setNewPole] = useState({ name: "", description: "" });
   const [editingId, setEditingId] = useState(null);
   const [editingData, setEditingData] = useState({ name: "", description: "" });
+  const [loading, setLoading] = useState(true);
 
-  // Charger les pôles au chargement
+  // Charger les données au chargement
   useEffect(() => {
     if (!token) return;
 
     (async () => {
       try {
-        const data = await fetchPoles(token);
-        setPoles(data);
+        setLoading(true);
+        const [polesData, projetsData, tachesData, usersData] = await Promise.all([
+          fetchPoles(token),
+          fetchProjets(token),
+          fetchTaches(token),
+          fetchUsers(token),
+        ]);
+
+        setPoles(polesData);
+
+        // Calculer les statistiques
+        setStats({
+          totalProjets: projetsData.length,
+          totalTaches: tachesData.length,
+          totalUtilisateurs: usersData.length,
+          projetsEnCours: projetsData.filter((p) => p.statut === "en_cours").length,
+          tachesAFaire: tachesData.filter((t) => t.statut === "a_faire").length,
+          tachesEnCours: tachesData.filter((t) => t.statut === "en_cours").length,
+        });
       } catch (err) {
-        console.error("Erreur fetch poles:", err);
+        console.error("Erreur fetch dashboard:", err);
+      } finally {
+        setLoading(false);
       }
     })();
   }, [token]);
@@ -57,9 +88,7 @@ export default function AdminDashboard() {
     if (!editingData.name.trim()) return;
     try {
       const updated = await updatePole(token, id, editingData);
-      setPoles((prev) =>
-        prev.map((p) => (p.id === id ? updated : p))
-      );
+      setPoles((prev) => prev.map((p) => (p.id === id ? updated : p)));
       cancelEdit();
     } catch (err) {
       console.error("Erreur update pole:", err);
@@ -79,24 +108,170 @@ export default function AdminDashboard() {
     }
   }
 
+  if (loading) {
+    return <div style={{ padding: "2rem" }}>Chargement du dashboard...</div>;
+  }
+
   return (
-    <div style={{ padding: "2rem" }}>
-      <h1>Dashboard Admin – Genius.Harmony</h1>
-      <p>
-        Bienvenue, <strong>{user?.username}</strong> (rôle : {user?.role})
-      </p>
+    <div style={{ padding: "2rem", maxWidth: "1400px" }}>
+      {/* En-tête */}
+      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "2rem" }}>
+        <div>
+          <h1 style={{ margin: 0, marginBottom: "0.5rem" }}>Dashboard Admin</h1>
+          <p style={{ margin: 0, color: "#666" }}>
+            Bienvenue, <strong>{user?.username}</strong>
+          </p>
+        </div>
+        <button
+          onClick={logout}
+          style={{
+            padding: "0.5rem 1rem",
+            backgroundColor: "#e74c3c",
+            color: "#fff",
+            border: "none",
+            borderRadius: "4px",
+            cursor: "pointer",
+          }}
+        >
+          Déconnexion
+        </button>
+      </div>
 
-      {/* 👇 Lien vers la page de gestion des utilisateurs */}
-      <p>
-        <Link to="/admin/users">Gérer les utilisateurs</Link>
-      </p>
+      {/* Navigation rapide */}
+      <div
+        style={{
+          display: "grid",
+          gridTemplateColumns: "repeat(auto-fit, minmax(200px, 1fr))",
+          gap: "1rem",
+          marginBottom: "2rem",
+        }}
+      >
+        <Link
+          to="/admin/users"
+          style={{
+            padding: "1rem",
+            backgroundColor: "#3498db",
+            color: "#fff",
+            textDecoration: "none",
+            borderRadius: "8px",
+            textAlign: "center",
+            fontWeight: "500",
+          }}
+        >
+          👥 Gérer les utilisateurs
+        </Link>
+        <Link
+          to="/projets"
+          style={{
+            padding: "1rem",
+            backgroundColor: "#9b59b6",
+            color: "#fff",
+            textDecoration: "none",
+            borderRadius: "8px",
+            textAlign: "center",
+            fontWeight: "500",
+          }}
+        >
+          📁 Voir les projets
+        </Link>
+        <Link
+          to="/kanban"
+          style={{
+            padding: "1rem",
+            backgroundColor: "#1abc9c",
+            color: "#fff",
+            textDecoration: "none",
+            borderRadius: "8px",
+            textAlign: "center",
+            fontWeight: "500",
+          }}
+        >
+          📊 Kanban des tâches
+        </Link>
+      </div>
 
-      <hr style={{ margin: "2rem 0" }} />
+      {/* Statistiques */}
+      <h2>Statistiques globales</h2>
+      <div
+        style={{
+          display: "grid",
+          gridTemplateColumns: "repeat(auto-fit, minmax(200px, 1fr))",
+          gap: "1rem",
+          marginBottom: "2rem",
+        }}
+      >
+        <div
+          style={{
+            padding: "1.5rem",
+            backgroundColor: "#3498db",
+            color: "#fff",
+            borderRadius: "8px",
+            textAlign: "center",
+          }}
+        >
+          <div style={{ fontSize: "2.5rem", fontWeight: "bold" }}>{stats.totalProjets}</div>
+          <div style={{ fontSize: "0.95rem", opacity: 0.9 }}>Projets total</div>
+          <div style={{ fontSize: "0.85rem", opacity: 0.8, marginTop: "0.5rem" }}>
+            {stats.projetsEnCours} en cours
+          </div>
+        </div>
 
-      <h2>Pôles de Genius.Harmony</h2>
+        <div
+          style={{
+            padding: "1.5rem",
+            backgroundColor: "#1abc9c",
+            color: "#fff",
+            borderRadius: "8px",
+            textAlign: "center",
+          }}
+        >
+          <div style={{ fontSize: "2.5rem", fontWeight: "bold" }}>{stats.totalTaches}</div>
+          <div style={{ fontSize: "0.95rem", opacity: 0.9 }}>Tâches total</div>
+          <div style={{ fontSize: "0.85rem", opacity: 0.8, marginTop: "0.5rem" }}>
+            {stats.tachesAFaire} à faire, {stats.tachesEnCours} en cours
+          </div>
+        </div>
+
+        <div
+          style={{
+            padding: "1.5rem",
+            backgroundColor: "#f39c12",
+            color: "#fff",
+            borderRadius: "8px",
+            textAlign: "center",
+          }}
+        >
+          <div style={{ fontSize: "2.5rem", fontWeight: "bold" }}>{stats.totalUtilisateurs}</div>
+          <div style={{ fontSize: "0.95rem", opacity: 0.9 }}>Utilisateurs</div>
+          <div style={{ fontSize: "0.85rem", opacity: 0.8, marginTop: "0.5rem" }}>
+            Membres de l'équipe
+          </div>
+        </div>
+
+        <div
+          style={{
+            padding: "1.5rem",
+            backgroundColor: "#9b59b6",
+            color: "#fff",
+            borderRadius: "8px",
+            textAlign: "center",
+          }}
+        >
+          <div style={{ fontSize: "2.5rem", fontWeight: "bold" }}>{poles.length}</div>
+          <div style={{ fontSize: "0.95rem", opacity: 0.9 }}>Pôles actifs</div>
+          <div style={{ fontSize: "0.85rem", opacity: 0.8, marginTop: "0.5rem" }}>
+            Départements organisés
+          </div>
+        </div>
+      </div>
+
+      <hr style={{ margin: "2rem 0", border: "none", borderTop: "1px solid #e0e0e0" }} />
+
+      {/* Gestion des pôles */}
+      <h2>Gestion des Pôles</h2>
 
       {poles.length === 0 ? (
-        <p>Aucun pôle pour l’instant.</p>
+        <p style={{ color: "#666" }}>Aucun pôle pour l'instant.</p>
       ) : (
         <ul style={{ listStyle: "none", padding: 0 }}>
           {poles.map((pole) => (
@@ -110,6 +285,7 @@ export default function AdminDashboard() {
                 display: "flex",
                 flexDirection: "column",
                 gap: "0.5rem",
+                backgroundColor: "#f8f9fa",
               }}
             >
               {editingId === pole.id ? (
@@ -117,10 +293,8 @@ export default function AdminDashboard() {
                   <input
                     type="text"
                     value={editingData.name}
-                    onChange={(e) =>
-                      setEditingData((d) => ({ ...d, name: e.target.value }))
-                    }
-                    style={{ padding: "0.4rem" }}
+                    onChange={(e) => setEditingData((d) => ({ ...d, name: e.target.value }))}
+                    style={{ padding: "0.5rem", borderRadius: "4px", border: "1px solid #ccc" }}
                   />
                   <textarea
                     value={editingData.description}
@@ -130,13 +304,35 @@ export default function AdminDashboard() {
                         description: e.target.value,
                       }))
                     }
-                    style={{ padding: "0.4rem" }}
+                    style={{ padding: "0.5rem", borderRadius: "4px", border: "1px solid #ccc" }}
                   />
                   <div style={{ display: "flex", gap: "0.5rem" }}>
-                    <button type="button" onClick={() => saveEdit(pole.id)}>
+                    <button
+                      type="button"
+                      onClick={() => saveEdit(pole.id)}
+                      style={{
+                        padding: "0.5rem 1rem",
+                        backgroundColor: "#27ae60",
+                        color: "#fff",
+                        border: "none",
+                        borderRadius: "4px",
+                        cursor: "pointer",
+                      }}
+                    >
                       Sauvegarder
                     </button>
-                    <button type="button" onClick={cancelEdit}>
+                    <button
+                      type="button"
+                      onClick={cancelEdit}
+                      style={{
+                        padding: "0.5rem 1rem",
+                        backgroundColor: "#95a5a6",
+                        color: "#fff",
+                        border: "none",
+                        borderRadius: "4px",
+                        cursor: "pointer",
+                      }}
+                    >
                       Annuler
                     </button>
                   </div>
@@ -144,18 +340,41 @@ export default function AdminDashboard() {
               ) : (
                 <>
                   <div>
-                    <strong>{pole.name}</strong>
+                    <strong style={{ fontSize: "1.1rem" }}>{pole.name}</strong>
                     {pole.description && (
-                      <span> – {pole.description}</span>
+                      <div style={{ color: "#666", fontSize: "0.9rem", marginTop: "0.25rem" }}>
+                        {pole.description}
+                      </div>
                     )}
                   </div>
                   <div style={{ display: "flex", gap: "0.5rem" }}>
-                    <button type="button" onClick={() => startEdit(pole)}>
+                    <button
+                      type="button"
+                      onClick={() => startEdit(pole)}
+                      style={{
+                        padding: "0.4rem 0.8rem",
+                        backgroundColor: "#3498db",
+                        color: "#fff",
+                        border: "none",
+                        borderRadius: "4px",
+                        cursor: "pointer",
+                        fontSize: "0.9rem",
+                      }}
+                    >
                       Modifier
                     </button>
                     <button
                       type="button"
                       onClick={() => handleDelete(pole.id)}
+                      style={{
+                        padding: "0.4rem 0.8rem",
+                        backgroundColor: "#e74c3c",
+                        color: "#fff",
+                        border: "none",
+                        borderRadius: "4px",
+                        cursor: "pointer",
+                        fontSize: "0.9rem",
+                      }}
                     >
                       Supprimer
                     </button>
@@ -168,29 +387,49 @@ export default function AdminDashboard() {
       )}
 
       <h3 style={{ marginTop: "2rem" }}>Ajouter un pôle</h3>
-      <form onSubmit={handleCreate} style={{ maxWidth: "400px" }}>
-        <div style={{ marginBottom: "0.5rem" }}>
+      <form onSubmit={handleCreate} style={{ maxWidth: "500px" }}>
+        <div style={{ marginBottom: "0.75rem" }}>
           <input
             type="text"
             placeholder="Nom du pôle (ex: Cinéma)"
             value={newPole.name}
-            onChange={(e) =>
-              setNewPole((p) => ({ ...p, name: e.target.value }))
-            }
-            style={{ width: "100%", padding: "0.5rem" }}
+            onChange={(e) => setNewPole((p) => ({ ...p, name: e.target.value }))}
+            style={{
+              width: "100%",
+              padding: "0.6rem",
+              borderRadius: "4px",
+              border: "1px solid #ccc",
+            }}
           />
         </div>
-        <div style={{ marginBottom: "0.5rem" }}>
+        <div style={{ marginBottom: "0.75rem" }}>
           <textarea
             placeholder="Description (optionnelle)"
             value={newPole.description}
-            onChange={(e) =>
-              setNewPole((p) => ({ ...p, description: e.target.value }))
-            }
-            style={{ width: "100%", padding: "0.5rem" }}
+            onChange={(e) => setNewPole((p) => ({ ...p, description: e.target.value }))}
+            style={{
+              width: "100%",
+              padding: "0.6rem",
+              borderRadius: "4px",
+              border: "1px solid #ccc",
+              minHeight: "80px",
+            }}
           />
         </div>
-        <button type="submit">Créer le pôle</button>
+        <button
+          type="submit"
+          style={{
+            padding: "0.6rem 1.5rem",
+            backgroundColor: "#27ae60",
+            color: "#fff",
+            border: "none",
+            borderRadius: "4px",
+            cursor: "pointer",
+            fontWeight: "500",
+          }}
+        >
+          Créer le pôle
+        </button>
       </form>
     </div>
   );
