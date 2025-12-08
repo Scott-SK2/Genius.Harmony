@@ -1,6 +1,8 @@
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { AuthProvider } from "./context/AuthContext";
+import { ThemeProvider } from "./context/ThemeContext";
 import Login from "./pages/Login";
+import Register from "./pages/Register";
 import AdminDashboard from "./pages/AdminDashboard";
 import GenericDashboard from "./pages/GenericDashboard";
 import ProtectedRoute from "./components/ProtectedRoute";
@@ -8,78 +10,94 @@ import AdminUsers from "./pages/AdminUsers";
 import ProjetsList from "./pages/ProjetsList";
 import ProjetDetails from "./pages/ProjetDetails";
 import KanbanTaches from "./pages/KanbanTaches";
+import Layout from "./components/Layout";
 
 function App() {
   return (
-    <AuthProvider>
-      <BrowserRouter>
-        <Routes>
-          {/* Page de login publique */}
-          <Route path="/login" element={<Login />} />
+    <ThemeProvider>
+      <AuthProvider>
+        <BrowserRouter>
+          <Routes>
+            {/* Pages publiques */}
+            <Route path="/login" element={<Login />} />
+            <Route path="/register" element={<Register />} />
 
-          {/* Dashboard générique pour tout utilisateur connecté */}
-          <Route
-            path="/dashboard"
-            element={
-              <ProtectedRoute>
-                <GenericDashboard />
-              </ProtectedRoute>
-            }
-          />
+            {/* Dashboard générique pour tout utilisateur connecté */}
+            <Route
+              path="/dashboard"
+              element={
+                <ProtectedRoute>
+                  <Layout>
+                    <GenericDashboard />
+                  </Layout>
+                </ProtectedRoute>
+              }
+            />
 
-          {/* Dashboard admin – réservé aux rôles "admin" */}
-          <Route
-            path="/admin/dashboard"
-            element={
-              <ProtectedRoute allowedRoles={["admin"]}>
-                <AdminDashboard />
-              </ProtectedRoute>
-            }
-          />
+            {/* Dashboard admin – réservé aux rôles "admin" */}
+            <Route
+              path="/admin/dashboard"
+              element={
+                <ProtectedRoute allowedRoles={["admin"]}>
+                  <Layout>
+                    <AdminDashboard />
+                  </Layout>
+                </ProtectedRoute>
+              }
+            />
 
-          {/* gestion utilisateurs admin */}
-          <Route
-            path="/admin/users"
-            element={
-              <ProtectedRoute allowedRoles={["admin"]}>
-                <AdminUsers />
-              </ProtectedRoute>
-            }
-          />
+            {/* gestion utilisateurs admin */}
+            <Route
+              path="/admin/users"
+              element={
+                <ProtectedRoute allowedRoles={["admin"]}>
+                  <Layout>
+                    <AdminUsers />
+                  </Layout>
+                </ProtectedRoute>
+              }
+            />
 
-          {/* Pages projets - accessibles à tous les utilisateurs connectés */}
-          <Route
-            path="/projets"
-            element={
-              <ProtectedRoute>
-                <ProjetsList />
-              </ProtectedRoute>
-            }
-          />
-          <Route
-            path="/projets/:id"
-            element={
-              <ProtectedRoute>
-                <ProjetDetails />
-              </ProtectedRoute>
-            }
-          />
+            {/* Pages projets - accessibles à tous les utilisateurs connectés */}
+            <Route
+              path="/projets"
+              element={
+                <ProtectedRoute>
+                  <Layout>
+                    <ProjetsList />
+                  </Layout>
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/projets/:id"
+              element={
+                <ProtectedRoute>
+                  <Layout>
+                    <ProjetDetails />
+                  </Layout>
+                </ProtectedRoute>
+              }
+            />
 
-          {/* Kanban des tâches - accessible à tous les utilisateurs connectés */}
-          <Route
-            path="/kanban"
-            element={
-              <ProtectedRoute>
-                <KanbanTaches />
-              </ProtectedRoute>
-            }
-          />
+            {/* Kanban des tâches - accessible à tous les utilisateurs connectés */}
+            <Route
+              path="/kanban"
+              element={
+                <ProtectedRoute>
+                  <Layout>
+                    <KanbanTaches />
+                  </Layout>
+                </ProtectedRoute>
+              }
+            />
 
-          {/* Redirection par défaut */}
-          <Route path="*" element={<Navigate to="/login" replace />} />
-        </Routes>
-      </BrowserRouter>
-    </AuthProvider>
+            {/* Redirection par défaut */}
+            <Route path="*" element={<Navigate to="/login" replace />} />
+          </Routes>
+        </BrowserRouter>
+      </AuthProvider>
+    </ThemeProvider>
   );
 }
 
