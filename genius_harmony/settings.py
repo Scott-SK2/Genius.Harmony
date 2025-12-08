@@ -121,6 +121,15 @@ USE_TZ = True
 
 STATIC_URL = 'static/'
 
+# Default primary key field type
+# https://docs.djangoproject.com/en/6.0/ref/settings/#default-auto-field
+DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
+# Media files (User uploaded files)
+# NOTE: Stockage local pour développement. Migration vers cloud (S3/Cloudinary) prévue lors du déploiement
+MEDIA_URL = '/media/'
+MEDIA_ROOT = BASE_DIR / 'media'
+
 REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': (
         'rest_framework_simplejwt.authentication.JWTAuthentication',

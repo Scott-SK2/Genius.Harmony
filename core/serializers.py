@@ -1,6 +1,6 @@
 from rest_framework import serializers
 from django.contrib.auth import get_user_model
-from .models import Profile, Pole
+from .models import Profile, Pole, Projet, Tache, Document
 
 User = get_user_model()
 
@@ -80,3 +80,132 @@ class UserProfileSerializer(serializers.ModelSerializer):
         instance.profile.save()
         instance.save()
         return instance
+
+
+# Serializers pour les utilisateurs (format simple pour les relations)
+class UserSimpleSerializer(serializers.ModelSerializer):
+    """Serializer simple pour afficher les utilisateurs dans les projets/tâches"""
+    full_name = serializers.SerializerMethodField()
+    role = serializers.CharField(source='profile.role', read_only=True)
+
+    class Meta:
+        model = User
+        fields = ['id', 'username', 'email', 'full_name', 'role']
+        read_only_fields = ['id', 'username', 'email', 'full_name', 'role']
+
+    def get_full_name(self, obj):
+        return obj.get_full_name() or obj.username
+
+
+# Serializers pour les tâches
+class TacheSerializer(serializers.ModelSerializer):
+    assigne_a_details = UserSimpleSerializer(source='assigne_a', read_only=True)
+    projet_titre = serializers.CharField(source='projet.titre', read_only=True)
+
+    class Meta:
+        model = Tache
+        fields = [
+            'id', 'projet', 'projet_titre', 'titre', 'description',
+            'statut', 'priorite', 'assigne_a', 'assigne_a_details',
+            'deadline', 'created_at', 'updated_at'
+        ]
+        read_only_fields = ['id', 'created_at', 'updated_at']
+
+
+class TacheCreateSerializer(serializers.ModelSerializer):
+    """Serializer pour la création/modification de tâches"""
+
+    class Meta:
+        model = Tache
+        fields = [
+            'id', 'projet', 'titre', 'description',
+            'statut', 'priorite', 'assigne_a', 'deadline'
+        ]
+        read_only_fields = ['id']
+
+
+# Serializers pour les documents
+class DocumentSerializer(serializers.ModelSerializer):
+    uploade_par_details = UserSimpleSerializer(source='uploade_par', read_only=True)
+    projet_titre = serializers.CharField(source='projet.titre', read_only=True)
+    fichier_url = serializers.SerializerMethodField()
+
+    class Meta:
+        model = Document
+        fields = [
+            'id', 'projet', 'projet_titre', 'titre', 'fichier', 'fichier_url',
+            'type', 'description', 'uploade_par', 'uploade_par_details',
+            'created_at'
+        ]
+        read_only_fields = ['id', 'uploade_par', 'created_at']
+
+    def get_fichier_url(self, obj):
+        request = self.context.get('request')
+        if obj.fichier and request:
+            return request.build_absolute_uri(obj.fichier.url)
+        return None
+
+
+# Serializers pour les projets
+class ProjetListSerializer(serializers.ModelSerializer):
+    """Serializer pour la liste des projets (version allégée)"""
+    pole_name = serializers.CharField(source='pole.name', read_only=True)
+    client_username = serializers.CharField(source='client.username', read_only=True)
+    chef_projet_username = serializers.CharField(source='chef_projet.username', read_only=True)
+    nombre_taches = serializers.SerializerMethodField()
+    nombre_membres = serializers.SerializerMethodField()
+
+    class Meta:
+        model = Projet
+        fields = [
+            'id', 'titre', 'type', 'statut', 'pole', 'pole_name',
+            'client', 'client_username', 'chef_projet', 'chef_projet_username',
+            'nombre_taches', 'nombre_membres', 'date_debut', 'date_fin_prevue',
+            'created_at', 'updated_at'
+        ]
+        read_only_fields = ['id', 'created_at', 'updated_at']
+
+    def get_nombre_taches(self, obj):
+        return obj.taches.count()
+
+    def get_nombre_membres(self, obj):
+        return obj.membres.count()
+
+
+class ProjetDetailSerializer(serializers.ModelSerializer):
+    """Serializer pour les détails d'un projet"""
+    pole_details = PoleSerializer(source='pole', read_only=True)
+    client_details = UserSimpleSerializer(source='client', read_only=True)
+    chef_projet_details = UserSimpleSerializer(source='chef_projet', read_only=True)
+    membres_details = UserSimpleSerializer(source='membres', many=True, read_only=True)
+    taches = TacheSerializer(many=True, read_only=True)
+    documents = DocumentSerializer(many=True, read_only=True)
+
+    class Meta:
+        model = Projet
+        fields = [
+            'id', 'titre', 'description', 'type', 'statut',
+            'pole', 'pole_details',
+            'client', 'client_details',
+            'chef_projet', 'chef_projet_details',
+            'membres', 'membres_details',
+            'taches', 'documents',
+            'odoo_project_id', 'odoo_invoice_id',
+            'date_debut', 'date_fin_prevue', 'date_fin_reelle',
+            'created_at', 'updated_at'
+        ]
+        read_only_fields = ['id', 'created_at', 'updated_at']
+
+
+class ProjetCreateUpdateSerializer(serializers.ModelSerializer):
+    """Serializer pour la création et modification de projets"""
+
+    class Meta:
+        model = Projet
+        fields = [
+            'id', 'titre', 'description', 'type', 'statut',
+            'pole', 'client', 'chef_projet', 'membres',
+            'date_debut', 'date_fin_prevue', 'date_fin_reelle',
+            'odoo_project_id', 'odoo_invoice_id'
+        ]
+        read_only_fields = ['id']
