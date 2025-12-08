@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 import { fetchProjets } from "../api/projets";
+import FormProjet from "../components/FormProjet";
 
 const TYPE_LABELS = {
   film: "Film",
@@ -32,26 +33,28 @@ const STATUT_COLORS = {
 };
 
 export default function ProjetsList() {
-  const { token } = useAuth();
+  const { token, user } = useAuth();
   const [projets, setProjets] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [showFormProjet, setShowFormProjet] = useState(false);
+
+  const loadProjets = async () => {
+    if (!token) return;
+    try {
+      setLoading(true);
+      const data = await fetchProjets(token);
+      setProjets(data);
+    } catch (err) {
+      console.error("Erreur fetch projets:", err);
+      setError("Impossible de charger les projets");
+    } finally {
+      setLoading(false);
+    }
+  };
 
   useEffect(() => {
-    if (!token) return;
-
-    (async () => {
-      try {
-        setLoading(true);
-        const data = await fetchProjets(token);
-        setProjets(data);
-      } catch (err) {
-        console.error("Erreur fetch projets:", err);
-        setError("Impossible de charger les projets");
-      } finally {
-        setLoading(false);
-      }
-    })();
+    loadProjets();
   }, [token]);
 
   if (loading) {
@@ -66,10 +69,32 @@ export default function ProjetsList() {
     );
   }
 
+  const canCreateProjet = user?.role === "admin" || user?.role === "chef_pole";
+
   return (
     <div style={{ padding: "2rem" }}>
-      <h1>Mes Projets</h1>
-      <p>Liste des projets auxquels vous avez accès</p>
+      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "1rem" }}>
+        <div>
+          <h1 style={{ margin: 0, marginBottom: "0.5rem" }}>Mes Projets</h1>
+          <p style={{ margin: 0, color: "#666" }}>Liste des projets auxquels vous avez accès</p>
+        </div>
+        {canCreateProjet && (
+          <button
+            onClick={() => setShowFormProjet(true)}
+            style={{
+              padding: "0.6rem 1.2rem",
+              backgroundColor: "#27ae60",
+              color: "#fff",
+              border: "none",
+              borderRadius: "4px",
+              cursor: "pointer",
+              fontWeight: "500",
+            }}
+          >
+            + Nouveau projet
+          </button>
+        )}
+      </div>
 
       {projets.length === 0 ? (
         <p style={{ marginTop: "2rem", color: "#666" }}>
@@ -188,6 +213,13 @@ export default function ProjetsList() {
           </tbody>
         </table>
       )}
+
+      {/* Modal de création de projet */}
+      <FormProjet
+        isOpen={showFormProjet}
+        onClose={() => setShowFormProjet(false)}
+        onSuccess={loadProjets}
+      />
     </div>
   );
 }

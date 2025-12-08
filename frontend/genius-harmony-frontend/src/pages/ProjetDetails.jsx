@@ -2,6 +2,8 @@ import { useEffect, useState } from "react";
 import { useParams, Link } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 import { fetchProjetDetails } from "../api/projets";
+import FormTache from "../components/FormTache";
+import UploadDocument from "../components/UploadDocument";
 
 const TYPE_LABELS = {
   film: "Film",
@@ -57,22 +59,25 @@ export default function ProjetDetails() {
   const [projet, setProjet] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [showFormTache, setShowFormTache] = useState(false);
+  const [showUploadDoc, setShowUploadDoc] = useState(false);
+
+  const loadProjet = async () => {
+    if (!token || !id) return;
+    try {
+      setLoading(true);
+      const data = await fetchProjetDetails(token, id);
+      setProjet(data);
+    } catch (err) {
+      console.error("Erreur fetch projet details:", err);
+      setError("Impossible de charger les détails du projet");
+    } finally {
+      setLoading(false);
+    }
+  };
 
   useEffect(() => {
-    if (!token || !id) return;
-
-    (async () => {
-      try {
-        setLoading(true);
-        const data = await fetchProjetDetails(token, id);
-        setProjet(data);
-      } catch (err) {
-        console.error("Erreur fetch projet details:", err);
-        setError("Impossible de charger les détails du projet");
-      } finally {
-        setLoading(false);
-      }
-    })();
+    loadProjet();
   }, [token, id]);
 
   if (loading) {
@@ -214,7 +219,23 @@ export default function ProjetDetails() {
 
       {/* Tâches */}
       <div style={{ marginBottom: "2rem" }}>
-        <h2>Tâches ({projet.taches?.length || 0})</h2>
+        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "1rem" }}>
+          <h2 style={{ margin: 0 }}>Tâches ({projet.taches?.length || 0})</h2>
+          <button
+            onClick={() => setShowFormTache(true)}
+            style={{
+              padding: "0.5rem 1rem",
+              backgroundColor: "#1abc9c",
+              color: "#fff",
+              border: "none",
+              borderRadius: "4px",
+              cursor: "pointer",
+              fontWeight: "500",
+            }}
+          >
+            + Nouvelle tâche
+          </button>
+        </div>
         {!projet.taches || projet.taches.length === 0 ? (
           <p style={{ color: "#666" }}>Aucune tâche pour ce projet.</p>
         ) : (
@@ -266,7 +287,23 @@ export default function ProjetDetails() {
 
       {/* Documents */}
       <div style={{ marginBottom: "2rem" }}>
-        <h2>Documents ({projet.documents?.length || 0})</h2>
+        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "1rem" }}>
+          <h2 style={{ margin: 0 }}>Documents ({projet.documents?.length || 0})</h2>
+          <button
+            onClick={() => setShowUploadDoc(true)}
+            style={{
+              padding: "0.5rem 1rem",
+              backgroundColor: "#3498db",
+              color: "#fff",
+              border: "none",
+              borderRadius: "4px",
+              cursor: "pointer",
+              fontWeight: "500",
+            }}
+          >
+            + Uploader un document
+          </button>
+        </div>
         {!projet.documents || projet.documents.length === 0 ? (
           <p style={{ color: "#666" }}>Aucun document pour ce projet.</p>
         ) : (
@@ -341,6 +378,21 @@ export default function ProjetDetails() {
           )}
         </div>
       )}
+
+      {/* Modals */}
+      <FormTache
+        isOpen={showFormTache}
+        onClose={() => setShowFormTache(false)}
+        projetId={parseInt(id)}
+        onSuccess={loadProjet}
+      />
+
+      <UploadDocument
+        isOpen={showUploadDoc}
+        onClose={() => setShowUploadDoc(false)}
+        projetId={parseInt(id)}
+        onSuccess={loadProjet}
+      />
     </div>
   );
 }
