@@ -5,6 +5,8 @@ import AdminDashboard from "./pages/AdminDashboard";
 import GenericDashboard from "./pages/GenericDashboard";
 import ProtectedRoute from "./components/ProtectedRoute";
 import AdminUsers from "./pages/AdminUsers";
+import ProjetsList from "./pages/ProjetsList";
+import ProjetDetails from "./pages/ProjetDetails";
 
 function App() {
   return (
@@ -40,6 +42,24 @@ function App() {
             element={
               <ProtectedRoute allowedRoles={["admin"]}>
                 <AdminUsers />
+              </ProtectedRoute>
+            }
+          />
+
+          {/* Pages projets - accessibles à tous les utilisateurs connectés */}
+          <Route
+            path="/projets"
+            element={
+              <ProtectedRoute>
+                <ProjetsList />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/projets/:id"
+            element={
+              <ProtectedRoute>
+                <ProjetDetails />
               </ProtectedRoute>
             }
           />
