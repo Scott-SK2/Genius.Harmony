@@ -7,6 +7,7 @@ import ProtectedRoute from "./components/ProtectedRoute";
 import AdminUsers from "./pages/AdminUsers";
 import ProjetsList from "./pages/ProjetsList";
 import ProjetDetails from "./pages/ProjetDetails";
+import KanbanTaches from "./pages/KanbanTaches";
 
 function App() {
   return (
@@ -60,6 +61,16 @@ function App() {
             element={
               <ProtectedRoute>
                 <ProjetDetails />
+              </ProtectedRoute>
+            }
+          />
+
+          {/* Kanban des tâches - accessible à tous les utilisateurs connectés */}
+          <Route
+            path="/kanban"
+            element={
+              <ProtectedRoute>
+                <KanbanTaches />
               </ProtectedRoute>
             }
           />
