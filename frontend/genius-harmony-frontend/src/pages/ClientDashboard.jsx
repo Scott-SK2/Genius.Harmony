@@ -1,10 +1,12 @@
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
+import { useTheme } from "../context/ThemeContext";
 import { fetchProjets } from "../api/projets";
 
 export default function ClientDashboard() {
-  const { user, token, logout } = useAuth();
+  const { user, token } = useAuth();
+  const { theme } = useTheme();
   const [mesProjets, setMesProjets] = useState([]);
   const [loading, setLoading] = useState(true);
 
@@ -29,32 +31,42 @@ export default function ClientDashboard() {
   const projetsEnAttente = mesProjets.filter((p) => p.statut === "en_attente" || p.statut === "brouillon");
 
   if (loading) {
-    return <div style={{ padding: "2rem" }}>Chargement du dashboard...</div>;
+    return (
+      <div
+        style={{
+          display: "flex",
+          justifyContent: "center",
+          alignItems: "center",
+          minHeight: "60vh",
+          color: theme.text.secondary,
+          fontSize: "1.1rem",
+        }}
+      >
+        <div style={{ textAlign: "center" }}>
+          <div style={{ fontSize: "3rem", marginBottom: "1rem" }}>⏳</div>
+          <div>Chargement de vos projets...</div>
+        </div>
+      </div>
+    );
   }
 
   return (
-    <div style={{ padding: "2rem", maxWidth: "1400px" }}>
+    <div>
       {/* En-tête */}
-      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "2rem" }}>
-        <div>
-          <h1 style={{ margin: 0, marginBottom: "0.5rem" }}>Mes Projets</h1>
-          <p style={{ margin: 0, color: "#666" }}>
-            Bienvenue, <strong>{user?.username}</strong>
-          </p>
-        </div>
-        <button
-          onClick={logout}
+      <div style={{ marginBottom: "2rem" }}>
+        <h1
           style={{
-            padding: "0.5rem 1rem",
-            backgroundColor: "#e74c3c",
-            color: "#fff",
-            border: "none",
-            borderRadius: "4px",
-            cursor: "pointer",
+            margin: 0,
+            marginBottom: "0.5rem",
+            color: theme.text.primary,
+            fontSize: "2rem",
           }}
         >
-          Déconnexion
-        </button>
+          Mes Projets
+        </h1>
+        <p style={{ margin: 0, color: theme.text.secondary, fontSize: "1.05rem" }}>
+          Bienvenue, <strong style={{ color: theme.text.primary }}>{user?.username}</strong>
+        </p>
       </div>
 
       {/* Navigation rapide */}
@@ -69,13 +81,24 @@ export default function ClientDashboard() {
         <Link
           to="/projets"
           style={{
-            padding: "1rem",
-            backgroundColor: "#9b59b6",
-            color: "#fff",
+            padding: "1.25rem",
+            backgroundColor: theme.colors.purple,
+            color: theme.text.inverse,
             textDecoration: "none",
-            borderRadius: "8px",
+            borderRadius: "12px",
             textAlign: "center",
-            fontWeight: "500",
+            fontWeight: "600",
+            fontSize: "1.05rem",
+            transition: "all 0.2s",
+            boxShadow: theme.shadow.sm,
+          }}
+          onMouseEnter={(e) => {
+            e.target.style.transform = "translateY(-3px)";
+            e.target.style.boxShadow = theme.shadow.lg;
+          }}
+          onMouseLeave={(e) => {
+            e.target.style.transform = "translateY(0)";
+            e.target.style.boxShadow = theme.shadow.sm;
           }}
         >
           📁 Tous mes projets
@@ -83,126 +106,219 @@ export default function ClientDashboard() {
       </div>
 
       {/* Statistiques */}
-      <h2>Vue d'ensemble</h2>
+      <h2
+        style={{
+          color: theme.text.primary,
+          marginBottom: "1.5rem",
+          fontSize: "1.5rem",
+        }}
+      >
+        Vue d'ensemble
+      </h2>
       <div
         style={{
           display: "grid",
           gridTemplateColumns: "repeat(auto-fit, minmax(200px, 1fr))",
-          gap: "1rem",
-          marginBottom: "2rem",
+          gap: "1.5rem",
+          marginBottom: "2.5rem",
         }}
       >
-        <div
-          style={{
-            padding: "1.5rem",
-            backgroundColor: "#3498db",
-            color: "#fff",
-            borderRadius: "8px",
-            textAlign: "center",
-          }}
-        >
-          <div style={{ fontSize: "2.5rem", fontWeight: "bold" }}>{mesProjets.length}</div>
-          <div style={{ fontSize: "0.95rem", opacity: 0.9 }}>Projets total</div>
-        </div>
-
-        <div
-          style={{
-            padding: "1.5rem",
-            backgroundColor: "#f39c12",
-            color: "#fff",
-            borderRadius: "8px",
-            textAlign: "center",
-          }}
-        >
-          <div style={{ fontSize: "2.5rem", fontWeight: "bold" }}>{projetsEnCours.length}</div>
-          <div style={{ fontSize: "0.95rem", opacity: 0.9 }}>En cours</div>
-        </div>
-
-        <div
-          style={{
-            padding: "1.5rem",
-            backgroundColor: "#27ae60",
-            color: "#fff",
-            borderRadius: "8px",
-            textAlign: "center",
-          }}
-        >
-          <div style={{ fontSize: "2.5rem", fontWeight: "bold" }}>{projetsTermines.length}</div>
-          <div style={{ fontSize: "0.95rem", opacity: 0.9 }}>Terminés</div>
-        </div>
-
-        <div
-          style={{
-            padding: "1.5rem",
-            backgroundColor: "#95a5a6",
-            color: "#fff",
-            borderRadius: "8px",
-            textAlign: "center",
-          }}
-        >
-          <div style={{ fontSize: "2.5rem", fontWeight: "bold" }}>{projetsEnAttente.length}</div>
-          <div style={{ fontSize: "0.95rem", opacity: 0.9 }}>En attente</div>
-        </div>
+        {[
+          { icon: "📁", label: "Total", value: mesProjets.length, color: theme.colors.primary },
+          { icon: "⚡", label: "En cours", value: projetsEnCours.length, color: theme.colors.warning },
+          { icon: "✓", label: "Terminés", value: projetsTermines.length, color: theme.colors.success },
+          { icon: "⏳", label: "En attente", value: projetsEnAttente.length, color: theme.text.secondary },
+        ].map((stat, index) => (
+          <div
+            key={index}
+            style={{
+              backgroundColor: theme.bg.card,
+              borderRadius: "16px",
+              padding: "2rem",
+              boxShadow: theme.shadow.md,
+              border: `1px solid ${theme.border.light}`,
+              transition: "all 0.3s",
+              cursor: "default",
+            }}
+            onMouseEnter={(e) => {
+              e.currentTarget.style.transform = "translateY(-4px)";
+              e.currentTarget.style.boxShadow = theme.shadow.xl;
+            }}
+            onMouseLeave={(e) => {
+              e.currentTarget.style.transform = "translateY(0)";
+              e.currentTarget.style.boxShadow = theme.shadow.md;
+            }}
+          >
+            <div
+              style={{
+                display: "flex",
+                alignItems: "center",
+                gap: "1rem",
+              }}
+            >
+              <div
+                style={{
+                  width: "60px",
+                  height: "60px",
+                  borderRadius: "12px",
+                  backgroundColor: `${stat.color}20`,
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  fontSize: "2rem",
+                }}
+              >
+                {stat.icon}
+              </div>
+              <div>
+                <div
+                  style={{
+                    fontSize: "0.9rem",
+                    color: theme.text.secondary,
+                    fontWeight: "500",
+                    marginBottom: "0.25rem",
+                  }}
+                >
+                  {stat.label}
+                </div>
+                <div
+                  style={{
+                    fontSize: "2.5rem",
+                    fontWeight: "700",
+                    color: theme.text.primary,
+                    lineHeight: 1,
+                  }}
+                >
+                  {stat.value}
+                </div>
+              </div>
+            </div>
+          </div>
+        ))}
       </div>
 
       {/* Projets en cours */}
-      <h2>Projets en cours</h2>
+      <h2
+        style={{
+          color: theme.text.primary,
+          marginBottom: "1.5rem",
+          fontSize: "1.5rem",
+        }}
+      >
+        Projets en cours
+      </h2>
       {projetsEnCours.length === 0 ? (
-        <p style={{ color: "#666" }}>Aucun projet en cours.</p>
+        <div
+          style={{
+            textAlign: "center",
+            padding: "3rem",
+            backgroundColor: theme.bg.card,
+            borderRadius: "12px",
+            border: `1px dashed ${theme.border.medium}`,
+            marginBottom: "2.5rem",
+          }}
+        >
+          <div style={{ fontSize: "3rem", marginBottom: "1rem" }}>📂</div>
+          <p style={{ color: theme.text.secondary, margin: 0 }}>
+            Aucun projet en cours pour le moment.
+          </p>
+        </div>
       ) : (
-        <div style={{ display: "grid", gap: "1rem", marginBottom: "2rem" }}>
+        <div style={{ display: "grid", gap: "1.5rem", marginBottom: "2.5rem" }}>
           {projetsEnCours.map((projet) => (
             <Link
               key={projet.id}
               to={`/projets/${projet.id}`}
               style={{
-                padding: "1.5rem",
-                backgroundColor: "#fff",
-                border: "2px solid #3498db",
-                borderRadius: "8px",
+                padding: "2rem",
+                backgroundColor: theme.bg.card,
+                border: `2px solid ${theme.colors.primary}40`,
+                borderRadius: "16px",
                 textDecoration: "none",
                 color: "inherit",
+                transition: "all 0.2s",
+                boxShadow: theme.shadow.md,
+              }}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.transform = "translateY(-4px)";
+                e.currentTarget.style.boxShadow = theme.shadow.xl;
+                e.currentTarget.style.borderColor = theme.colors.primary;
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.transform = "translateY(0)";
+                e.currentTarget.style.boxShadow = theme.shadow.md;
+                e.currentTarget.style.borderColor = `${theme.colors.primary}40`;
               }}
             >
-              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "start", marginBottom: "0.75rem" }}>
-                <div>
-                  <h3 style={{ margin: 0, marginBottom: "0.5rem" }}>{projet.titre}</h3>
-                  <div style={{ fontSize: "0.9rem", color: "#666" }}>
+              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "start", marginBottom: "1rem" }}>
+                <div style={{ flex: 1 }}>
+                  <h3
+                    style={{
+                      margin: 0,
+                      marginBottom: "0.75rem",
+                      color: theme.text.primary,
+                      fontSize: "1.3rem",
+                      fontWeight: "600",
+                    }}
+                  >
+                    {projet.titre}
+                  </h3>
+                  <div style={{ fontSize: "0.95rem", color: theme.text.secondary }}>
                     {projet.type && (
-                      <span style={{ marginRight: "1rem" }}>
-                        Type: {projet.type}
+                      <span style={{ marginRight: "1.5rem" }}>
+                        📋 Type: <strong>{projet.type}</strong>
                       </span>
                     )}
                     {projet.pole_name && (
-                      <span>Pôle: {projet.pole_name}</span>
+                      <span>🎯 Pôle: <strong>{projet.pole_name}</strong></span>
                     )}
                   </div>
                 </div>
                 <div
                   style={{
-                    padding: "0.4rem 0.8rem",
-                    backgroundColor: "#3498db",
-                    color: "#fff",
-                    borderRadius: "4px",
+                    padding: "0.5rem 1rem",
+                    backgroundColor: `${theme.colors.primary}20`,
+                    color: theme.colors.primary,
+                    borderRadius: "8px",
                     fontSize: "0.85rem",
+                    fontWeight: "600",
+                    border: `1px solid ${theme.colors.primary}40`,
+                    whiteSpace: "nowrap",
                   }}
                 >
-                  En cours
+                  ⚡ En cours
                 </div>
               </div>
 
-              <div style={{ fontSize: "0.85rem", color: "#666", marginBottom: "0.5rem" }}>
+              <div
+                style={{
+                  fontSize: "0.9rem",
+                  color: theme.text.secondary,
+                  marginBottom: "1rem",
+                  paddingTop: "1rem",
+                  borderTop: `1px solid ${theme.border.light}`,
+                }}
+              >
                 {projet.chef_projet_username && (
-                  <div>Chef de projet: <strong>{projet.chef_projet_username}</strong></div>
+                  <div style={{ marginBottom: "0.5rem" }}>
+                    👤 Chef de projet: <strong style={{ color: theme.text.primary }}>{projet.chef_projet_username}</strong>
+                  </div>
                 )}
                 <div>
-                  {projet.nombre_taches || 0} tâches · {projet.nombre_membres || 0} membres
+                  ✓ {projet.nombre_taches || 0} tâches · 👥 {projet.nombre_membres || 0} membres
                 </div>
               </div>
 
               {projet.date_debut && (
-                <div style={{ fontSize: "0.8rem", color: "#999", marginTop: "0.5rem" }}>
-                  Démarré le {new Date(projet.date_debut).toLocaleDateString("fr-FR")}
+                <div
+                  style={{
+                    fontSize: "0.85rem",
+                    color: theme.text.tertiary,
+                    paddingTop: "0.75rem",
+                    borderTop: `1px solid ${theme.border.light}`,
+                  }}
+                >
+                  📅 Démarré le {new Date(projet.date_debut).toLocaleDateString("fr-FR")}
                 </div>
               )}
             </Link>
@@ -211,57 +327,102 @@ export default function ClientDashboard() {
       )}
 
       {/* Tous les projets */}
-      <h2>Tous mes projets</h2>
+      <h2
+        style={{
+          color: theme.text.primary,
+          marginBottom: "1.5rem",
+          fontSize: "1.5rem",
+        }}
+      >
+        Tous mes projets
+      </h2>
       {mesProjets.length === 0 ? (
-        <p style={{ color: "#666" }}>Vous n'avez pas encore de projets.</p>
+        <div
+          style={{
+            textAlign: "center",
+            padding: "3rem",
+            backgroundColor: theme.bg.card,
+            borderRadius: "12px",
+            border: `1px dashed ${theme.border.medium}`,
+          }}
+        >
+          <div style={{ fontSize: "3rem", marginBottom: "1rem" }}>📂</div>
+          <p style={{ color: theme.text.secondary, margin: 0 }}>
+            Vous n'avez pas encore de projets.
+          </p>
+        </div>
       ) : (
-        <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(300px, 1fr))", gap: "1rem" }}>
-          {mesProjets.map((projet) => (
-            <Link
-              key={projet.id}
-              to={`/projets/${projet.id}`}
-              style={{
-                padding: "1rem",
-                backgroundColor: "#f8f9fa",
-                border: "1px solid #e0e0e0",
-                borderRadius: "8px",
-                textDecoration: "none",
-                color: "inherit",
-              }}
-            >
-              <div style={{ fontWeight: "500", marginBottom: "0.5rem", fontSize: "1.1rem" }}>
-                {projet.titre}
-              </div>
-              <div style={{ fontSize: "0.85rem", color: "#666", marginBottom: "0.75rem" }}>
-                {projet.nombre_taches || 0} tâches · {projet.nombre_membres || 0} membres
-              </div>
-              <div
+        <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(300px, 1fr))", gap: "1.5rem" }}>
+          {mesProjets.map((projet) => {
+            const statusConfig = {
+              en_cours: { color: theme.colors.primary, label: "En cours", icon: "⚡" },
+              termine: { color: theme.colors.success, label: "Terminé", icon: "✓" },
+              en_attente: { color: theme.colors.warning, label: "En attente", icon: "⏳" },
+              brouillon: { color: theme.text.secondary, label: "Brouillon", icon: "📝" },
+            };
+            const config = statusConfig[projet.statut] || statusConfig.brouillon;
+
+            return (
+              <Link
+                key={projet.id}
+                to={`/projets/${projet.id}`}
                 style={{
-                  display: "inline-block",
-                  padding: "0.3rem 0.6rem",
-                  backgroundColor:
-                    projet.statut === "en_cours"
-                      ? "#3498db"
-                      : projet.statut === "termine"
-                      ? "#27ae60"
-                      : projet.statut === "en_attente"
-                      ? "#f39c12"
-                      : "#95a5a6",
-                  color: "#fff",
-                  borderRadius: "4px",
-                  fontSize: "0.8rem",
+                  padding: "1.5rem",
+                  backgroundColor: theme.bg.card,
+                  border: `1px solid ${theme.border.light}`,
+                  borderRadius: "12px",
+                  textDecoration: "none",
+                  color: "inherit",
+                  transition: "all 0.2s",
+                  boxShadow: theme.shadow.sm,
+                }}
+                onMouseEnter={(e) => {
+                  e.currentTarget.style.transform = "translateY(-4px)";
+                  e.currentTarget.style.boxShadow = theme.shadow.lg;
+                  e.currentTarget.style.borderColor = theme.colors.primary;
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.transform = "translateY(0)";
+                  e.currentTarget.style.boxShadow = theme.shadow.sm;
+                  e.currentTarget.style.borderColor = theme.border.light;
                 }}
               >
-                {projet.statut === "en_cours"
-                  ? "En cours"
-                  : projet.statut === "termine"
-                  ? "Terminé"
-                  : projet.statut === "en_attente"
-                  ? "En attente"
-                  : "Brouillon"}
-              </div>
-            </Link>
-          ))}
+                <div
+                  style={{
+                    fontWeight: "600",
+                    marginBottom: "0.75rem",
+                    fontSize: "1.1rem",
+                    color: theme.text.primary,
+                  }}
+                >
+                  {projet.titre}
+                </div>
+                <div
+                  style={{
+                    fontSize: "0.9rem",
+                    color: theme.text.secondary,
+                    marginBottom: "1rem",
+                  }}
+                >
+                  {projet.nombre_taches || 0} tâches · {projet.nombre_membres || 0} membres
+                </div>
+                <div
+                  style={{
+                    display: "inline-block",
+                    padding: "0.5rem 1rem",
+                    backgroundColor: `${config.color}20`,
+                    color: config.color,
+                    borderRadius: "8px",
+                    fontSize: "0.85rem",
+                    fontWeight: "600",
+                    border: `1px solid ${config.color}40`,
+                  }}
+                >
+                  {config.icon} {config.label}
+                </div>
+              </Link>
+            );
+          })}
         </div>
       )}
     </div>
