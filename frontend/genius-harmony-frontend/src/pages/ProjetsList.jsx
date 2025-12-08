@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
+import { useTheme } from "../context/ThemeContext";
 import { fetchProjets } from "../api/projets";
 import FormProjet from "../components/FormProjet";
 
@@ -23,17 +24,9 @@ const STATUT_LABELS = {
   annule: "Annulé",
 };
 
-const STATUT_COLORS = {
-  brouillon: "#999",
-  en_attente: "#f39c12",
-  en_cours: "#3498db",
-  en_revision: "#9b59b6",
-  termine: "#27ae60",
-  annule: "#e74c3c",
-};
-
 export default function ProjetsList() {
   const { token, user } = useAuth();
+  const { theme } = useTheme();
   const [projets, setProjets] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -57,13 +50,46 @@ export default function ProjetsList() {
     loadProjets();
   }, [token]);
 
+  const STATUT_COLORS = {
+    brouillon: theme.text.secondary,
+    en_attente: theme.colors.warning,
+    en_cours: theme.colors.primary,
+    en_revision: theme.colors.purple,
+    termine: theme.colors.success,
+    annule: theme.colors.danger,
+  };
+
   if (loading) {
-    return <div style={{ padding: "2rem" }}>Chargement des projets...</div>;
+    return (
+      <div
+        style={{
+          display: "flex",
+          justifyContent: "center",
+          alignItems: "center",
+          minHeight: "60vh",
+          color: theme.text.secondary,
+          fontSize: "1.1rem",
+        }}
+      >
+        <div style={{ textAlign: "center" }}>
+          <div style={{ fontSize: "3rem", marginBottom: "1rem" }}>⏳</div>
+          <div>Chargement des projets...</div>
+        </div>
+      </div>
+    );
   }
 
   if (error) {
     return (
-      <div style={{ padding: "2rem", color: "#e74c3c" }}>
+      <div
+        style={{
+          padding: "2rem",
+          backgroundColor: `${theme.colors.danger}10`,
+          border: `1px solid ${theme.colors.danger}`,
+          borderRadius: "12px",
+          color: theme.colors.danger,
+        }}
+      >
         <strong>Erreur :</strong> {error}
       </div>
     );
@@ -72,23 +98,52 @@ export default function ProjetsList() {
   const canCreateProjet = user?.role === "admin" || user?.role === "chef_pole";
 
   return (
-    <div style={{ padding: "2rem" }}>
-      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "1rem" }}>
+    <div>
+      <div
+        style={{
+          display: "flex",
+          justifyContent: "space-between",
+          alignItems: "center",
+          marginBottom: "2rem",
+        }}
+      >
         <div>
-          <h1 style={{ margin: 0, marginBottom: "0.5rem" }}>Mes Projets</h1>
-          <p style={{ margin: 0, color: "#666" }}>Liste des projets auxquels vous avez accès</p>
+          <h1
+            style={{
+              margin: 0,
+              marginBottom: "0.5rem",
+              color: theme.text.primary,
+              fontSize: "2rem",
+            }}
+          >
+            Mes Projets
+          </h1>
+          <p style={{ margin: 0, color: theme.text.secondary, fontSize: "1.05rem" }}>
+            Liste des projets auxquels vous avez accès
+          </p>
         </div>
         {canCreateProjet && (
           <button
             onClick={() => setShowFormProjet(true)}
             style={{
-              padding: "0.6rem 1.2rem",
-              backgroundColor: "#27ae60",
-              color: "#fff",
+              padding: "0.75rem 1.5rem",
+              backgroundColor: theme.colors.success,
+              color: theme.text.inverse,
               border: "none",
-              borderRadius: "4px",
+              borderRadius: "8px",
               cursor: "pointer",
-              fontWeight: "500",
+              fontWeight: "600",
+              fontSize: "1rem",
+              transition: "all 0.2s",
+              boxShadow: theme.shadow.sm,
+            }}
+            onMouseEnter={(e) => {
+              e.target.style.transform = "translateY(-2px)";
+              e.target.style.boxShadow = theme.shadow.md;
+            }}
+            onMouseLeave={(e) => {
+              e.target.style.transform = "translateY(0)";
+              e.target.style.boxShadow = theme.shadow.sm;
             }}
           >
             + Nouveau projet
@@ -97,121 +152,227 @@ export default function ProjetsList() {
       </div>
 
       {projets.length === 0 ? (
-        <p style={{ marginTop: "2rem", color: "#666" }}>
-          Aucun projet trouvé. Vous n'avez accès à aucun projet pour le moment.
-        </p>
-      ) : (
-        <table
+        <div
           style={{
-            width: "100%",
-            borderCollapse: "collapse",
-            marginTop: "1.5rem",
+            textAlign: "center",
+            padding: "4rem 2rem",
+            backgroundColor: theme.bg.card,
+            borderRadius: "12px",
+            border: `1px dashed ${theme.border.medium}`,
           }}
         >
-          <thead>
-            <tr>
-              <th style={{ borderBottom: "2px solid #ccc", textAlign: "left", padding: "0.75rem" }}>
-                Titre
-              </th>
-              <th style={{ borderBottom: "2px solid #ccc", textAlign: "left", padding: "0.75rem" }}>
-                Type
-              </th>
-              <th style={{ borderBottom: "2px solid #ccc", textAlign: "left", padding: "0.75rem" }}>
-                Statut
-              </th>
-              <th style={{ borderBottom: "2px solid #ccc", textAlign: "left", padding: "0.75rem" }}>
-                Pôle
-              </th>
-              <th style={{ borderBottom: "2px solid #ccc", textAlign: "left", padding: "0.75rem" }}>
-                Client
-              </th>
-              <th style={{ borderBottom: "2px solid #ccc", textAlign: "left", padding: "0.75rem" }}>
-                Chef de projet
-              </th>
-              <th style={{ borderBottom: "2px solid #ccc", textAlign: "center", padding: "0.75rem" }}>
-                Tâches
-              </th>
-              <th style={{ borderBottom: "2px solid #ccc", textAlign: "center", padding: "0.75rem" }}>
-                Membres
-              </th>
-            </tr>
-          </thead>
-          <tbody>
-            {projets.map((projet) => (
-              <tr key={projet.id} style={{ borderBottom: "1px solid #eee" }}>
-                <td style={{ padding: "0.75rem" }}>
-                  <Link
-                    to={`/projets/${projet.id}`}
-                    style={{
-                      color: "#3498db",
-                      textDecoration: "none",
-                      fontWeight: "500",
-                    }}
-                  >
-                    {projet.titre}
-                  </Link>
-                </td>
-                <td style={{ padding: "0.75rem" }}>
-                  <span style={{ fontSize: "0.9rem", color: "#666" }}>
-                    {TYPE_LABELS[projet.type] || projet.type}
-                  </span>
-                </td>
-                <td style={{ padding: "0.75rem" }}>
-                  <span
-                    style={{
-                      display: "inline-block",
-                      padding: "0.25rem 0.5rem",
-                      borderRadius: "4px",
-                      fontSize: "0.85rem",
-                      fontWeight: "500",
-                      backgroundColor: STATUT_COLORS[projet.statut] || "#999",
-                      color: "#fff",
-                    }}
-                  >
-                    {STATUT_LABELS[projet.statut] || projet.statut}
-                  </span>
-                </td>
-                <td style={{ padding: "0.75rem", fontSize: "0.9rem" }}>
-                  {projet.pole_name || "—"}
-                </td>
-                <td style={{ padding: "0.75rem", fontSize: "0.9rem" }}>
-                  {projet.client_username || "—"}
-                </td>
-                <td style={{ padding: "0.75rem", fontSize: "0.9rem" }}>
-                  {projet.chef_projet_username || "—"}
-                </td>
-                <td style={{ padding: "0.75rem", textAlign: "center" }}>
-                  <span
-                    style={{
-                      display: "inline-block",
-                      padding: "0.25rem 0.5rem",
-                      backgroundColor: "#ecf0f1",
-                      borderRadius: "4px",
-                      fontSize: "0.85rem",
-                      fontWeight: "600",
-                    }}
-                  >
-                    {projet.nombre_taches || 0}
-                  </span>
-                </td>
-                <td style={{ padding: "0.75rem", textAlign: "center" }}>
-                  <span
-                    style={{
-                      display: "inline-block",
-                      padding: "0.25rem 0.5rem",
-                      backgroundColor: "#ecf0f1",
-                      borderRadius: "4px",
-                      fontSize: "0.85rem",
-                      fontWeight: "600",
-                    }}
-                  >
-                    {projet.nombre_membres || 0}
-                  </span>
-                </td>
+          <div style={{ fontSize: "4rem", marginBottom: "1rem" }}>📂</div>
+          <p style={{ margin: 0, color: theme.text.secondary, fontSize: "1.1rem" }}>
+            Aucun projet trouvé. Vous n'avez accès à aucun projet pour le moment.
+          </p>
+        </div>
+      ) : (
+        <div
+          style={{
+            backgroundColor: theme.bg.card,
+            borderRadius: "12px",
+            border: `1px solid ${theme.border.light}`,
+            overflow: "hidden",
+            boxShadow: theme.shadow.md,
+          }}
+        >
+          <table
+            style={{
+              width: "100%",
+              borderCollapse: "collapse",
+            }}
+          >
+            <thead>
+              <tr style={{ backgroundColor: theme.bg.secondary }}>
+                <th
+                  style={{
+                    borderBottom: `2px solid ${theme.border.medium}`,
+                    textAlign: "left",
+                    padding: "1rem",
+                    color: theme.text.primary,
+                    fontWeight: "600",
+                  }}
+                >
+                  Titre
+                </th>
+                <th
+                  style={{
+                    borderBottom: `2px solid ${theme.border.medium}`,
+                    textAlign: "left",
+                    padding: "1rem",
+                    color: theme.text.primary,
+                    fontWeight: "600",
+                  }}
+                >
+                  Type
+                </th>
+                <th
+                  style={{
+                    borderBottom: `2px solid ${theme.border.medium}`,
+                    textAlign: "left",
+                    padding: "1rem",
+                    color: theme.text.primary,
+                    fontWeight: "600",
+                  }}
+                >
+                  Statut
+                </th>
+                <th
+                  style={{
+                    borderBottom: `2px solid ${theme.border.medium}`,
+                    textAlign: "left",
+                    padding: "1rem",
+                    color: theme.text.primary,
+                    fontWeight: "600",
+                  }}
+                >
+                  Pôle
+                </th>
+                <th
+                  style={{
+                    borderBottom: `2px solid ${theme.border.medium}`,
+                    textAlign: "left",
+                    padding: "1rem",
+                    color: theme.text.primary,
+                    fontWeight: "600",
+                  }}
+                >
+                  Client
+                </th>
+                <th
+                  style={{
+                    borderBottom: `2px solid ${theme.border.medium}`,
+                    textAlign: "left",
+                    padding: "1rem",
+                    color: theme.text.primary,
+                    fontWeight: "600",
+                  }}
+                >
+                  Chef de projet
+                </th>
+                <th
+                  style={{
+                    borderBottom: `2px solid ${theme.border.medium}`,
+                    textAlign: "center",
+                    padding: "1rem",
+                    color: theme.text.primary,
+                    fontWeight: "600",
+                  }}
+                >
+                  Tâches
+                </th>
+                <th
+                  style={{
+                    borderBottom: `2px solid ${theme.border.medium}`,
+                    textAlign: "center",
+                    padding: "1rem",
+                    color: theme.text.primary,
+                    fontWeight: "600",
+                  }}
+                >
+                  Membres
+                </th>
               </tr>
-            ))}
-          </tbody>
-        </table>
+            </thead>
+            <tbody>
+              {projets.map((projet, index) => (
+                <tr
+                  key={projet.id}
+                  style={{
+                    borderBottom: `1px solid ${theme.border.light}`,
+                    backgroundColor: index % 2 === 0 ? theme.bg.card : theme.bg.tertiary,
+                    transition: "background-color 0.2s",
+                  }}
+                  onMouseEnter={(e) => {
+                    e.currentTarget.style.backgroundColor = theme.bg.hover;
+                  }}
+                  onMouseLeave={(e) => {
+                    e.currentTarget.style.backgroundColor = index % 2 === 0 ? theme.bg.card : theme.bg.tertiary;
+                  }}
+                >
+                  <td style={{ padding: "1rem" }}>
+                    <Link
+                      to={`/projets/${projet.id}`}
+                      style={{
+                        color: theme.colors.primary,
+                        textDecoration: "none",
+                        fontWeight: "600",
+                      }}
+                      onMouseEnter={(e) => {
+                        e.target.style.textDecoration = "underline";
+                      }}
+                      onMouseLeave={(e) => {
+                        e.target.style.textDecoration = "none";
+                      }}
+                    >
+                      {projet.titre}
+                    </Link>
+                  </td>
+                  <td style={{ padding: "1rem" }}>
+                    <span style={{ fontSize: "0.9rem", color: theme.text.secondary }}>
+                      {TYPE_LABELS[projet.type] || projet.type}
+                    </span>
+                  </td>
+                  <td style={{ padding: "1rem" }}>
+                    <span
+                      style={{
+                        display: "inline-block",
+                        padding: "0.4rem 0.75rem",
+                        borderRadius: "6px",
+                        fontSize: "0.85rem",
+                        fontWeight: "600",
+                        backgroundColor: `${STATUT_COLORS[projet.statut] || theme.text.secondary}20`,
+                        color: STATUT_COLORS[projet.statut] || theme.text.secondary,
+                        border: `1px solid ${STATUT_COLORS[projet.statut] || theme.text.secondary}40`,
+                      }}
+                    >
+                      {STATUT_LABELS[projet.statut] || projet.statut}
+                    </span>
+                  </td>
+                  <td style={{ padding: "1rem", fontSize: "0.9rem", color: theme.text.secondary }}>
+                    {projet.pole_name || "—"}
+                  </td>
+                  <td style={{ padding: "1rem", fontSize: "0.9rem", color: theme.text.secondary }}>
+                    {projet.client_username || "—"}
+                  </td>
+                  <td style={{ padding: "1rem", fontSize: "0.9rem", color: theme.text.secondary }}>
+                    {projet.chef_projet_username || "—"}
+                  </td>
+                  <td style={{ padding: "1rem", textAlign: "center" }}>
+                    <span
+                      style={{
+                        display: "inline-block",
+                        padding: "0.4rem 0.75rem",
+                        backgroundColor: theme.bg.secondary,
+                        borderRadius: "6px",
+                        fontSize: "0.85rem",
+                        fontWeight: "600",
+                        color: theme.text.primary,
+                      }}
+                    >
+                      {projet.nombre_taches || 0}
+                    </span>
+                  </td>
+                  <td style={{ padding: "1rem", textAlign: "center" }}>
+                    <span
+                      style={{
+                        display: "inline-block",
+                        padding: "0.4rem 0.75rem",
+                        backgroundColor: theme.bg.secondary,
+                        borderRadius: "6px",
+                        fontSize: "0.85rem",
+                        fontWeight: "600",
+                        color: theme.text.primary,
+                      }}
+                    >
+                      {projet.nombre_membres || 0}
+                    </span>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
       )}
 
       {/* Modal de création de projet */}
