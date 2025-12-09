@@ -85,19 +85,34 @@ export default function Navbar() {
         </Link>
 
         {user.role === "admin" && (
-          <Link
-            to="/admin/users"
-            style={{
-              color: theme.text.primary,
-              textDecoration: "none",
-              fontWeight: "500",
-              transition: "color 0.2s",
-            }}
-            onMouseEnter={(e) => (e.target.style.color = theme.colors.primary)}
-            onMouseLeave={(e) => (e.target.style.color = theme.text.primary)}
-          >
-            👥 Utilisateurs
-          </Link>
+          <>
+            <Link
+              to="/admin/users"
+              style={{
+                color: theme.text.primary,
+                textDecoration: "none",
+                fontWeight: "500",
+                transition: "color 0.2s",
+              }}
+              onMouseEnter={(e) => (e.target.style.color = theme.colors.primary)}
+              onMouseLeave={(e) => (e.target.style.color = theme.text.primary)}
+            >
+              👥 Utilisateurs
+            </Link>
+            <Link
+              to="/admin/poles"
+              style={{
+                color: theme.text.primary,
+                textDecoration: "none",
+                fontWeight: "500",
+                transition: "color 0.2s",
+              }}
+              onMouseEnter={(e) => (e.target.style.color = theme.colors.primary)}
+              onMouseLeave={(e) => (e.target.style.color = theme.text.primary)}
+            >
+              🎯 Pôles
+            </Link>
+          </>
         )}
       </div>
 

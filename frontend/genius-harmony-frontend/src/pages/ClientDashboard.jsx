@@ -53,56 +53,20 @@ export default function ClientDashboard() {
   return (
     <div>
       {/* En-tête */}
-      <div style={{ marginBottom: "2rem" }}>
+      <div style={{ marginBottom: "3rem", textAlign: "center" }}>
         <h1
           style={{
             margin: 0,
-            marginBottom: "0.5rem",
+            marginBottom: "0.75rem",
             color: theme.text.primary,
-            fontSize: "2rem",
+            fontSize: "2.2rem",
           }}
         >
           Mes Projets
         </h1>
-        <p style={{ margin: 0, color: theme.text.secondary, fontSize: "1.05rem" }}>
+        <p style={{ margin: 0, color: theme.text.secondary, fontSize: "1.1rem" }}>
           Bienvenue, <strong style={{ color: theme.text.primary }}>{user?.username}</strong>
         </p>
-      </div>
-
-      {/* Navigation rapide */}
-      <div
-        style={{
-          display: "grid",
-          gridTemplateColumns: "repeat(auto-fit, minmax(200px, 1fr))",
-          gap: "1rem",
-          marginBottom: "2rem",
-        }}
-      >
-        <Link
-          to="/projets"
-          style={{
-            padding: "1.25rem",
-            backgroundColor: theme.colors.purple,
-            color: theme.text.inverse,
-            textDecoration: "none",
-            borderRadius: "12px",
-            textAlign: "center",
-            fontWeight: "600",
-            fontSize: "1.05rem",
-            transition: "all 0.2s",
-            boxShadow: theme.shadow.sm,
-          }}
-          onMouseEnter={(e) => {
-            e.target.style.transform = "translateY(-3px)";
-            e.target.style.boxShadow = theme.shadow.lg;
-          }}
-          onMouseLeave={(e) => {
-            e.target.style.transform = "translateY(0)";
-            e.target.style.boxShadow = theme.shadow.sm;
-          }}
-        >
-          📁 Tous mes projets
-        </Link>
       </div>
 
       {/* Statistiques */}

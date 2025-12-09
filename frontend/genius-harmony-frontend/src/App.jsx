@@ -7,6 +7,7 @@ import AdminDashboard from "./pages/AdminDashboard";
 import GenericDashboard from "./pages/GenericDashboard";
 import ProtectedRoute from "./components/ProtectedRoute";
 import AdminUsers from "./pages/AdminUsers";
+import AdminPoles from "./pages/AdminPoles";
 import ProjetsList from "./pages/ProjetsList";
 import ProjetDetails from "./pages/ProjetDetails";
 import KanbanTaches from "./pages/KanbanTaches";
@@ -53,6 +54,18 @@ function App() {
                 <ProtectedRoute allowedRoles={["admin"]}>
                   <Layout>
                     <AdminUsers />
+                  </Layout>
+                </ProtectedRoute>
+              }
+            />
+
+            {/* gestion pôles admin */}
+            <Route
+              path="/admin/poles"
+              element={
+                <ProtectedRoute allowedRoles={["admin"]}>
+                  <Layout>
+                    <AdminPoles />
                   </Layout>
                 </ProtectedRoute>
               }
