@@ -40,7 +40,7 @@ class RegisterSerializer(serializers.ModelSerializer):
         # Récupérer le profil créé automatiquement par le SIGNAL
         profile = user.profile
         profile.role = role
-        if role in ['client', 'partenaire']:
+        if role in ['artiste', 'client', 'partenaire']:
             profile.client_type = client_type
         profile.save()
 
