@@ -18,8 +18,8 @@ class AdminUserSerializer(serializers.ModelSerializer):
         read_only_fields = ["id", "date_joined", "username"]
 
 class RegisterSerializer(serializers.ModelSerializer):
-    role = serializers.ChoiceField(choices=Profile.ROLE_CHOICES)
-    client_type = serializers.CharField(required=False, allow_blank=True)
+    role = serializers.ChoiceField(choices=Profile.ROLE_CHOICES, write_only=True)
+    client_type = serializers.CharField(required=False, allow_blank=True, write_only=True)
 
     class Meta:
         model = User
