@@ -47,9 +47,15 @@ class RegisterSerializer(serializers.ModelSerializer):
         return user
 
 class PoleSerializer(serializers.ModelSerializer):
+    chef_username = serializers.CharField(source='chef.username', read_only=True)
+    chef_email = serializers.CharField(source='chef.email', read_only=True)
+
     class Meta:
         model = Pole
-        fields = ['id', 'name', 'description']
+        fields = ['id', 'name', 'description', 'chef', 'chef_username', 'chef_email']
+        extra_kwargs = {
+            'chef': {'required': False, 'allow_null': True}
+        }
 
 class UserProfileSerializer(serializers.ModelSerializer):
     role = serializers.CharField(source='profile.role')

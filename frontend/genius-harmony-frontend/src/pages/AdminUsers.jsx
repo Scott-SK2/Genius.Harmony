@@ -9,7 +9,9 @@ const ROLE_LABELS = {
   chef_pole: "Chef de pôle",
   membre: "Membre",
   stagiaire: "Stagiaire",
-  client: "Client / Artiste",
+  technicien: "Technicien",
+  artiste: "Artiste",
+  client: "Client",
   partenaire: "Partenaire",
 };
 
@@ -18,6 +20,8 @@ const ROLE_OPTIONS = [
   "chef_pole",
   "membre",
   "stagiaire",
+  "technicien",
+  "artiste",
   "client",
   "partenaire",
 ];

@@ -83,8 +83,8 @@ class CanViewProjet(permissions.BasePermission):
     Permission pour voir les projets selon le rôle :
     - Admin : voit tout
     - Chef de pôle : voit les projets de son pôle
-    - Membre/Stagiaire : voit les projets où il est membre ou assigné
-    - Client : voit ses propres projets
+    - Membre/Stagiaire/Technicien : voient TOUS les projets (lecture universelle)
+    - Artiste/Client/Partenaire : voient leurs propres projets
     """
 
     def has_permission(self, request, view):
@@ -106,16 +106,13 @@ class CanViewProjet(permissions.BasePermission):
         if profile.role == 'chef_pole' and profile.pole:
             return obj.pole == profile.pole
 
-        # Client voit ses propres projets
-        if profile.role in ['client', 'partenaire']:
-            return obj.client == user
+        # Membre/Stagiaire/Technicien voient TOUS les projets (lecture universelle)
+        if profile.role in ['membre', 'stagiaire', 'technicien']:
+            return True
 
-        # Membre/Stagiaire voit les projets où il est membre ou chef
-        if profile.role in ['membre', 'stagiaire']:
-            return (
-                obj.chef_projet == user or
-                user in obj.membres.all()
-            )
+        # Artiste/Client/Partenaire voient leurs propres projets
+        if profile.role in ['artiste', 'client', 'partenaire']:
+            return obj.client == user
 
         return False
 
@@ -187,15 +184,13 @@ class ProjetListCreateView(generics.ListCreateAPIView):
         if profile.role == 'chef_pole' and profile.pole:
             return Projet.objects.filter(pole=profile.pole).select_related('pole', 'client', 'chef_projet').prefetch_related('membres')
 
-        # Client voit ses propres projets
-        if profile.role in ['client', 'partenaire']:
-            return Projet.objects.filter(client=user).select_related('pole', 'client', 'chef_projet').prefetch_related('membres')
+        # Membre/Stagiaire/Technicien voient TOUS les projets (lecture universelle)
+        if profile.role in ['membre', 'stagiaire', 'technicien']:
+            return Projet.objects.all().select_related('pole', 'client', 'chef_projet').prefetch_related('membres')
 
-        # Membre/Stagiaire voit les projets où il est membre ou chef
-        if profile.role in ['membre', 'stagiaire']:
-            return Projet.objects.filter(
-                Q(chef_projet=user) | Q(membres=user)
-            ).distinct().select_related('pole', 'client', 'chef_projet').prefetch_related('membres')
+        # Artiste/Client/Partenaire voient leurs propres projets
+        if profile.role in ['artiste', 'client', 'partenaire']:
+            return Projet.objects.filter(client=user).select_related('pole', 'client', 'chef_projet').prefetch_related('membres')
 
         return Projet.objects.none()
 
@@ -248,6 +243,44 @@ class ProjetDetailView(generics.RetrieveUpdateDestroyAPIView):
 
 
 # ===============================
+# Permissions pour les tâches
+# ===============================
+
+class CanManageTache(permissions.BasePermission):
+    """
+    Permission pour gérer les tâches :
+    - Admin et Chef de pôle : peuvent tout faire
+    - Membre/Stagiaire/Technicien : peuvent uniquement modifier le statut de leurs propres tâches
+    """
+
+    def has_object_permission(self, request, view, obj):
+        user = request.user
+        profile = getattr(user, 'profile', None)
+
+        if not profile:
+            return False
+
+        # Admin peut tout faire
+        if profile.role == 'admin':
+            return True
+
+        # Chef de pôle peut gérer les tâches de son pôle
+        if profile.role == 'chef_pole' and profile.pole:
+            return obj.projet.pole == profile.pole
+
+        # Membre/Stagiaire/Technicien peuvent modifier uniquement leurs propres tâches
+        # Et seulement pour mettre à jour le statut (pas créer/supprimer)
+        if profile.role in ['membre', 'stagiaire', 'technicien']:
+            if request.method in ['PUT', 'PATCH']:
+                # Vérifier que la tâche leur est assignée
+                return obj.assigne_a == user
+            # Ne peuvent pas créer ou supprimer
+            return False
+
+        return False
+
+
+# ===============================
 # Vues pour les tâches
 # ===============================
 
@@ -287,16 +320,34 @@ class TacheListCreateView(generics.ListCreateAPIView):
 class TacheDetailView(generics.RetrieveUpdateDestroyAPIView):
     """
     GET: Récupère les détails d'une tâche
-    PUT/PATCH: Modifie une tâche
-    DELETE: Supprime une tâche
+    PUT/PATCH: Modifie une tâche (selon permissions)
+    DELETE: Supprime une tâche (selon permissions)
     """
     queryset = Tache.objects.all().select_related('projet', 'assigne_a')
-    permission_classes = [permissions.IsAuthenticated]
+    permission_classes = [permissions.IsAuthenticated, CanManageTache]
 
     def get_serializer_class(self):
         if self.request.method in ['PUT', 'PATCH']:
             return TacheCreateSerializer
         return TacheSerializer
+
+    def update(self, request, *args, **kwargs):
+        # Pour les membres/stagiaires/techniciens, limiter la modification au statut uniquement
+        instance = self.get_object()
+        profile = getattr(request.user, 'profile', None)
+
+        if profile and profile.role in ['membre', 'stagiaire', 'technicien']:
+            # Autoriser uniquement la modification du statut
+            allowed_fields = {'statut'}
+            request_fields = set(request.data.keys())
+
+            if not request_fields.issubset(allowed_fields):
+                return Response(
+                    {"detail": "Vous ne pouvez modifier que le statut de vos tâches"},
+                    status=status.HTTP_403_FORBIDDEN
+                )
+
+        return super().update(request, *args, **kwargs)
 
 
 # ===============================

@@ -9,6 +9,7 @@ User = get_user_model()
 class Pole(models.Model):
     name = models.CharField(max_length=100)
     description = models.TextField(blank=True)
+    chef = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True, related_name='pole_dirige', help_text="Chef de pôle désigné")
 
     def __str__(self):
         return self.name
@@ -20,7 +21,9 @@ class Profile(models.Model):
         ('chef_pole', 'Chef de pôle'),
         ('membre', 'Membre'),
         ('stagiaire', 'Stagiaire'),
-        ('client', 'Client / Artiste'),
+        ('technicien', 'Technicien'),
+        ('artiste', 'Artiste'),
+        ('client', 'Client'),
         ('partenaire', 'Partenaire'),
     ]
 
