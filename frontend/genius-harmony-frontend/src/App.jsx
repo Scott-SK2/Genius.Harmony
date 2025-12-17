@@ -12,6 +12,7 @@ import ProjetsList from "./pages/ProjetsList";
 import ProjetDetails from "./pages/ProjetDetails";
 import KanbanTaches from "./pages/KanbanTaches";
 import Layout from "./components/Layout";
+import AdminLayout from "./components/AdminLayout";
 
 function App() {
   return (
@@ -40,9 +41,9 @@ function App() {
               path="/admin/dashboard"
               element={
                 <ProtectedRoute allowedRoles={["admin"]}>
-                  <Layout>
+                  <AdminLayout>
                     <AdminDashboard />
-                  </Layout>
+                  </AdminLayout>
                 </ProtectedRoute>
               }
             />
@@ -52,9 +53,9 @@ function App() {
               path="/admin/users"
               element={
                 <ProtectedRoute allowedRoles={["admin"]}>
-                  <Layout>
+                  <AdminLayout>
                     <AdminUsers />
-                  </Layout>
+                  </AdminLayout>
                 </ProtectedRoute>
               }
             />
@@ -64,9 +65,9 @@ function App() {
               path="/admin/poles"
               element={
                 <ProtectedRoute allowedRoles={["admin"]}>
-                  <Layout>
+                  <AdminLayout>
                     <AdminPoles />
-                  </Layout>
+                  </AdminLayout>
                 </ProtectedRoute>
               }
             />

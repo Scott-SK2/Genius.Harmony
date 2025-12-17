@@ -1,6 +1,5 @@
 import { useEffect, useState } from "react";
 import { useAuth } from "../context/AuthContext";
-import { useTheme } from "../context/ThemeContext";
 import { fetchUsers, updateUser } from "../api/users";
 import { fetchPoles } from "../api/poles";
 
@@ -28,7 +27,6 @@ const ROLE_OPTIONS = [
 
 export default function AdminUsers() {
   const { token } = useAuth();
-  const { theme } = useTheme();
   const [users, setUsers] = useState([]);
   const [poles, setPoles] = useState([]);
   const [savingId, setSavingId] = useState(null);
@@ -87,19 +85,20 @@ export default function AdminUsers() {
   }
 
   return (
-    <div>
-      <div style={{ marginBottom: "2rem" }}>
-        <h1
-          style={{
-            margin: 0,
-            marginBottom: "0.5rem",
-            color: theme.text.primary,
-            fontSize: "2rem",
-          }}
-        >
+    <>
+      {/* Header */}
+      <div
+        style={{
+          backgroundColor: "#c0392b",
+          padding: "1.5rem 2rem",
+          borderRadius: "12px",
+          marginBottom: "2rem",
+        }}
+      >
+        <h1 style={{ color: "#fff", margin: 0, fontSize: "1.8rem" }}>
           👥 Gestion des utilisateurs
         </h1>
-        <p style={{ margin: 0, color: theme.text.secondary, fontSize: "1.05rem" }}>
+        <p style={{ margin: 0, marginTop: "0.5rem", color: "rgba(255,255,255,0.9)", fontSize: "1.05rem" }}>
           Attribuez les rôles et les pôles aux utilisateurs
         </p>
       </div>
@@ -109,24 +108,23 @@ export default function AdminUsers() {
           style={{
             textAlign: "center",
             padding: "4rem 2rem",
-            backgroundColor: theme.bg.card,
+            backgroundColor: "#1a1a1a",
             borderRadius: "12px",
-            border: `1px dashed ${theme.border.medium}`,
+            border: "1px solid #333",
           }}
         >
           <div style={{ fontSize: "4rem", marginBottom: "1rem" }}>👤</div>
-          <p style={{ margin: 0, color: theme.text.secondary, fontSize: "1.1rem" }}>
+          <p style={{ margin: 0, color: "#999", fontSize: "1.1rem" }}>
             Aucun utilisateur trouvé.
           </p>
         </div>
       ) : (
         <div
           style={{
-            backgroundColor: theme.bg.card,
+            backgroundColor: "#1a1a1a",
             borderRadius: "12px",
-            border: `1px solid ${theme.border.light}`,
+            border: "1px solid #333",
             overflow: "hidden",
-            boxShadow: theme.shadow.md,
           }}
         >
           <table
@@ -136,58 +134,58 @@ export default function AdminUsers() {
             }}
           >
             <thead>
-              <tr style={{ backgroundColor: theme.bg.secondary }}>
+              <tr>
                 <th
                   style={{
-                    borderBottom: `2px solid ${theme.border.medium}`,
+                    borderBottom: "1px solid #333",
                     textAlign: "left",
                     padding: "1rem",
-                    color: theme.text.primary,
-                    fontWeight: "600",
+                    color: "#999",
+                    fontWeight: "500",
                   }}
                 >
                   ID
                 </th>
                 <th
                   style={{
-                    borderBottom: `2px solid ${theme.border.medium}`,
+                    borderBottom: "1px solid #333",
                     textAlign: "left",
                     padding: "1rem",
-                    color: theme.text.primary,
-                    fontWeight: "600",
+                    color: "#999",
+                    fontWeight: "500",
                   }}
                 >
                   Username
                 </th>
                 <th
                   style={{
-                    borderBottom: `2px solid ${theme.border.medium}`,
+                    borderBottom: "1px solid #333",
                     textAlign: "left",
                     padding: "1rem",
-                    color: theme.text.primary,
-                    fontWeight: "600",
+                    color: "#999",
+                    fontWeight: "500",
                   }}
                 >
                   Email
                 </th>
                 <th
                   style={{
-                    borderBottom: `2px solid ${theme.border.medium}`,
+                    borderBottom: "1px solid #333",
                     textAlign: "left",
                     padding: "1rem",
-                    color: theme.text.primary,
-                    fontWeight: "600",
+                    color: "#999",
+                    fontWeight: "500",
                   }}
                 >
                   Rôle
                 </th>
                 <th
                   style={{
-                    borderBottom: `2px solid ${theme.border.medium}`,
+                    borderBottom: "1px solid #333",
                     textAlign: "left",
                     padding: "1rem",
-                    color: theme.text.primary,
-                    fontWeight: "600",
+                    color: "#999",
+                    fontWeight: "500",
                   }}
                 >
                   Pôle
@@ -199,24 +197,23 @@ export default function AdminUsers() {
                 <tr
                   key={u.id}
                   style={{
-                    borderBottom: `1px solid ${theme.border.light}`,
-                    backgroundColor: index % 2 === 0 ? theme.bg.card : theme.bg.tertiary,
+                    borderBottom: "1px solid #222",
                     transition: "background-color 0.2s",
                   }}
                   onMouseEnter={(e) => {
-                    e.currentTarget.style.backgroundColor = theme.bg.hover;
+                    e.currentTarget.style.backgroundColor = "#222";
                   }}
                   onMouseLeave={(e) => {
-                    e.currentTarget.style.backgroundColor = index % 2 === 0 ? theme.bg.card : theme.bg.tertiary;
+                    e.currentTarget.style.backgroundColor = "transparent";
                   }}
                 >
-                  <td style={{ padding: "1rem", color: theme.text.secondary }}>
+                  <td style={{ padding: "1rem", color: "#666" }}>
                     #{u.id}
                   </td>
-                  <td style={{ padding: "1rem", color: theme.text.primary, fontWeight: "600" }}>
+                  <td style={{ padding: "1rem", color: "#fff", fontWeight: "500" }}>
                     {u.username}
                   </td>
-                  <td style={{ padding: "1rem", color: theme.text.secondary }}>
+                  <td style={{ padding: "1rem", color: "#999" }}>
                     {u.email}
                   </td>
                   <td style={{ padding: "1rem" }}>
@@ -227,9 +224,9 @@ export default function AdminUsers() {
                       style={{
                         padding: "0.5rem 0.75rem",
                         borderRadius: "8px",
-                        border: `1px solid ${theme.border.medium}`,
-                        backgroundColor: theme.bg.primary,
-                        color: theme.text.primary,
+                        border: "1px solid #333",
+                        backgroundColor: "#0f0f0f",
+                        color: "#fff",
                         fontSize: "0.95rem",
                         cursor: "pointer",
                         minWidth: "160px",
@@ -252,9 +249,9 @@ export default function AdminUsers() {
                         style={{
                           padding: "0.5rem 0.75rem",
                           borderRadius: "8px",
-                          border: `1px solid ${theme.border.medium}`,
-                          backgroundColor: theme.bg.primary,
-                          color: theme.text.primary,
+                          border: "1px solid #333",
+                          backgroundColor: "#0f0f0f",
+                          color: "#fff",
                           fontSize: "0.95rem",
                           cursor: "pointer",
                           minWidth: "160px",
@@ -268,7 +265,7 @@ export default function AdminUsers() {
                         ))}
                       </select>
                       {u.pole_name && (
-                        <span style={{ color: theme.text.tertiary, fontSize: "0.9rem" }}>
+                        <span style={{ color: "#666", fontSize: "0.9rem" }}>
                           ({u.pole_name})
                         </span>
                       )}
@@ -280,6 +277,6 @@ export default function AdminUsers() {
           </table>
         </div>
       )}
-    </div>
+    </>
   );
 }

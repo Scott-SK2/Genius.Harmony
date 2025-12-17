@@ -1,12 +1,10 @@
 import { useEffect, useState } from "react";
 import { useAuth } from "../context/AuthContext";
-import { useTheme } from "../context/ThemeContext";
 import { fetchPoles, createPole, updatePole, deletePole } from "../api/poles";
 import { fetchUsers } from "../api/users";
 
 export default function AdminPoles() {
   const { token } = useAuth();
-  const { theme } = useTheme();
   const [poles, setPoles] = useState([]);
   const [users, setUsers] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -106,47 +104,32 @@ export default function AdminPoles() {
           justifyContent: "center",
           alignItems: "center",
           minHeight: "60vh",
-          color: theme.text.secondary,
-          fontSize: "1.1rem",
         }}
       >
-        <div style={{ textAlign: "center" }}>
-          <div style={{ fontSize: "3rem", marginBottom: "1rem" }}>⏳</div>
-          <div>Chargement des pôles...</div>
-        </div>
+        <div style={{ fontSize: "3rem" }}>⏳</div>
       </div>
     );
   }
 
   return (
-    <div>
-      {/* En-tête */}
+    <>
+      {/* Header */}
       <div
         style={{
+          backgroundColor: "#c0392b",
+          padding: "1.5rem 2rem",
+          borderRadius: "12px",
+          marginBottom: "2rem",
           display: "flex",
           justifyContent: "space-between",
           alignItems: "center",
-          marginBottom: "2rem",
         }}
       >
         <div>
-          <h1
-            style={{
-              margin: 0,
-              marginBottom: "0.5rem",
-              color: theme.text.primary,
-              fontSize: "2rem",
-            }}
-          >
+          <h1 style={{ color: "#fff", margin: 0, fontSize: "1.8rem" }}>
             🎯 Gestion des Pôles
           </h1>
-          <p
-            style={{
-              margin: 0,
-              color: theme.text.secondary,
-              fontSize: "1.05rem",
-            }}
-          >
+          <p style={{ margin: 0, marginTop: "0.5rem", color: "rgba(255,255,255,0.9)", fontSize: "1.05rem" }}>
             Créez et gérez les pôles de votre organisation
           </p>
         </div>
@@ -154,23 +137,20 @@ export default function AdminPoles() {
           onClick={() => handleOpenModal()}
           style={{
             padding: "0.75rem 1.5rem",
-            backgroundColor: theme.colors.primary,
-            color: theme.text.inverse,
+            backgroundColor: "rgba(255,255,255,0.2)",
+            color: "#fff",
             border: "none",
             borderRadius: "8px",
             fontSize: "1rem",
             fontWeight: "600",
             cursor: "pointer",
             transition: "all 0.2s",
-            boxShadow: theme.shadow.sm,
           }}
           onMouseEnter={(e) => {
-            e.target.style.transform = "translateY(-2px)";
-            e.target.style.boxShadow = theme.shadow.lg;
+            e.target.style.backgroundColor = "rgba(255,255,255,0.3)";
           }}
           onMouseLeave={(e) => {
-            e.target.style.transform = "translateY(0)";
-            e.target.style.boxShadow = theme.shadow.sm;
+            e.target.style.backgroundColor = "rgba(255,255,255,0.2)";
           }}
         >
           ➕ Créer un pôle
@@ -183,19 +163,13 @@ export default function AdminPoles() {
           style={{
             textAlign: "center",
             padding: "4rem 2rem",
-            backgroundColor: theme.bg.card,
+            backgroundColor: "#1a1a1a",
             borderRadius: "12px",
-            border: `1px dashed ${theme.border.medium}`,
+            border: "1px solid #333",
           }}
         >
           <div style={{ fontSize: "4rem", marginBottom: "1rem" }}>🎯</div>
-          <p
-            style={{
-              margin: 0,
-              color: theme.text.secondary,
-              fontSize: "1.1rem",
-            }}
-          >
+          <p style={{ margin: 0, color: "#999", fontSize: "1.1rem" }}>
             Aucun pôle trouvé. Créez-en un pour commencer !
           </p>
         </div>
@@ -205,20 +179,17 @@ export default function AdminPoles() {
             <div
               key={pole.id}
               style={{
-                backgroundColor: theme.bg.card,
+                backgroundColor: "#1a1a1a",
                 borderRadius: "12px",
                 padding: "1.5rem",
-                border: `1px solid ${theme.border.light}`,
-                boxShadow: theme.shadow.md,
+                border: "1px solid #333",
                 transition: "all 0.2s",
               }}
               onMouseEnter={(e) => {
-                e.currentTarget.style.boxShadow = theme.shadow.lg;
-                e.currentTarget.style.borderColor = theme.border.medium;
+                e.currentTarget.style.borderColor = "#555";
               }}
               onMouseLeave={(e) => {
-                e.currentTarget.style.boxShadow = theme.shadow.md;
-                e.currentTarget.style.borderColor = theme.border.light;
+                e.currentTarget.style.borderColor = "#333";
               }}
             >
               <div
@@ -233,7 +204,7 @@ export default function AdminPoles() {
                     style={{
                       margin: 0,
                       marginBottom: "0.75rem",
-                      color: theme.text.primary,
+                      color: "#fff",
                       fontSize: "1.3rem",
                     }}
                   >
@@ -244,7 +215,7 @@ export default function AdminPoles() {
                       style={{
                         margin: 0,
                         marginBottom: "1rem",
-                        color: theme.text.secondary,
+                        color: "#999",
                         lineHeight: "1.6",
                       }}
                     >
@@ -256,12 +227,12 @@ export default function AdminPoles() {
                       style={{
                         display: "inline-block",
                         padding: "0.5rem 1rem",
-                        backgroundColor: `${theme.colors.primary}20`,
-                        color: theme.colors.primary,
+                        backgroundColor: "rgba(192, 57, 43, 0.2)",
+                        color: "#c0392b",
                         borderRadius: "8px",
                         fontSize: "0.9rem",
                         fontWeight: "600",
-                        border: `1px solid ${theme.colors.primary}40`,
+                        border: "1px solid rgba(192, 57, 43, 0.4)",
                       }}
                     >
                       👤 Chef : {pole.chef_username}
@@ -272,12 +243,12 @@ export default function AdminPoles() {
                       style={{
                         display: "inline-block",
                         padding: "0.5rem 1rem",
-                        backgroundColor: `${theme.text.secondary}20`,
-                        color: theme.text.secondary,
+                        backgroundColor: "rgba(153, 153, 153, 0.2)",
+                        color: "#999",
                         borderRadius: "8px",
                         fontSize: "0.9rem",
                         fontWeight: "600",
-                        border: `1px solid ${theme.text.secondary}40`,
+                        border: "1px solid rgba(153, 153, 153, 0.4)",
                       }}
                     >
                       ⚠️ Aucun chef désigné
@@ -289,9 +260,9 @@ export default function AdminPoles() {
                     onClick={() => handleOpenModal(pole)}
                     style={{
                       padding: "0.5rem 1rem",
-                      backgroundColor: theme.bg.secondary,
-                      color: theme.text.primary,
-                      border: `1px solid ${theme.border.medium}`,
+                      backgroundColor: "transparent",
+                      color: "#3498db",
+                      border: "1px solid #3498db",
                       borderRadius: "8px",
                       fontSize: "0.9rem",
                       fontWeight: "600",
@@ -299,21 +270,23 @@ export default function AdminPoles() {
                       transition: "all 0.2s",
                     }}
                     onMouseEnter={(e) => {
-                      e.target.style.backgroundColor = theme.bg.hover;
+                      e.target.style.backgroundColor = "#3498db";
+                      e.target.style.color = "#fff";
                     }}
                     onMouseLeave={(e) => {
-                      e.target.style.backgroundColor = theme.bg.secondary;
+                      e.target.style.backgroundColor = "transparent";
+                      e.target.style.color = "#3498db";
                     }}
                   >
-                    ✏️ Modifier
+                    Modifier
                   </button>
                   <button
                     onClick={() => handleDelete(pole.id)}
                     style={{
                       padding: "0.5rem 1rem",
-                      backgroundColor: `${theme.colors.danger}20`,
-                      color: theme.colors.danger,
-                      border: `1px solid ${theme.colors.danger}40`,
+                      backgroundColor: "transparent",
+                      color: "#c0392b",
+                      border: "1px solid #c0392b",
                       borderRadius: "8px",
                       fontSize: "0.9rem",
                       fontWeight: "600",
@@ -321,15 +294,15 @@ export default function AdminPoles() {
                       transition: "all 0.2s",
                     }}
                     onMouseEnter={(e) => {
-                      e.target.style.backgroundColor = theme.colors.danger;
-                      e.target.style.color = theme.text.inverse;
+                      e.target.style.backgroundColor = "#c0392b";
+                      e.target.style.color = "#fff";
                     }}
                     onMouseLeave={(e) => {
-                      e.target.style.backgroundColor = `${theme.colors.danger}20`;
-                      e.target.style.color = theme.colors.danger;
+                      e.target.style.backgroundColor = "transparent";
+                      e.target.style.color = "#c0392b";
                     }}
                   >
-                    🗑️ Supprimer
+                    Supprimer
                   </button>
                 </div>
               </div>
@@ -347,7 +320,7 @@ export default function AdminPoles() {
             left: 0,
             right: 0,
             bottom: 0,
-            backgroundColor: "rgba(0, 0, 0, 0.5)",
+            backgroundColor: "rgba(0, 0, 0, 0.8)",
             display: "flex",
             justifyContent: "center",
             alignItems: "center",
@@ -357,12 +330,12 @@ export default function AdminPoles() {
         >
           <div
             style={{
-              backgroundColor: theme.bg.card,
+              backgroundColor: "#1a1a1a",
               borderRadius: "12px",
               padding: "2rem",
               width: "90%",
               maxWidth: "500px",
-              boxShadow: theme.shadow.xl,
+              border: "1px solid #333",
             }}
             onClick={(e) => e.stopPropagation()}
           >
@@ -370,7 +343,7 @@ export default function AdminPoles() {
               style={{
                 margin: 0,
                 marginBottom: "1.5rem",
-                color: theme.text.primary,
+                color: "#fff",
                 fontSize: "1.5rem",
               }}
             >
@@ -382,8 +355,8 @@ export default function AdminPoles() {
                   style={{
                     display: "block",
                     marginBottom: "0.5rem",
-                    color: theme.text.primary,
-                    fontWeight: "600",
+                    color: "#999",
+                    fontWeight: "500",
                   }}
                 >
                   Nom du pôle *
@@ -399,9 +372,9 @@ export default function AdminPoles() {
                     width: "100%",
                     padding: "0.75rem",
                     borderRadius: "8px",
-                    border: `1px solid ${theme.border.medium}`,
-                    backgroundColor: theme.bg.primary,
-                    color: theme.text.primary,
+                    border: "1px solid #333",
+                    backgroundColor: "#0f0f0f",
+                    color: "#fff",
                     fontSize: "1rem",
                   }}
                 />
@@ -411,8 +384,8 @@ export default function AdminPoles() {
                   style={{
                     display: "block",
                     marginBottom: "0.5rem",
-                    color: theme.text.primary,
-                    fontWeight: "600",
+                    color: "#999",
+                    fontWeight: "500",
                   }}
                 >
                   Description
@@ -427,9 +400,9 @@ export default function AdminPoles() {
                     width: "100%",
                     padding: "0.75rem",
                     borderRadius: "8px",
-                    border: `1px solid ${theme.border.medium}`,
-                    backgroundColor: theme.bg.primary,
-                    color: theme.text.primary,
+                    border: "1px solid #333",
+                    backgroundColor: "#0f0f0f",
+                    color: "#fff",
                     fontSize: "1rem",
                     resize: "vertical",
                   }}
@@ -440,8 +413,8 @@ export default function AdminPoles() {
                   style={{
                     display: "block",
                     marginBottom: "0.5rem",
-                    color: theme.text.primary,
-                    fontWeight: "600",
+                    color: "#999",
+                    fontWeight: "500",
                   }}
                 >
                   Chef de pôle
@@ -455,9 +428,9 @@ export default function AdminPoles() {
                     width: "100%",
                     padding: "0.75rem",
                     borderRadius: "8px",
-                    border: `1px solid ${theme.border.medium}`,
-                    backgroundColor: theme.bg.primary,
-                    color: theme.text.primary,
+                    border: "1px solid #333",
+                    backgroundColor: "#0f0f0f",
+                    color: "#fff",
                     fontSize: "1rem",
                     cursor: "pointer",
                   }}
@@ -479,12 +452,12 @@ export default function AdminPoles() {
                   style={{
                     flex: 1,
                     padding: "0.75rem",
-                    backgroundColor: theme.bg.secondary,
-                    color: theme.text.primary,
-                    border: `1px solid ${theme.border.medium}`,
+                    backgroundColor: "#333",
+                    color: "#fff",
+                    border: "none",
                     borderRadius: "8px",
                     fontSize: "1rem",
-                    fontWeight: "600",
+                    fontWeight: "500",
                     cursor: "pointer",
                   }}
                 >
@@ -495,12 +468,12 @@ export default function AdminPoles() {
                   style={{
                     flex: 1,
                     padding: "0.75rem",
-                    backgroundColor: theme.colors.primary,
-                    color: theme.text.inverse,
+                    backgroundColor: "#c0392b",
+                    color: "#fff",
                     border: "none",
                     borderRadius: "8px",
                     fontSize: "1rem",
-                    fontWeight: "600",
+                    fontWeight: "500",
                     cursor: "pointer",
                   }}
                 >
@@ -511,6 +484,6 @@ export default function AdminPoles() {
           </div>
         </div>
       )}
-    </div>
+    </>
   );
 }

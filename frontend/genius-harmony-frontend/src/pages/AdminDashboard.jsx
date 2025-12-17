@@ -1,16 +1,12 @@
 import { useEffect, useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
-import { useTheme } from "../context/ThemeContext";
 import { fetchPoles, createPole, updatePole, deletePole } from "../api/poles";
 import { fetchProjets } from "../api/projets";
 import { fetchTaches } from "../api/taches";
 import { fetchUsers } from "../api/users";
 
 export default function AdminDashboard() {
-  const { user, token, logout } = useAuth();
-  const { theme } = useTheme();
-  const navigate = useNavigate();
+  const { token } = useAuth();
   const [poles, setPoles] = useState([]);
   const [users, setUsers] = useState([]);
   const [stats, setStats] = useState({
@@ -25,7 +21,6 @@ export default function AdminDashboard() {
   const [editingPole, setEditingPole] = useState(null);
   const [formData, setFormData] = useState({ name: "", description: "", chef: "" });
   const [loading, setLoading] = useState(true);
-  const [activeView, setActiveView] = useState("dashboard");
 
   useEffect(() => {
     if (!token) return;
@@ -128,120 +123,37 @@ export default function AdminDashboard() {
     );
   }
 
-  const sidebarStyle = {
-    width: "250px",
-    backgroundColor: "#1a1a1a",
-    minHeight: "100vh",
-    padding: "2rem 0",
-    position: "fixed",
-    left: 0,
-    top: 0,
-    display: "flex",
-    flexDirection: "column",
-  };
-
-  const menuItemStyle = (isActive) => ({
-    padding: "0.875rem 2rem",
-    color: isActive ? "#fff" : "#999",
-    backgroundColor: isActive ? "#c0392b" : "transparent",
-    textDecoration: "none",
-    display: "block",
-    transition: "all 0.2s",
-    cursor: "pointer",
-    borderLeft: isActive ? "4px solid #e74c3c" : "4px solid transparent",
-  });
-
   return (
-    <div style={{ display: "flex", backgroundColor: "#0f0f0f", minHeight: "100vh" }}>
-      {/* Sidebar */}
-      <aside style={sidebarStyle}>
-        <div style={{ padding: "0 2rem", marginBottom: "3rem" }}>
-          <h2 style={{ color: "#fff", margin: 0, fontSize: "1.5rem" }}>LOGO</h2>
-        </div>
-
-        <nav style={{ flex: 1 }}>
-          <a
-            onClick={() => setActiveView("dashboard")}
-            style={menuItemStyle(activeView === "dashboard")}
-            onMouseEnter={(e) => !( activeView === "dashboard") && (e.target.style.backgroundColor = "#222")}
-            onMouseLeave={(e) => !(activeView === "dashboard") && (e.target.style.backgroundColor = "transparent")}
-          >
-            Dashboard
-          </a>
-          <Link
-            to="/projets"
-            style={menuItemStyle(false)}
-            onMouseEnter={(e) => (e.target.style.backgroundColor = "#222")}
-            onMouseLeave={(e) => (e.target.style.backgroundColor = "transparent")}
-          >
-            Projets
-          </Link>
-          <Link
-            to="/admin/poles"
-            style={menuItemStyle(false)}
-            onMouseEnter={(e) => (e.target.style.backgroundColor = "#222")}
-            onMouseLeave={(e) => (e.target.style.backgroundColor = "transparent")}
-          >
-            Pôles
-          </Link>
-          <Link
-            to="/admin/users"
-            style={menuItemStyle(false)}
-            onMouseEnter={(e) => (e.target.style.backgroundColor = "#222")}
-            onMouseLeave={(e) => (e.target.style.backgroundColor = "transparent")}
-          >
-            Utilisateurs
-          </Link>
-        </nav>
-
-        <div style={{ padding: "0 2rem" }}>
-          <a
-            onClick={logout}
-            style={{
-              ...menuItemStyle(false),
-              padding: "0.875rem 0",
-              color: "#c0392b",
-              display: "flex",
-              alignItems: "center",
-              gap: "0.5rem",
-            }}
-          >
-            <span style={{ fontSize: "1.2rem" }}>⏻</span> Logout
-          </a>
-        </div>
-      </aside>
-
-      {/* Main content */}
-      <main style={{ marginLeft: "250px", flex: 1, padding: "2rem 3rem" }}>
-        {/* Header */}
-        <div
+    <>
+      {/* Header */}
+      <div
+        style={{
+          backgroundColor: "#c0392b",
+          padding: "1.5rem 2rem",
+          borderRadius: "12px",
+          marginBottom: "2rem",
+          display: "flex",
+          justifyContent: "space-between",
+          alignItems: "center",
+        }}
+      >
+        <h1 style={{ color: "#fff", margin: 0, fontSize: "1.8rem" }}>Dashboard Administrateur</h1>
+        <button
           style={{
-            backgroundColor: "#c0392b",
-            padding: "1.5rem 2rem",
-            borderRadius: "12px",
-            marginBottom: "2rem",
-            display: "flex",
-            justifyContent: "space-between",
-            alignItems: "center",
+            backgroundColor: "rgba(255,255,255,0.2)",
+            color: "#fff",
+            border: "none",
+            padding: "0.75rem 1.5rem",
+            borderRadius: "8px",
+            cursor: "pointer",
+            fontWeight: "500",
           }}
         >
-          <h1 style={{ color: "#fff", margin: 0, fontSize: "1.8rem" }}>Dashboard Administrateur</h1>
-          <button
-            style={{
-              backgroundColor: "rgba(255,255,255,0.2)",
-              color: "#fff",
-              border: "none",
-              padding: "0.75rem 1.5rem",
-              borderRadius: "8px",
-              cursor: "pointer",
-              fontWeight: "500",
-            }}
-          >
-            + Dashboard Administrateur
-          </button>
-        </div>
+          + Dashboard Administrateur
+        </button>
+      </div>
 
-        <h2 style={{ color: "#fff", marginBottom: "2rem", fontSize: "2.5rem" }}>Dashboard</h2>
+      <h2 style={{ color: "#fff", marginBottom: "2rem", fontSize: "2.5rem" }}>Dashboard</h2>
 
         {/* Stats Cards */}
         <div
@@ -584,7 +496,6 @@ export default function AdminDashboard() {
             </div>
           </div>
         )}
-      </main>
-    </div>
+    </>
   );
 }
