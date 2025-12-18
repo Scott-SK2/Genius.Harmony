@@ -11,7 +11,7 @@ const PRIORITE_LABELS = {
 };
 
 export default function KanbanTaches() {
-  const { token } = useAuth();
+  const { token, user } = useAuth();
   const [taches, setTaches] = useState([]);
   const [projets, setProjets] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -21,6 +21,29 @@ export default function KanbanTaches() {
   // Filtres
   const [selectedProjet, setSelectedProjet] = useState("");
   const [selectedPriorite, setSelectedPriorite] = useState("");
+
+  // Fonction pour vérifier si l'utilisateur peut déplacer une tâche
+  const canDragTask = (tache) => {
+    if (!user || !tache) return false;
+
+    // Admin peut tout faire
+    if (user.role === 'admin') return true;
+
+    // Trouver le projet de la tâche
+    const projet = projets.find(p => p.id === tache.projet);
+    if (!projet) return false;
+
+    // Chef de pôle peut déplacer les tâches des projets de son pôle
+    if (user.role === 'chef_pole' && projet.pole === user.pole) return true;
+
+    // Chef de projet peut déplacer les tâches de son projet
+    if (projet.chef_projet === user.id) return true;
+
+    // Personne assignée peut déplacer sa tâche
+    if (tache.assigne_a === user.id) return true;
+
+    return false;
+  };
 
   useEffect(() => {
     if (!token) return;
@@ -82,6 +105,12 @@ export default function KanbanTaches() {
 
   // Drag & Drop handlers
   const handleDragStart = (e, tache) => {
+    // Vérifier si l'utilisateur peut déplacer cette tâche
+    if (!canDragTask(tache)) {
+      e.preventDefault();
+      return;
+    }
+
     setDraggedTask(tache);
     e.dataTransfer.effectAllowed = "move";
     e.currentTarget.style.opacity = "0.5";

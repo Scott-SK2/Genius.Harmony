@@ -48,6 +48,9 @@ export default function ProjetDetails() {
   const [showFormTache, setShowFormTache] = useState(false);
   const [showUploadDoc, setShowUploadDoc] = useState(false);
   const [isChangingStatut, setIsChangingStatut] = useState(false);
+  const [showManageMembres, setShowManageMembres] = useState(false);
+  const [availableUsers, setAvailableUsers] = useState([]);
+  const [loadingUsers, setLoadingUsers] = useState(false);
 
   const loadProjet = async () => {
     if (!token || !id) return;
@@ -137,6 +140,72 @@ export default function ProjetDetails() {
       setError("Impossible de changer le statut du projet");
     } finally {
       setIsChangingStatut(false);
+    }
+  };
+
+  // Fonction pour vérifier si l'utilisateur peut gérer les membres
+  const canManageMembres = () => {
+    if (!projet || !user) return false;
+
+    // Admin peut tout faire
+    if (user.role === 'admin') return true;
+
+    // Chef de pôle peut gérer les projets de son pôle
+    if (user.role === 'chef_pole' && projet.pole === user.pole) return true;
+
+    // Chef de projet peut gérer son projet
+    if (projet.chef_projet === user.id) return true;
+
+    return false;
+  };
+
+  // Fonction pour charger les utilisateurs disponibles
+  const loadAvailableUsers = async () => {
+    if (!token) return;
+
+    setLoadingUsers(true);
+    try {
+      const response = await fetch('http://127.0.0.1:8000/api/users/', {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+
+      if (response.ok) {
+        const data = await response.json();
+        setAvailableUsers(data);
+      }
+    } catch (err) {
+      console.error("Erreur chargement utilisateurs:", err);
+    } finally {
+      setLoadingUsers(false);
+    }
+  };
+
+  // Fonction pour basculer un membre
+  const toggleMembre = async (userId) => {
+    if (!canManageMembres()) return;
+
+    const currentMembres = projet.membres || [];
+    let newMembres;
+
+    if (currentMembres.includes(userId)) {
+      // Retirer le membre
+      newMembres = currentMembres.filter((id) => id !== userId);
+    } else {
+      // Ajouter le membre
+      newMembres = [...currentMembres, userId];
+    }
+
+    try {
+      const { updateProjet } = await import('../api/projets');
+      const updatedProjet = await updateProjet(token, id, { membres: newMembres });
+      setProjet(updatedProjet);
+      // Recharger le projet complet pour avoir les détails des membres
+      loadProjet();
+    } catch (err) {
+      console.error("Erreur modification membres:", err);
+      setError("Impossible de modifier les membres du projet");
     }
   };
 
@@ -381,15 +450,40 @@ export default function ProjetDetails() {
 
       {/* Équipe */}
       <div style={{ marginBottom: "2.5rem" }}>
-        <h2
-          style={{
-            color: "#fff",
-            marginBottom: "1.5rem",
-            fontSize: "1.5rem",
-          }}
-        >
-          👥 Équipe du projet
-        </h2>
+        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "1.5rem" }}>
+          <h2 style={{ margin: 0, color: "#fff", fontSize: "1.5rem" }}>
+            👥 Équipe du projet
+          </h2>
+          {canManageMembres() && (
+            <button
+              onClick={() => {
+                setShowManageMembres(true);
+                loadAvailableUsers();
+              }}
+              style={{
+                padding: "0.75rem 1.5rem",
+                backgroundColor: "#7c3aed",
+                color: "#fff",
+                border: "none",
+                borderRadius: "8px",
+                cursor: "pointer",
+                fontWeight: "600",
+                transition: "all 0.2s",
+                boxShadow: "0 2px 8px rgba(124, 58, 237, 0.1)",
+              }}
+              onMouseEnter={(e) => {
+                e.target.style.transform = "translateY(-2px)";
+                e.target.style.boxShadow = "0 4px 16px rgba(124, 58, 237, 0.3)";
+              }}
+              onMouseLeave={(e) => {
+                e.target.style.transform = "translateY(0)";
+                e.target.style.boxShadow = "0 2px 8px rgba(124, 58, 237, 0.1)";
+              }}
+            >
+              ⚙️ Gérer les membres
+            </button>
+          )}
+        </div>
         <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(280px, 1fr))", gap: "1.5rem" }}>
           {projet.client_details && (
             <div
@@ -839,6 +933,121 @@ export default function ProjetDetails() {
               <strong style={{ color: "#fff" }}>ID Facture Odoo:</strong> {projet.odoo_invoice_id}
             </div>
           )}
+        </div>
+      )}
+
+      {/* Modal Gestion des Membres */}
+      {showManageMembres && (
+        <div
+          style={{
+            position: "fixed",
+            top: 0,
+            left: 0,
+            right: 0,
+            bottom: 0,
+            backgroundColor: "rgba(0, 0, 0, 0.7)",
+            display: "flex",
+            justifyContent: "center",
+            alignItems: "center",
+            zIndex: 1000,
+          }}
+          onClick={() => setShowManageMembres(false)}
+        >
+          <div
+            style={{
+              backgroundColor: "#1e1b4b",
+              padding: "2rem",
+              borderRadius: "16px",
+              maxWidth: "600px",
+              width: "90%",
+              maxHeight: "80vh",
+              overflowY: "auto",
+              border: "1px solid #4c1d95",
+              boxShadow: "0 10px 40px rgba(124, 58, 237, 0.5)",
+            }}
+            onClick={(e) => e.stopPropagation()}
+          >
+            <h3 style={{ marginTop: 0, color: "#fff", fontSize: "1.5rem", marginBottom: "1.5rem" }}>
+              ⚙️ Gérer les membres du projet
+            </h3>
+
+            {loadingUsers ? (
+              <div style={{ textAlign: "center", padding: "2rem", color: "#c4b5fd" }}>
+                Chargement des utilisateurs...
+              </div>
+            ) : (
+              <div>
+                <p style={{ color: "#c4b5fd", marginBottom: "1rem" }}>
+                  Cliquez sur les utilisateurs pour les ajouter ou retirer du projet :
+                </p>
+
+                <div style={{ display: "flex", flexDirection: "column", gap: "0.5rem" }}>
+                  {availableUsers.map((utilisateur) => {
+                    const isMembre = projet.membres?.includes(utilisateur.id);
+                    return (
+                      <div
+                        key={utilisateur.id}
+                        onClick={() => toggleMembre(utilisateur.id)}
+                        style={{
+                          padding: "1rem",
+                          backgroundColor: isMembre ? "#4c1d95" : "#2d1b69",
+                          borderRadius: "8px",
+                          cursor: "pointer",
+                          display: "flex",
+                          justifyContent: "space-between",
+                          alignItems: "center",
+                          border: isMembre ? "2px solid #7c3aed" : "1px solid #4c1d95",
+                          transition: "all 0.2s",
+                        }}
+                        onMouseEnter={(e) => {
+                          e.currentTarget.style.backgroundColor = "#4c1d95";
+                        }}
+                        onMouseLeave={(e) => {
+                          e.currentTarget.style.backgroundColor = isMembre ? "#4c1d95" : "#2d1b69";
+                        }}
+                      >
+                        <div>
+                          <div style={{ fontWeight: "600", color: "#fff", marginBottom: "0.25rem" }}>
+                            {utilisateur.username}
+                          </div>
+                          <div style={{ fontSize: "0.85rem", color: "#c4b5fd" }}>
+                            {utilisateur.role} {utilisateur.pole_name && `• ${utilisateur.pole_name}`}
+                          </div>
+                        </div>
+                        {isMembre && (
+                          <div style={{ fontSize: "1.5rem" }}>✓</div>
+                        )}
+                      </div>
+                    );
+                  })}
+                </div>
+              </div>
+            )}
+
+            <div style={{ marginTop: "2rem", textAlign: "right" }}>
+              <button
+                onClick={() => setShowManageMembres(false)}
+                style={{
+                  padding: "0.75rem 1.5rem",
+                  backgroundColor: "#7c3aed",
+                  color: "#fff",
+                  border: "none",
+                  borderRadius: "8px",
+                  cursor: "pointer",
+                  fontWeight: "600",
+                  transition: "all 0.2s",
+                }}
+                onMouseEnter={(e) => {
+                  e.target.style.backgroundColor = "#6d32d1";
+                }}
+                onMouseLeave={(e) => {
+                  e.target.style.backgroundColor = "#7c3aed";
+                }}
+              >
+                Fermer
+              </button>
+            </div>
+          </div>
         </div>
       )}
 

@@ -352,11 +352,52 @@ class ProjetUpdateStatutView(APIView):
 # Permissions pour les tâches
 # ===============================
 
+class CanViewTache(permissions.BasePermission):
+    """
+    Permission pour voir les tâches :
+    - Admin : voit tout
+    - Chef de pôle : voit les tâches des projets de son pôle
+    - Membres du projet : voient les tâches du projet
+    - Personne assignée : voit ses tâches
+    """
+
+    def has_object_permission(self, request, view, obj):
+        user = request.user
+        profile = getattr(user, 'profile', None)
+
+        if not profile:
+            return False
+
+        # Admin voit tout
+        if profile.role == 'admin':
+            return True
+
+        # Chef de pôle voit les tâches des projets de son pôle
+        if profile.role == 'chef_pole' and profile.pole:
+            return obj.projet.pole == profile.pole
+
+        # Chef de projet voit les tâches de son projet
+        if obj.projet.chef_projet == user:
+            return True
+
+        # Membres du projet voient les tâches
+        if obj.projet.membres.filter(id=user.id).exists():
+            return True
+
+        # Personne assignée voit la tâche
+        if obj.assigne_a == user:
+            return True
+
+        return False
+
+
 class CanManageTache(permissions.BasePermission):
     """
     Permission pour gérer les tâches :
-    - Admin et Chef de pôle : peuvent tout faire
-    - Membre/Stagiaire/Technicien : peuvent uniquement modifier le statut de leurs propres tâches
+    - Admin : peut tout faire
+    - Chef de pôle : peut gérer les tâches des projets de son pôle
+    - Chef de projet : peut gérer les tâches de son projet
+    - Personne assignée : peut modifier le statut de sa tâche uniquement
     """
 
     def has_object_permission(self, request, view, obj):
@@ -370,17 +411,19 @@ class CanManageTache(permissions.BasePermission):
         if profile.role == 'admin':
             return True
 
-        # Chef de pôle peut gérer les tâches de son pôle
+        # Chef de pôle peut gérer les tâches des projets de son pôle
         if profile.role == 'chef_pole' and profile.pole:
             return obj.projet.pole == profile.pole
 
-        # Membre/Stagiaire/Technicien peuvent modifier uniquement leurs propres tâches
-        # Et seulement pour mettre à jour le statut (pas créer/supprimer)
-        if profile.role in ['membre', 'stagiaire', 'technicien']:
+        # Chef de projet peut gérer les tâches de son projet
+        if obj.projet.chef_projet == user:
+            return True
+
+        # Personne assignée peut modifier le statut uniquement
+        if obj.assigne_a == user:
+            # Vérifier que c'est uniquement pour modifier le statut
             if request.method in ['PUT', 'PATCH']:
-                # Vérifier que la tâche leur est assignée
-                return obj.assigne_a == user
-            # Ne peuvent pas créer ou supprimer
+                return True
             return False
 
         return False
@@ -403,7 +446,32 @@ class TacheListCreateView(generics.ListCreateAPIView):
         return TacheSerializer
 
     def get_queryset(self):
-        queryset = Tache.objects.all().select_related('projet', 'assigne_a')
+        user = self.request.user
+        profile = getattr(user, 'profile', None)
+
+        if not profile:
+            return Tache.objects.none()
+
+        queryset = Tache.objects.all().select_related('projet', 'assigne_a', 'projet__pole', 'projet__chef_projet')
+
+        # Admin voit toutes les tâches
+        if profile.role == 'admin':
+            pass  # Pas de filtre supplémentaire
+
+        # Chef de pôle voit les tâches des projets de son pôle
+        elif profile.role == 'chef_pole' and profile.pole:
+            queryset = queryset.filter(projet__pole=profile.pole)
+
+        # Autres utilisateurs voient :
+        # - Les tâches des projets dont ils sont membres
+        # - Les tâches des projets dont ils sont chef de projet
+        # - Les tâches qui leur sont assignées
+        else:
+            queryset = queryset.filter(
+                Q(projet__membres=user) |
+                Q(projet__chef_projet=user) |
+                Q(assigne_a=user)
+            ).distinct()
 
         # Filtrer par projet si demandé
         projet_id = self.request.query_params.get('projet')
@@ -438,11 +506,24 @@ class TacheDetailView(generics.RetrieveUpdateDestroyAPIView):
         return TacheSerializer
 
     def update(self, request, *args, **kwargs):
-        # Pour les membres/stagiaires/techniciens, limiter la modification au statut uniquement
         instance = self.get_object()
-        profile = getattr(request.user, 'profile', None)
+        user = request.user
+        profile = getattr(user, 'profile', None)
 
-        if profile and profile.role in ['membre', 'stagiaire', 'technicien']:
+        if not profile:
+            return Response(
+                {"detail": "Profil utilisateur non trouvé"},
+                status=status.HTTP_403_FORBIDDEN
+            )
+
+        # Si c'est la personne assignée (mais pas admin, chef de pôle ou chef de projet)
+        # alors elle peut seulement modifier le statut
+        is_assigned = instance.assigne_a == user
+        is_admin = profile.role == 'admin'
+        is_chef_pole = profile.role == 'chef_pole' and profile.pole and instance.projet.pole == profile.pole
+        is_chef_projet = instance.projet.chef_projet == user
+
+        if is_assigned and not (is_admin or is_chef_pole or is_chef_projet):
             # Autoriser uniquement la modification du statut
             allowed_fields = {'statut'}
             request_fields = set(request.data.keys())
