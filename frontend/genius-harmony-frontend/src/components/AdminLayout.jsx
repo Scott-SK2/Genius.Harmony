@@ -135,22 +135,6 @@ export default function AdminLayout({ children, pageTitle = "Dashboard" }) {
                 📋 Projets
               </Link>
               <Link
-                to="/kanban"
-                onClick={() => setShowMenu(false)}
-                style={{
-                  display: "block",
-                  padding: "0.875rem 1.5rem",
-                  color: "#fff",
-                  textDecoration: "none",
-                  borderBottom: "1px solid #4c1d95",
-                  transition: "background-color 0.2s",
-                }}
-                onMouseEnter={(e) => (e.target.style.backgroundColor = "#4c1d95")}
-                onMouseLeave={(e) => (e.target.style.backgroundColor = "transparent")}
-              >
-                📊 Kanban
-              </Link>
-              <Link
                 to="/admin/poles"
                 onClick={() => setShowMenu(false)}
                 style={{

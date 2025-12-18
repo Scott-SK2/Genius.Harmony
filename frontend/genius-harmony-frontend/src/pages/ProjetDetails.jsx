@@ -3,6 +3,7 @@ import { useParams, Link } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 
 import { fetchProjetDetails, updateProjetStatut } from "../api/projets";
+import { updateTache } from "../api/taches";
 import FormTache from "../components/FormTache";
 import UploadDocument from "../components/UploadDocument";
 
@@ -51,6 +52,7 @@ export default function ProjetDetails() {
   const [showManageMembres, setShowManageMembres] = useState(false);
   const [availableUsers, setAvailableUsers] = useState([]);
   const [loadingUsers, setLoadingUsers] = useState(false);
+  const [draggedTask, setDraggedTask] = useState(null);
 
   const loadProjet = async () => {
     if (!token || !id) return;
@@ -206,6 +208,69 @@ export default function ProjetDetails() {
     } catch (err) {
       console.error("Erreur modification membres:", err);
       setError("Impossible de modifier les membres du projet");
+    }
+  };
+
+  // Fonction pour vérifier si l'utilisateur peut déplacer une tâche
+  const canDragTask = (tache) => {
+    if (!user || !tache) return false;
+
+    // Admin peut tout faire
+    if (user.role === 'admin') return true;
+
+    // Chef de pôle peut déplacer les tâches des projets de son pôle
+    if (user.role === 'chef_pole' && projet?.pole === user.pole) return true;
+
+    // Chef de projet peut déplacer les tâches de son projet
+    if (projet?.chef_projet === user.id) return true;
+
+    // Personne assignée peut déplacer sa tâche
+    if (tache.assigne_a === user.id) return true;
+
+    return false;
+  };
+
+  // Drag & Drop handlers
+  const handleDragStart = (e, tache) => {
+    if (!canDragTask(tache)) {
+      e.preventDefault();
+      return;
+    }
+
+    setDraggedTask(tache);
+    e.dataTransfer.effectAllowed = "move";
+    e.currentTarget.style.opacity = "0.5";
+  };
+
+  const handleDragEnd = (e) => {
+    e.currentTarget.style.opacity = "1";
+    setDraggedTask(null);
+  };
+
+  const handleDragOver = (e) => {
+    e.preventDefault();
+    e.dataTransfer.dropEffect = "move";
+  };
+
+  const handleDrop = async (e, nouveauStatut) => {
+    e.preventDefault();
+
+    if (!draggedTask) return;
+
+    // Si le statut n'a pas changé, ne rien faire
+    if (draggedTask.statut === nouveauStatut) return;
+
+    try {
+      // Mettre à jour le statut de la tâche
+      await updateTache(token, draggedTask.id, {
+        statut: nouveauStatut,
+      });
+
+      // Recharger le projet pour obtenir les tâches à jour
+      await loadProjet();
+    } catch (err) {
+      console.error("Erreur update tache:", err);
+      setError("Impossible de déplacer la tâche");
     }
   };
 
@@ -599,11 +664,11 @@ export default function ProjetDetails() {
         )}
       </div>
 
-      {/* Tâches */}
+      {/* Tâches - Vue Kanban */}
       <div style={{ marginBottom: "2.5rem" }}>
         <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "1.5rem" }}>
           <h2 style={{ margin: 0, color: "#fff", fontSize: "1.5rem" }}>
-            ✓ Tâches ({projet.taches?.length || 0})
+            📊 Kanban - Tâches du projet ({projet.taches?.length || 0})
           </h2>
           <button
             onClick={() => setShowFormTache(true)}
@@ -630,6 +695,7 @@ export default function ProjetDetails() {
             + Nouvelle tâche
           </button>
         </div>
+
         {!projet.taches || projet.taches.length === 0 ? (
           <div
             style={{
@@ -642,128 +708,256 @@ export default function ProjetDetails() {
           >
             <div style={{ fontSize: "3rem", marginBottom: "1rem" }}>📋</div>
             <p style={{ color: "#c4b5fd", margin: 0 }}>
-              Aucune tâche pour ce projet.
+              Aucune tâche pour ce projet. Commencez par en créer une !
             </p>
           </div>
         ) : (
-          <div
-            style={{
-              backgroundColor: "#2d1b69",
-              borderRadius: "12px",
-              border: `1px solid ${"#4c1d95"}`,
-              overflow: "hidden",
-              boxShadow: "0 2px 8px rgba(124, 58, 237, 0.1)",
-            }}
-          >
-            <table style={{ width: "100%", borderCollapse: "collapse" }}>
-              <thead>
-                <tr style={{ backgroundColor: "#4c1d95" }}>
-                  <th
+          <>
+            {/* Statistiques */}
+            <div
+              style={{
+                display: "grid",
+                gridTemplateColumns: "repeat(3, 1fr)",
+                gap: "1rem",
+                marginBottom: "2rem",
+              }}
+            >
+              {[
+                { id: "a_faire", label: "À faire", icon: "📝", color: "#a78bfa" },
+                { id: "en_cours", label: "En cours", icon: "⚡", color: "#7c3aed" },
+                { id: "termine", label: "Terminé", icon: "✓", color: "#10b981" },
+              ].map((col) => {
+                const count = projet.taches.filter((t) => t.statut === col.id).length;
+                return (
+                  <div
+                    key={col.id}
                     style={{
-                      borderBottom: `2px solid ${"#4c1d95"}`,
-                      textAlign: "left",
-                      padding: "1rem",
-                      color: "#fff",
-                      fontWeight: "600",
-                    }}
-                  >
-                    Titre
-                  </th>
-                  <th
-                    style={{
-                      borderBottom: `2px solid ${"#4c1d95"}`,
-                      textAlign: "left",
-                      padding: "1rem",
-                      color: "#fff",
-                      fontWeight: "600",
-                    }}
-                  >
-                    Statut
-                  </th>
-                  <th
-                    style={{
-                      borderBottom: `2px solid ${"#4c1d95"}`,
-                      textAlign: "left",
-                      padding: "1rem",
-                      color: "#fff",
-                      fontWeight: "600",
-                    }}
-                  >
-                    Priorité
-                  </th>
-                  <th
-                    style={{
-                      borderBottom: `2px solid ${"#4c1d95"}`,
-                      textAlign: "left",
-                      padding: "1rem",
-                      color: "#fff",
-                      fontWeight: "600",
-                    }}
-                  >
-                    Assigné à
-                  </th>
-                  <th
-                    style={{
-                      borderBottom: `2px solid ${"#4c1d95"}`,
-                      textAlign: "left",
-                      padding: "1rem",
-                      color: "#fff",
-                      fontWeight: "600",
-                    }}
-                  >
-                    Deadline
-                  </th>
-                </tr>
-              </thead>
-              <tbody>
-                {projet.taches.map((tache, index) => (
-                  <tr
-                    key={tache.id}
-                    style={{
-                      borderBottom: `1px solid ${"#4c1d95"}`,
-                      backgroundColor: index % 2 === 0 ? "#2d1b69" : "#1e1b4b",
-                      transition: "background-color 0.2s",
+                      backgroundColor: "#2d1b69",
+                      borderRadius: "12px",
+                      padding: "1.5rem",
+                      border: "1px solid #4c1d95",
+                      transition: "all 0.2s",
+                      boxShadow: "0 2px 8px rgba(124, 58, 237, 0.1)",
                     }}
                     onMouseEnter={(e) => {
-                      e.currentTarget.style.backgroundColor = "#4c1d95";
+                      e.currentTarget.style.transform = "translateY(-2px)";
+                      e.currentTarget.style.boxShadow = "0 4px 16px rgba(124, 58, 237, 0.3)";
                     }}
                     onMouseLeave={(e) => {
-                      e.currentTarget.style.backgroundColor = index % 2 === 0 ? "#2d1b69" : "#1e1b4b";
+                      e.currentTarget.style.transform = "translateY(0)";
+                      e.currentTarget.style.boxShadow = "0 2px 8px rgba(124, 58, 237, 0.1)";
                     }}
                   >
-                    <td style={{ padding: "1rem", fontWeight: "500", color: "#fff" }}>{tache.titre}</td>
-                    <td style={{ padding: "1rem" }}>
-                      <span style={{ fontSize: "0.9rem", color: "#c4b5fd" }}>
-                        {TACHE_STATUT_LABELS[tache.statut] || tache.statut}
-                      </span>
-                    </td>
-                    <td style={{ padding: "1rem" }}>
-                      <span
+                    <div style={{ display: "flex", alignItems: "center", gap: "1rem" }}>
+                      <div
                         style={{
-                          display: "inline-block",
-                          padding: "0.4rem 0.75rem",
-                          borderRadius: "6px",
-                          fontSize: "0.85rem",
-                          fontWeight: "600",
-                          backgroundColor: `${PRIORITE_COLORS[tache.priorite] || "#c4b5fd"}20`,
-                          color: PRIORITE_COLORS[tache.priorite] || "#c4b5fd",
-                          border: `1px solid ${PRIORITE_COLORS[tache.priorite] || "#c4b5fd"}40`,
+                          width: "50px",
+                          height: "50px",
+                          borderRadius: "10px",
+                          backgroundColor: `${col.color}33`,
+                          display: "flex",
+                          alignItems: "center",
+                          justifyContent: "center",
+                          fontSize: "1.5rem",
                         }}
                       >
-                        {TACHE_PRIORITE_LABELS[tache.priorite] || tache.priorite}
+                        {col.icon}
+                      </div>
+                      <div>
+                        <div style={{ fontSize: "0.85rem", color: "#c4b5fd", fontWeight: "500", marginBottom: "0.25rem" }}>
+                          {col.label}
+                        </div>
+                        <div style={{ fontSize: "2rem", fontWeight: "700", color: "#fff", lineHeight: 1 }}>
+                          {count}
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+
+            {/* Board Kanban */}
+            <div
+              style={{
+                display: "grid",
+                gridTemplateColumns: "repeat(3, 1fr)",
+                gap: "1.5rem",
+                minHeight: "400px",
+              }}
+            >
+              {[
+                { id: "a_faire", label: "À faire", color: "#a78bfa" },
+                { id: "en_cours", label: "En cours", color: "#7c3aed" },
+                { id: "termine", label: "Terminé", color: "#10b981" },
+              ].map((colonne) => {
+                const tachesColonne = projet.taches.filter((t) => t.statut === colonne.id);
+                return (
+                  <div
+                    key={colonne.id}
+                    onDragOver={handleDragOver}
+                    onDrop={(e) => handleDrop(e, colonne.id)}
+                    style={{
+                      backgroundColor: "#2d1b69",
+                      borderRadius: "16px",
+                      padding: "1.5rem",
+                      display: "flex",
+                      flexDirection: "column",
+                      border: "1px solid #4c1d95",
+                    }}
+                  >
+                    {/* En-tête de colonne */}
+                    <div
+                      style={{
+                        backgroundColor: colonne.color,
+                        color: "#fff",
+                        padding: "1rem 1.25rem",
+                        borderRadius: "12px",
+                        marginBottom: "1.5rem",
+                        fontWeight: "700",
+                        fontSize: "1.05rem",
+                        display: "flex",
+                        justifyContent: "space-between",
+                        alignItems: "center",
+                        boxShadow: "0 2px 8px rgba(0, 0, 0, 0.2)",
+                      }}
+                    >
+                      <span>{colonne.label}</span>
+                      <span
+                        style={{
+                          backgroundColor: "rgba(255,255,255,0.25)",
+                          padding: "0.4rem 0.75rem",
+                          borderRadius: "20px",
+                          fontSize: "0.9rem",
+                          fontWeight: "700",
+                        }}
+                      >
+                        {tachesColonne.length}
                       </span>
-                    </td>
-                    <td style={{ padding: "1rem", fontSize: "0.9rem", color: "#c4b5fd" }}>
-                      {tache.assigne_a_details?.username || "—"}
-                    </td>
-                    <td style={{ padding: "1rem", fontSize: "0.9rem", color: "#c4b5fd" }}>
-                      {tache.deadline ? new Date(tache.deadline).toLocaleDateString("fr-FR") : "—"}
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
+                    </div>
+
+                    {/* Liste des tâches */}
+                    <div style={{ flex: 1, display: "flex", flexDirection: "column", gap: "1rem" }}>
+                      {tachesColonne.length === 0 ? (
+                        <div
+                          style={{
+                            padding: "2rem 1rem",
+                            textAlign: "center",
+                            color: "#a78bfa",
+                            fontSize: "0.9rem",
+                            border: "2px dashed #4c1d95",
+                            borderRadius: "12px",
+                            backgroundColor: "rgba(76, 29, 149, 0.2)",
+                          }}
+                        >
+                          <div style={{ fontSize: "2rem", marginBottom: "0.5rem" }}>📭</div>
+                          <div>Aucune tâche</div>
+                        </div>
+                      ) : (
+                        tachesColonne.map((tache) => {
+                          const isDraggable = canDragTask(tache);
+                          return (
+                            <div
+                              key={tache.id}
+                              draggable={isDraggable}
+                              onDragStart={(e) => handleDragStart(e, tache)}
+                              onDragEnd={handleDragEnd}
+                              style={{
+                                backgroundColor: "#1e1b4b",
+                                padding: "1.25rem",
+                                borderRadius: "12px",
+                                boxShadow: "0 2px 8px rgba(124, 58, 237, 0.1)",
+                                cursor: isDraggable ? "grab" : "default",
+                                border: "1px solid #4c1d95",
+                                transition: "all 0.2s",
+                                opacity: isDraggable ? 1 : 0.7,
+                              }}
+                              onMouseEnter={(e) => {
+                                if (isDraggable) {
+                                  e.currentTarget.style.transform = "translateY(-3px)";
+                                  e.currentTarget.style.boxShadow = "0 4px 16px rgba(124, 58, 237, 0.3)";
+                                  e.currentTarget.style.borderColor = "#a78bfa";
+                                }
+                              }}
+                              onMouseLeave={(e) => {
+                                if (isDraggable) {
+                                  e.currentTarget.style.transform = "translateY(0)";
+                                  e.currentTarget.style.boxShadow = "0 2px 8px rgba(124, 58, 237, 0.1)";
+                                  e.currentTarget.style.borderColor = "#4c1d95";
+                                }
+                              }}
+                            >
+                              {/* Titre de la tâche */}
+                              <div
+                                style={{
+                                  fontWeight: "600",
+                                  marginBottom: "0.75rem",
+                                  fontSize: "1.05rem",
+                                  color: "#fff",
+                                  lineHeight: "1.4",
+                                }}
+                              >
+                                {tache.titre}
+                              </div>
+
+                              {/* Badge priorité */}
+                              <div style={{ marginBottom: "0.75rem" }}>
+                                <span
+                                  style={{
+                                    display: "inline-block",
+                                    padding: "0.4rem 0.75rem",
+                                    borderRadius: "8px",
+                                    fontSize: "0.85rem",
+                                    fontWeight: "600",
+                                    backgroundColor: `${PRIORITE_COLORS[tache.priorite] || "#a78bfa"}33`,
+                                    color: PRIORITE_COLORS[tache.priorite] || "#a78bfa",
+                                    border: `1px solid ${PRIORITE_COLORS[tache.priorite] || "#a78bfa"}`,
+                                  }}
+                                >
+                                  {TACHE_PRIORITE_LABELS[tache.priorite] || tache.priorite}
+                                </span>
+                              </div>
+
+                              {/* Informations supplémentaires */}
+                              <div style={{ fontSize: "0.9rem", color: "#c4b5fd", lineHeight: "1.6" }}>
+                                {tache.assigne_a_details && (
+                                  <div style={{ marginBottom: "0.5rem" }}>👤 {tache.assigne_a_details.username}</div>
+                                )}
+                                {tache.deadline && (
+                                  <div>📅 {new Date(tache.deadline).toLocaleDateString("fr-FR")}</div>
+                                )}
+                              </div>
+
+                              {/* Indicateur si non draggable */}
+                              {!isDraggable && (
+                                <div style={{ marginTop: "0.75rem", fontSize: "0.75rem", color: "#a78bfa", fontStyle: "italic" }}>
+                                  🔒 Lecture seule
+                                </div>
+                              )}
+                            </div>
+                          );
+                        })
+                      )}
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+
+            <div
+              style={{
+                marginTop: "1.5rem",
+                padding: "1rem",
+                backgroundColor: "rgba(124, 58, 237, 0.1)",
+                borderRadius: "8px",
+                border: "1px solid rgba(124, 58, 237, 0.3)",
+                color: "#c4b5fd",
+                fontSize: "0.9rem",
+              }}
+            >
+              💡 <strong>Astuce:</strong> Glissez-déposez les tâches pour changer leur statut. Seuls les administrateurs, chefs de pôle, chefs de projet et les personnes assignées peuvent déplacer les tâches.
+            </div>
+          </>
         )}
       </div>
 

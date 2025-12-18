@@ -10,7 +10,6 @@ import AdminUsers from "./pages/AdminUsers";
 import AdminPoles from "./pages/AdminPoles";
 import ProjetsList from "./pages/ProjetsList";
 import ProjetDetails from "./pages/ProjetDetails";
-import KanbanTaches from "./pages/KanbanTaches";
 import Layout from "./components/Layout";
 import AdminLayout from "./components/AdminLayout";
 
@@ -89,18 +88,6 @@ function App() {
                 <ProtectedRoute>
                   <AdminLayout pageTitle="Détails du Projet">
                     <ProjetDetails />
-                  </AdminLayout>
-                </ProtectedRoute>
-              }
-            />
-
-            {/* Kanban des tâches - accessible à tous les utilisateurs connectés */}
-            <Route
-              path="/kanban"
-              element={
-                <ProtectedRoute>
-                  <AdminLayout pageTitle="Kanban - Gestion des Tâches">
-                    <KanbanTaches />
                   </AdminLayout>
                 </ProtectedRoute>
               }
