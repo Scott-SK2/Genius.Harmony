@@ -68,10 +68,19 @@ class UserProfileSerializer(serializers.ModelSerializer):
     pole_name = serializers.CharField(
         source='profile.pole.name', read_only=True
     )
+    photo = serializers.ImageField(source='profile.photo', read_only=True)
+    photo_url = serializers.SerializerMethodField()
 
     class Meta:
         model = User
-        fields = ['id', 'username', 'email', 'role', 'pole', 'pole_name']
+        fields = ['id', 'username', 'email', 'role', 'pole', 'pole_name', 'photo', 'photo_url']
+
+    def get_photo_url(self, obj):
+        if hasattr(obj, 'profile') and obj.profile.photo:
+            request = self.context.get('request')
+            if request:
+                return request.build_absolute_uri(obj.profile.photo.url)
+        return None
 
     def update(self, instance, validated_data):
         profile_data = validated_data.pop('profile', {})

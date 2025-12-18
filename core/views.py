@@ -30,6 +30,10 @@ class MeView(APIView):
         user = request.user
         profile = getattr(user, 'profile', None)
 
+        photo_url = None
+        if profile and profile.photo:
+            photo_url = request.build_absolute_uri(profile.photo.url)
+
         return Response({
             "id": user.id,
             "username": user.username,
@@ -38,6 +42,7 @@ class MeView(APIView):
             "role": profile.role if profile else None,
             "pole": profile.pole.name if profile and profile.pole else None,
             "client_type": profile.client_type if profile else None,
+            "photo_url": photo_url,
         })
 
 class IsAdminUserProfile(permissions.BasePermission):
@@ -77,6 +82,45 @@ class UserUpdateView(generics.UpdateAPIView):
 class UserDeleteView(generics.DestroyAPIView):
     queryset = User.objects.all()
     permission_classes = [IsAdminUserProfile]
+
+
+class UserUploadPhotoView(APIView):
+    """
+    Vue pour uploader une photo de profil
+    """
+    permission_classes = [permissions.IsAuthenticated]
+    parser_classes = [MultiPartParser, FormParser]
+
+    def post(self, request, pk):
+        try:
+            user = User.objects.select_related('profile').get(pk=pk)
+        except User.DoesNotExist:
+            return Response({"detail": "Utilisateur introuvable"}, status=status.HTTP_404_NOT_FOUND)
+
+        # Vérifier que l'utilisateur peut modifier cette photo
+        # Soit c'est son propre profil, soit c'est un admin
+        profile = getattr(request.user, 'profile', None)
+        if request.user.id != pk and (not profile or profile.role != 'admin'):
+            return Response(
+                {"detail": "Vous n'avez pas la permission de modifier cette photo"},
+                status=status.HTTP_403_FORBIDDEN
+            )
+
+        # Récupérer le fichier
+        photo = request.FILES.get('photo')
+        if not photo:
+            return Response(
+                {"detail": "Aucune photo fournie"},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+
+        # Enregistrer la photo
+        user.profile.photo = photo
+        user.profile.save()
+
+        # Retourner les données mises à jour
+        serializer = UserProfileSerializer(user, context={'request': request})
+        return Response(serializer.data)
 
 
 class UserProfileDetailView(APIView):

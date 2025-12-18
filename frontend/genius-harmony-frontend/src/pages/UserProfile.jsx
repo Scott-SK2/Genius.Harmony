@@ -53,37 +53,79 @@ const PRIORITE_COLORS = {
 
 export default function UserProfile() {
   const { id } = useParams();
-  const { token } = useAuth();
+  const { token, user } = useAuth();
   const [userProfile, setUserProfile] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [uploadingPhoto, setUploadingPhoto] = useState(false);
+
+  const canUploadPhoto = () => {
+    if (!user || !id) return false;
+    return user.id === parseInt(id) || user.role === 'admin';
+  };
+
+  const handlePhotoUpload = async (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+
+    // Vérifier que c'est une image
+    if (!file.type.startsWith('image/')) {
+      alert("Veuillez sélectionner une image valide");
+      return;
+    }
+
+    const formData = new FormData();
+    formData.append('photo', file);
+
+    try {
+      setUploadingPhoto(true);
+      const response = await fetch(`http://127.0.0.1:8000/api/users/${id}/upload-photo/`, {
+        method: 'POST',
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+        body: formData,
+      });
+
+      if (!response.ok) {
+        throw new Error("Impossible d'uploader la photo");
+      }
+
+      // Recharger le profil pour afficher la nouvelle photo
+      fetchUserProfile();
+    } catch (err) {
+      console.error("Erreur upload photo:", err);
+      alert("Impossible d'uploader la photo");
+    } finally {
+      setUploadingPhoto(false);
+    }
+  };
+
+  const fetchUserProfile = async () => {
+    try {
+      setLoading(true);
+      const response = await fetch(`http://127.0.0.1:8000/api/users/${id}/profile/`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+
+      if (!response.ok) {
+        throw new Error("Impossible de charger le profil");
+      }
+
+      const data = await response.json();
+      setUserProfile(data);
+    } catch (err) {
+      console.error("Erreur fetch profil utilisateur:", err);
+      setError("Impossible de charger le profil utilisateur");
+    } finally {
+      setLoading(false);
+    }
+  };
 
   useEffect(() => {
     if (!token || !id) return;
-
-    const fetchUserProfile = async () => {
-      try {
-        setLoading(true);
-        const response = await fetch(`http://127.0.0.1:8000/api/users/${id}/profile/`, {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        });
-
-        if (!response.ok) {
-          throw new Error("Impossible de charger le profil");
-        }
-
-        const data = await response.json();
-        setUserProfile(data);
-      } catch (err) {
-        console.error("Erreur fetch profil utilisateur:", err);
-        setError("Impossible de charger le profil utilisateur");
-      } finally {
-        setLoading(false);
-      }
-    };
-
     fetchUserProfile();
   }, [token, id]);
 
@@ -171,20 +213,79 @@ export default function UserProfile() {
           border: "1px solid #4c1d95",
         }}
       >
-        <div style={{ display: "flex", alignItems: "center", gap: "2rem", marginBottom: "1.5rem" }}>
-          <div
-            style={{
-              width: "80px",
-              height: "80px",
-              borderRadius: "50%",
-              backgroundColor: "#7c3aed",
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "center",
-              fontSize: "2.5rem",
-            }}
-          >
-            👤
+        <div style={{ display: "flex", alignItems: "center", gap: "2rem", marginBottom: "1.5rem", flexWrap: "wrap" }}>
+          <div style={{ position: "relative" }}>
+            <div
+              style={{
+                width: "80px",
+                height: "80px",
+                borderRadius: "50%",
+                backgroundColor: "#7c3aed",
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                fontSize: "2.5rem",
+                overflow: "hidden",
+                border: "3px solid #a78bfa",
+              }}
+            >
+              {userProfile.photo_url ? (
+                <img
+                  src={userProfile.photo_url}
+                  alt={userProfile.username}
+                  style={{
+                    width: "100%",
+                    height: "100%",
+                    objectFit: "cover",
+                  }}
+                />
+              ) : (
+                "👤"
+              )}
+            </div>
+            {canUploadPhoto() && (
+              <label
+                htmlFor="photo-upload"
+                style={{
+                  position: "absolute",
+                  bottom: "-5px",
+                  right: "-5px",
+                  width: "30px",
+                  height: "30px",
+                  borderRadius: "50%",
+                  backgroundColor: "#7c3aed",
+                  border: "2px solid #2d1b69",
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  cursor: uploadingPhoto ? "wait" : "pointer",
+                  transition: "all 0.2s",
+                  fontSize: "0.9rem",
+                }}
+                onMouseEnter={(e) => {
+                  if (!uploadingPhoto) {
+                    e.target.style.transform = "scale(1.1)";
+                    e.target.style.backgroundColor = "#6d32d1";
+                  }
+                }}
+                onMouseLeave={(e) => {
+                  if (!uploadingPhoto) {
+                    e.target.style.transform = "scale(1)";
+                    e.target.style.backgroundColor = "#7c3aed";
+                  }
+                }}
+              >
+                {uploadingPhoto ? "⏳" : "📷"}
+              </label>
+            )}
+            <input
+              id="photo-upload"
+              type="file"
+              accept="image/*"
+              onChange={handlePhotoUpload}
+              disabled={uploadingPhoto || !canUploadPhoto()}
+              style={{ display: "none" }}
+            />
           </div>
           <div>
             <h1 style={{ margin: 0, color: "#fff", fontSize: "2rem" }}>

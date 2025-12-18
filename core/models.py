@@ -47,8 +47,24 @@ class Profile(models.Model):
     twitter = models.URLField(blank=True)
     tiktok = models.URLField(blank=True)
 
+    # Photo de profil
+    photo = models.ImageField(upload_to='profile_photos/', null=True, blank=True)
+
     def __str__(self):
         return self.user.get_full_name() or self.user.username
+
+
+# Signal pour créer automatiquement un profil lors de la création d'un utilisateur
+@receiver(post_save, sender=User)
+def create_user_profile(sender, instance, created, **kwargs):
+    if created:
+        Profile.objects.create(user=instance, role='membre')
+
+
+@receiver(post_save, sender=User)
+def save_user_profile(sender, instance, **kwargs):
+    if hasattr(instance, 'profile'):
+        instance.profile.save()
 
 
 class Projet(models.Model):

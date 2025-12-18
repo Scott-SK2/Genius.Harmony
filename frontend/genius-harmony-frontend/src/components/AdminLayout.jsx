@@ -176,7 +176,22 @@ export default function AdminLayout({ children, pageTitle = "Dashboard" }) {
 
         {/* Right: Profile + Logout */}
         <div style={{ display: "flex", alignItems: "center", gap: "1.5rem" }}>
-          <div style={{ display: "flex", alignItems: "center", gap: "0.75rem" }}>
+          <Link
+            to={`/users/${user?.id}/profile`}
+            style={{
+              display: "flex",
+              alignItems: "center",
+              gap: "0.75rem",
+              textDecoration: "none",
+              transition: "opacity 0.2s",
+            }}
+            onMouseEnter={(e) => {
+              e.currentTarget.style.opacity = "0.8";
+            }}
+            onMouseLeave={(e) => {
+              e.currentTarget.style.opacity = "1";
+            }}
+          >
             <div
               style={{
                 width: "40px",
@@ -187,9 +202,23 @@ export default function AdminLayout({ children, pageTitle = "Dashboard" }) {
                 alignItems: "center",
                 justifyContent: "center",
                 fontSize: "1.2rem",
+                overflow: "hidden",
+                border: "2px solid rgba(255,255,255,0.3)",
               }}
             >
-              👤
+              {user?.photo_url ? (
+                <img
+                  src={user.photo_url}
+                  alt={user.username}
+                  style={{
+                    width: "100%",
+                    height: "100%",
+                    objectFit: "cover",
+                  }}
+                />
+              ) : (
+                "👤"
+              )}
             </div>
             <div>
               <div style={{ color: "#fff", fontSize: "0.9rem", fontWeight: "500" }}>
@@ -199,7 +228,7 @@ export default function AdminLayout({ children, pageTitle = "Dashboard" }) {
                 {user?.role}
               </div>
             </div>
-          </div>
+          </Link>
           <button
             onClick={logout}
             style={{
