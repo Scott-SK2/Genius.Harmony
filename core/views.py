@@ -74,6 +74,11 @@ class UserUpdateView(generics.UpdateAPIView):
     permission_classes = [IsAdminUserProfile]
 
 
+class UserDeleteView(generics.DestroyAPIView):
+    queryset = User.objects.all()
+    permission_classes = [IsAdminUserProfile]
+
+
 class UserProfileDetailView(APIView):
     """
     Vue pour récupérer le profil complet d'un utilisateur avec tous ses projets et tâches

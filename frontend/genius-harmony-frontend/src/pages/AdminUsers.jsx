@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
-import { fetchUsers, updateUser } from "../api/users";
+import { fetchUsers, updateUser, deleteUser } from "../api/users";
 import { fetchPoles } from "../api/poles";
 
 const ROLE_LABELS = {
@@ -80,6 +80,25 @@ export default function AdminUsers() {
     } catch (err) {
       console.error("Erreur update pole:", err);
       alert("Impossible de changer le pôle");
+    } finally {
+      setSavingId(null);
+    }
+  }
+
+  async function handleDeleteUser(userId, username) {
+    const confirmation = window.confirm(
+      `Êtes-vous sûr de vouloir supprimer l'utilisateur "${username}" ?\n\nCette action est irréversible et supprimera également toutes les données associées à cet utilisateur.`
+    );
+
+    if (!confirmation) return;
+
+    try {
+      setSavingId(userId);
+      await deleteUser(token, userId);
+      setUsers((prev) => prev.filter((u) => u.id !== userId));
+    } catch (err) {
+      console.error("Erreur suppression utilisateur:", err);
+      alert("Impossible de supprimer l'utilisateur");
     } finally {
       setSavingId(null);
     }
@@ -267,30 +286,61 @@ export default function AdminUsers() {
                     </div>
                   </td>
                   <td style={{ padding: "1rem" }}>
-                    <Link
-                      to={`/users/${u.id}/profile`}
-                      style={{
-                        padding: "0.5rem 1rem",
-                        backgroundColor: "#7c3aed",
-                        color: "#fff",
-                        borderRadius: "8px",
-                        textDecoration: "none",
-                        fontSize: "0.9rem",
-                        fontWeight: "600",
-                        display: "inline-block",
-                        transition: "all 0.2s",
-                      }}
-                      onMouseEnter={(e) => {
-                        e.target.style.backgroundColor = "#6d32d1";
-                        e.target.style.transform = "translateY(-2px)";
-                      }}
-                      onMouseLeave={(e) => {
-                        e.target.style.backgroundColor = "#7c3aed";
-                        e.target.style.transform = "translateY(0)";
-                      }}
-                    >
-                      👁️ Voir profil
-                    </Link>
+                    <div style={{ display: "flex", gap: "0.5rem" }}>
+                      <Link
+                        to={`/users/${u.id}/profile`}
+                        style={{
+                          padding: "0.5rem 1rem",
+                          backgroundColor: "#7c3aed",
+                          color: "#fff",
+                          borderRadius: "8px",
+                          textDecoration: "none",
+                          fontSize: "0.9rem",
+                          fontWeight: "600",
+                          display: "inline-block",
+                          transition: "all 0.2s",
+                        }}
+                        onMouseEnter={(e) => {
+                          e.target.style.backgroundColor = "#6d32d1";
+                          e.target.style.transform = "translateY(-2px)";
+                        }}
+                        onMouseLeave={(e) => {
+                          e.target.style.backgroundColor = "#7c3aed";
+                          e.target.style.transform = "translateY(0)";
+                        }}
+                      >
+                        👁️ Voir
+                      </Link>
+                      <button
+                        onClick={() => handleDeleteUser(u.id, u.username)}
+                        disabled={savingId === u.id}
+                        style={{
+                          padding: "0.5rem 1rem",
+                          backgroundColor: "#f87171",
+                          color: "#fff",
+                          borderRadius: "8px",
+                          border: "none",
+                          fontSize: "0.9rem",
+                          fontWeight: "600",
+                          cursor: savingId === u.id ? "wait" : "pointer",
+                          transition: "all 0.2s",
+                        }}
+                        onMouseEnter={(e) => {
+                          if (savingId !== u.id) {
+                            e.target.style.backgroundColor = "#ef4444";
+                            e.target.style.transform = "translateY(-2px)";
+                          }
+                        }}
+                        onMouseLeave={(e) => {
+                          if (savingId !== u.id) {
+                            e.target.style.backgroundColor = "#f87171";
+                            e.target.style.transform = "translateY(0)";
+                          }
+                        }}
+                      >
+                        🗑️ Supprimer
+                      </button>
+                    </div>
                   </td>
                 </tr>
               ))}

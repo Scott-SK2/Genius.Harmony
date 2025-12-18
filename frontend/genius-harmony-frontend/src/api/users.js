@@ -19,3 +19,12 @@ export async function updateUser(token, id, payload) {
   });
   return res.data;
 }
+
+export async function deleteUser(token, id) {
+  const res = await axios.delete(`${API_URL}/users/${id}/delete/`, {
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+  });
+  return res.data;
+}
