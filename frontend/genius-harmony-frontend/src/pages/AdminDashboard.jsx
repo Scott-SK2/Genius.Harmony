@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 import { fetchPoles, createPole, updatePole, deletePole } from "../api/poles";
 import { fetchProjets } from "../api/projets";
@@ -7,6 +8,7 @@ import { fetchUsers } from "../api/users";
 
 export default function AdminDashboard() {
   const { token } = useAuth();
+  const navigate = useNavigate();
   const [poles, setPoles] = useState([]);
   const [users, setUsers] = useState([]);
   const [stats, setStats] = useState({
@@ -135,6 +137,7 @@ export default function AdminDashboard() {
         }}
       >
           <div
+            onClick={() => navigate("/projets")}
             style={{
               backgroundColor: "#2d1b69",
               padding: "1.5rem",
@@ -179,6 +182,7 @@ export default function AdminDashboard() {
           </div>
 
           <div
+            onClick={() => navigate("/kanban")}
             style={{
               backgroundColor: "#2d1b69",
               padding: "1.5rem",
@@ -223,6 +227,7 @@ export default function AdminDashboard() {
           </div>
 
           <div
+            onClick={() => navigate("/admin/poles")}
             style={{
               backgroundColor: "#2d1b69",
               padding: "1.5rem",
@@ -267,6 +272,7 @@ export default function AdminDashboard() {
           </div>
 
           <div
+            onClick={() => navigate("/admin/users")}
             style={{
               backgroundColor: "#2d1b69",
               padding: "1.5rem",

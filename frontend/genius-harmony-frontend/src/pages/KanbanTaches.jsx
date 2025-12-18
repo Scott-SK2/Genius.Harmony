@@ -1,6 +1,5 @@
 import { useEffect, useState } from "react";
 import { useAuth } from "../context/AuthContext";
-import { useTheme } from "../context/ThemeContext";
 import { fetchTaches, updateTache } from "../api/taches";
 import { fetchProjets } from "../api/projets";
 
@@ -13,7 +12,6 @@ const PRIORITE_LABELS = {
 
 export default function KanbanTaches() {
   const { token } = useAuth();
-  const { theme } = useTheme();
   const [taches, setTaches] = useState([]);
   const [projets, setProjets] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -64,16 +62,16 @@ export default function KanbanTaches() {
   }, [selectedProjet, selectedPriorite, token]);
 
   const COLONNES = [
-    { id: "a_faire", label: "À faire", color: theme.text.secondary },
-    { id: "en_cours", label: "En cours", color: theme.colors.primary },
-    { id: "termine", label: "Terminé", color: theme.colors.success },
+    { id: "a_faire", label: "À faire", color: "#a78bfa" },
+    { id: "en_cours", label: "En cours", color: "#7c3aed" },
+    { id: "termine", label: "Terminé", color: "#10b981" },
   ];
 
   const PRIORITE_COLORS = {
-    basse: theme.text.secondary,
-    normale: theme.colors.primary,
-    haute: theme.colors.warning,
-    urgente: theme.colors.danger,
+    basse: "#a78bfa",
+    normale: "#7c3aed",
+    haute: "#f59e0b",
+    urgente: "#f87171",
   };
 
   // Grouper les tâches par statut
@@ -131,13 +129,11 @@ export default function KanbanTaches() {
           justifyContent: "center",
           alignItems: "center",
           minHeight: "60vh",
-          color: theme.text.secondary,
-          fontSize: "1.1rem",
         }}
       >
         <div style={{ textAlign: "center" }}>
           <div style={{ fontSize: "3rem", marginBottom: "1rem" }}>⏳</div>
-          <div>Chargement du Kanban...</div>
+          <div style={{ color: "#c4b5fd" }}>Chargement du Kanban...</div>
         </div>
       </div>
     );
@@ -148,10 +144,10 @@ export default function KanbanTaches() {
       <div
         style={{
           padding: "2rem",
-          backgroundColor: `${theme.colors.danger}10`,
-          border: `1px solid ${theme.colors.danger}`,
+          backgroundColor: "rgba(248, 113, 113, 0.1)",
+          border: "1px solid #f87171",
           borderRadius: "12px",
-          color: theme.colors.danger,
+          color: "#f87171",
         }}
       >
         <strong>Erreur :</strong> {error}
@@ -160,18 +156,11 @@ export default function KanbanTaches() {
   }
 
   return (
-    <div>
-      <h1
-        style={{
-          margin: 0,
-          marginBottom: "0.5rem",
-          color: theme.text.primary,
-          fontSize: "2rem",
-        }}
-      >
+    <div style={{ width: "100%", maxWidth: "100%" }}>
+      <h1 style={{ margin: 0, marginBottom: "0.5rem", color: "#fff", fontSize: "2rem" }}>
         📊 Kanban - Gestion des Tâches
       </h1>
-      <p style={{ margin: 0, marginBottom: "2rem", color: theme.text.secondary, fontSize: "1.05rem" }}>
+      <p style={{ margin: 0, marginBottom: "2rem", color: "#c4b5fd", fontSize: "1.05rem" }}>
         Glissez-déposez les tâches pour changer leur statut
       </p>
 
@@ -182,10 +171,9 @@ export default function KanbanTaches() {
           gap: "1rem",
           marginBottom: "2rem",
           padding: "1.5rem",
-          backgroundColor: theme.bg.card,
+          backgroundColor: "#2d1b69",
           borderRadius: "12px",
-          border: `1px solid ${theme.border.light}`,
-          boxShadow: theme.shadow.sm,
+          border: "1px solid #4c1d95",
         }}
       >
         <div style={{ flex: 1 }}>
@@ -195,7 +183,7 @@ export default function KanbanTaches() {
               display: "block",
               marginBottom: "0.75rem",
               fontWeight: "600",
-              color: theme.text.primary,
+              color: "#c4b5fd",
             }}
           >
             🔍 Filtrer par projet
@@ -208,10 +196,11 @@ export default function KanbanTaches() {
               width: "100%",
               padding: "0.75rem",
               borderRadius: "8px",
-              border: `1px solid ${theme.border.medium}`,
-              backgroundColor: theme.bg.primary,
-              color: theme.text.primary,
+              border: "1px solid #4c1d95",
+              backgroundColor: "#1e1b4b",
+              color: "#fff",
               fontSize: "1rem",
+              cursor: "pointer",
             }}
           >
             <option value="">Tous les projets</option>
@@ -230,7 +219,7 @@ export default function KanbanTaches() {
               display: "block",
               marginBottom: "0.75rem",
               fontWeight: "600",
-              color: theme.text.primary,
+              color: "#c4b5fd",
             }}
           >
             ⚡ Filtrer par priorité
@@ -243,10 +232,11 @@ export default function KanbanTaches() {
               width: "100%",
               padding: "0.75rem",
               borderRadius: "8px",
-              border: `1px solid ${theme.border.medium}`,
-              backgroundColor: theme.bg.primary,
-              color: theme.text.primary,
+              border: "1px solid #4c1d95",
+              backgroundColor: "#1e1b4b",
+              color: "#fff",
               fontSize: "1rem",
+              cursor: "pointer",
             }}
           >
             <option value="">Toutes les priorités</option>
@@ -266,22 +256,21 @@ export default function KanbanTaches() {
               }}
               style={{
                 padding: "0.75rem 1.5rem",
-                backgroundColor: theme.colors.danger,
-                color: theme.text.inverse,
+                backgroundColor: "#f87171",
+                color: "#fff",
                 border: "none",
                 borderRadius: "8px",
                 cursor: "pointer",
                 fontWeight: "600",
                 transition: "all 0.2s",
-                boxShadow: theme.shadow.sm,
               }}
               onMouseEnter={(e) => {
+                e.target.style.backgroundColor = "#ef4444";
                 e.target.style.transform = "translateY(-2px)";
-                e.target.style.boxShadow = theme.shadow.md;
               }}
               onMouseLeave={(e) => {
+                e.target.style.backgroundColor = "#f87171";
                 e.target.style.transform = "translateY(0)";
-                e.target.style.boxShadow = theme.shadow.sm;
               }}
             >
               ✕ Réinitialiser
@@ -301,21 +290,20 @@ export default function KanbanTaches() {
       >
         <div
           style={{
-            backgroundColor: theme.bg.card,
+            backgroundColor: "#2d1b69",
             borderRadius: "16px",
             padding: "2rem",
-            boxShadow: theme.shadow.md,
-            border: `1px solid ${theme.border.light}`,
+            border: "1px solid #4c1d95",
             transition: "all 0.3s",
-            cursor: "default",
+            boxShadow: "0 2px 8px rgba(124, 58, 237, 0.1)",
           }}
           onMouseEnter={(e) => {
             e.currentTarget.style.transform = "translateY(-4px)";
-            e.currentTarget.style.boxShadow = theme.shadow.xl;
+            e.currentTarget.style.boxShadow = "0 4px 16px rgba(124, 58, 237, 0.3)";
           }}
           onMouseLeave={(e) => {
             e.currentTarget.style.transform = "translateY(0)";
-            e.currentTarget.style.boxShadow = theme.shadow.md;
+            e.currentTarget.style.boxShadow = "0 2px 8px rgba(124, 58, 237, 0.1)";
           }}
         >
           <div style={{ display: "flex", alignItems: "center", gap: "1rem" }}>
@@ -324,7 +312,7 @@ export default function KanbanTaches() {
                 width: "60px",
                 height: "60px",
                 borderRadius: "12px",
-                backgroundColor: `${theme.colors.primary}20`,
+                backgroundColor: "#4c1d95",
                 display: "flex",
                 alignItems: "center",
                 justifyContent: "center",
@@ -334,24 +322,10 @@ export default function KanbanTaches() {
               📋
             </div>
             <div>
-              <div
-                style={{
-                  fontSize: "0.9rem",
-                  color: theme.text.secondary,
-                  fontWeight: "500",
-                  marginBottom: "0.25rem",
-                }}
-              >
+              <div style={{ fontSize: "0.9rem", color: "#c4b5fd", fontWeight: "500", marginBottom: "0.25rem" }}>
                 Total tâches
               </div>
-              <div
-                style={{
-                  fontSize: "2.5rem",
-                  fontWeight: "700",
-                  color: theme.text.primary,
-                  lineHeight: 1,
-                }}
-              >
+              <div style={{ fontSize: "2.5rem", fontWeight: "700", color: "#fff", lineHeight: 1 }}>
                 {taches.length}
               </div>
             </div>
@@ -367,21 +341,20 @@ export default function KanbanTaches() {
             <div
               key={col.id}
               style={{
-                backgroundColor: theme.bg.card,
+                backgroundColor: "#2d1b69",
                 borderRadius: "16px",
                 padding: "2rem",
-                boxShadow: theme.shadow.md,
-                border: `1px solid ${theme.border.light}`,
+                border: "1px solid #4c1d95",
                 transition: "all 0.3s",
-                cursor: "default",
+                boxShadow: "0 2px 8px rgba(124, 58, 237, 0.1)",
               }}
               onMouseEnter={(e) => {
                 e.currentTarget.style.transform = "translateY(-4px)";
-                e.currentTarget.style.boxShadow = theme.shadow.xl;
+                e.currentTarget.style.boxShadow = "0 4px 16px rgba(124, 58, 237, 0.3)";
               }}
               onMouseLeave={(e) => {
                 e.currentTarget.style.transform = "translateY(0)";
-                e.currentTarget.style.boxShadow = theme.shadow.md;
+                e.currentTarget.style.boxShadow = "0 2px 8px rgba(124, 58, 237, 0.1)";
               }}
             >
               <div style={{ display: "flex", alignItems: "center", gap: "1rem" }}>
@@ -390,7 +363,7 @@ export default function KanbanTaches() {
                     width: "60px",
                     height: "60px",
                     borderRadius: "12px",
-                    backgroundColor: `${col.color}20`,
+                    backgroundColor: `${col.color}33`,
                     display: "flex",
                     alignItems: "center",
                     justifyContent: "center",
@@ -400,24 +373,10 @@ export default function KanbanTaches() {
                   {icons[col.id]}
                 </div>
                 <div>
-                  <div
-                    style={{
-                      fontSize: "0.9rem",
-                      color: theme.text.secondary,
-                      fontWeight: "500",
-                      marginBottom: "0.25rem",
-                    }}
-                  >
+                  <div style={{ fontSize: "0.9rem", color: "#c4b5fd", fontWeight: "500", marginBottom: "0.25rem" }}>
                     {col.label}
                   </div>
-                  <div
-                    style={{
-                      fontSize: "2.5rem",
-                      fontWeight: "700",
-                      color: theme.text.primary,
-                      lineHeight: 1,
-                    }}
-                  >
+                  <div style={{ fontSize: "2.5rem", fontWeight: "700", color: "#fff", lineHeight: 1 }}>
                     {tachesParStatut[col.id]?.length || 0}
                   </div>
                 </div>
@@ -442,20 +401,19 @@ export default function KanbanTaches() {
             onDragOver={handleDragOver}
             onDrop={(e) => handleDrop(e, colonne.id)}
             style={{
-              backgroundColor: theme.bg.secondary,
+              backgroundColor: "#2d1b69",
               borderRadius: "16px",
               padding: "1.5rem",
               display: "flex",
               flexDirection: "column",
-              border: `1px solid ${theme.border.light}`,
-              boxShadow: theme.shadow.sm,
+              border: "1px solid #4c1d95",
             }}
           >
             {/* En-tête de colonne */}
             <div
               style={{
                 backgroundColor: colonne.color,
-                color: theme.text.inverse,
+                color: "#fff",
                 padding: "1rem 1.25rem",
                 borderRadius: "12px",
                 marginBottom: "1.5rem",
@@ -464,7 +422,7 @@ export default function KanbanTaches() {
                 display: "flex",
                 justifyContent: "space-between",
                 alignItems: "center",
-                boxShadow: theme.shadow.sm,
+                boxShadow: "0 2px 8px rgba(0, 0, 0, 0.2)",
               }}
             >
               <span>{colonne.label}</span>
@@ -490,23 +448,23 @@ export default function KanbanTaches() {
                   onDragStart={(e) => handleDragStart(e, tache)}
                   onDragEnd={handleDragEnd}
                   style={{
-                    backgroundColor: theme.bg.card,
+                    backgroundColor: "#1e1b4b",
                     padding: "1.25rem",
                     borderRadius: "12px",
-                    boxShadow: theme.shadow.md,
+                    boxShadow: "0 2px 8px rgba(124, 58, 237, 0.1)",
                     cursor: "grab",
-                    border: `1px solid ${theme.border.light}`,
+                    border: "1px solid #4c1d95",
                     transition: "all 0.2s",
                   }}
                   onMouseEnter={(e) => {
                     e.currentTarget.style.transform = "translateY(-3px)";
-                    e.currentTarget.style.boxShadow = theme.shadow.lg;
-                    e.currentTarget.style.borderColor = theme.border.medium;
+                    e.currentTarget.style.boxShadow = "0 4px 16px rgba(124, 58, 237, 0.3)";
+                    e.currentTarget.style.borderColor = "#a78bfa";
                   }}
                   onMouseLeave={(e) => {
                     e.currentTarget.style.transform = "translateY(0)";
-                    e.currentTarget.style.boxShadow = theme.shadow.md;
-                    e.currentTarget.style.borderColor = theme.border.light;
+                    e.currentTarget.style.boxShadow = "0 2px 8px rgba(124, 58, 237, 0.1)";
+                    e.currentTarget.style.borderColor = "#4c1d95";
                   }}
                 >
                   {/* Titre de la tâche */}
@@ -515,7 +473,7 @@ export default function KanbanTaches() {
                       fontWeight: "600",
                       marginBottom: "0.75rem",
                       fontSize: "1.05rem",
-                      color: theme.text.primary,
+                      color: "#fff",
                       lineHeight: "1.4",
                     }}
                   >
@@ -531,9 +489,9 @@ export default function KanbanTaches() {
                         borderRadius: "8px",
                         fontSize: "0.85rem",
                         fontWeight: "600",
-                        backgroundColor: `${PRIORITE_COLORS[tache.priorite] || theme.text.secondary}20`,
-                        color: PRIORITE_COLORS[tache.priorite] || theme.text.secondary,
-                        border: `1px solid ${PRIORITE_COLORS[tache.priorite] || theme.text.secondary}40`,
+                        backgroundColor: `${PRIORITE_COLORS[tache.priorite] || "#a78bfa"}33`,
+                        color: PRIORITE_COLORS[tache.priorite] || "#a78bfa",
+                        border: `1px solid ${PRIORITE_COLORS[tache.priorite] || "#a78bfa"}`,
                       }}
                     >
                       {PRIORITE_LABELS[tache.priorite] || tache.priorite}
@@ -541,27 +499,15 @@ export default function KanbanTaches() {
                   </div>
 
                   {/* Informations supplémentaires */}
-                  <div
-                    style={{
-                      fontSize: "0.9rem",
-                      color: theme.text.secondary,
-                      lineHeight: "1.6",
-                    }}
-                  >
+                  <div style={{ fontSize: "0.9rem", color: "#c4b5fd", lineHeight: "1.6" }}>
                     {tache.projet_details && (
-                      <div style={{ marginBottom: "0.5rem" }}>
-                        📁 {tache.projet_details.titre}
-                      </div>
+                      <div style={{ marginBottom: "0.5rem" }}>📁 {tache.projet_details.titre}</div>
                     )}
                     {tache.assigne_a_details && (
-                      <div style={{ marginBottom: "0.5rem" }}>
-                        👤 {tache.assigne_a_details.username}
-                      </div>
+                      <div style={{ marginBottom: "0.5rem" }}>👤 {tache.assigne_a_details.username}</div>
                     )}
                     {tache.deadline && (
-                      <div>
-                        📅 {new Date(tache.deadline).toLocaleDateString("fr-FR")}
-                      </div>
+                      <div>📅 {new Date(tache.deadline).toLocaleDateString("fr-FR")}</div>
                     )}
                   </div>
                 </div>
@@ -573,11 +519,11 @@ export default function KanbanTaches() {
                   style={{
                     padding: "3rem 1.5rem",
                     textAlign: "center",
-                    color: theme.text.secondary,
+                    color: "#a78bfa",
                     fontSize: "1rem",
-                    border: `2px dashed ${theme.border.medium}`,
+                    border: "2px dashed #4c1d95",
                     borderRadius: "12px",
-                    backgroundColor: `${theme.bg.card}50`,
+                    backgroundColor: "rgba(76, 29, 149, 0.2)",
                   }}
                 >
                   <div style={{ fontSize: "2rem", marginBottom: "0.5rem" }}>📭</div>
