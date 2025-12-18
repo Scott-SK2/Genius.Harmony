@@ -10,6 +10,7 @@ import AdminUsers from "./pages/AdminUsers";
 import AdminPoles from "./pages/AdminPoles";
 import ProjetsList from "./pages/ProjetsList";
 import ProjetDetails from "./pages/ProjetDetails";
+import UserProfile from "./pages/UserProfile";
 import Layout from "./components/Layout";
 import AdminLayout from "./components/AdminLayout";
 
@@ -54,6 +55,18 @@ function App() {
                 <ProtectedRoute allowedRoles={["admin"]}>
                   <AdminLayout pageTitle="Gestion des Utilisateurs">
                     <AdminUsers />
+                  </AdminLayout>
+                </ProtectedRoute>
+              }
+            />
+
+            {/* Profil utilisateur */}
+            <Route
+              path="/users/:id/profile"
+              element={
+                <ProtectedRoute>
+                  <AdminLayout pageTitle="Profil Utilisateur">
+                    <UserProfile />
                   </AdminLayout>
                 </ProtectedRoute>
               }

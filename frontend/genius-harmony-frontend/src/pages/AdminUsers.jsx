@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { Link } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 import { fetchUsers, updateUser } from "../api/users";
 import { fetchPoles } from "../api/poles";
@@ -173,6 +174,17 @@ export default function AdminUsers() {
                 >
                   Pôle
                 </th>
+                <th
+                  style={{
+                    borderBottom: "1px solid #4c1d95",
+                    textAlign: "left",
+                    padding: "1rem",
+                    color: "#c4b5fd",
+                    fontWeight: "500",
+                  }}
+                >
+                  Actions
+                </th>
               </tr>
             </thead>
             <tbody>
@@ -253,6 +265,32 @@ export default function AdminUsers() {
                         </span>
                       )}
                     </div>
+                  </td>
+                  <td style={{ padding: "1rem" }}>
+                    <Link
+                      to={`/users/${u.id}/profile`}
+                      style={{
+                        padding: "0.5rem 1rem",
+                        backgroundColor: "#7c3aed",
+                        color: "#fff",
+                        borderRadius: "8px",
+                        textDecoration: "none",
+                        fontSize: "0.9rem",
+                        fontWeight: "600",
+                        display: "inline-block",
+                        transition: "all 0.2s",
+                      }}
+                      onMouseEnter={(e) => {
+                        e.target.style.backgroundColor = "#6d32d1";
+                        e.target.style.transform = "translateY(-2px)";
+                      }}
+                      onMouseLeave={(e) => {
+                        e.target.style.backgroundColor = "#7c3aed";
+                        e.target.style.transform = "translateY(0)";
+                      }}
+                    >
+                      👁️ Voir profil
+                    </Link>
                   </td>
                 </tr>
               ))}

@@ -579,9 +579,26 @@ export default function ProjetDetails() {
               >
                 👤 Client
               </div>
-              <div style={{ fontWeight: "600", color: "#fff", marginBottom: "0.5rem", fontSize: "1.1rem" }}>
+              <Link
+                to={`/users/${projet.client_details.id}/profile`}
+                style={{
+                  fontWeight: "600",
+                  color: "#fff",
+                  marginBottom: "0.5rem",
+                  fontSize: "1.1rem",
+                  textDecoration: "none",
+                  display: "block",
+                  transition: "color 0.2s",
+                }}
+                onMouseEnter={(e) => {
+                  e.target.style.color = "#7c3aed";
+                }}
+                onMouseLeave={(e) => {
+                  e.target.style.color = "#fff";
+                }}
+              >
                 {projet.client_details.username}
-              </div>
+              </Link>
               <div style={{ fontSize: "0.9rem", color: "#c4b5fd" }}>{projet.client_details.email}</div>
             </div>
           )}
@@ -615,9 +632,26 @@ export default function ProjetDetails() {
               >
                 🎯 Chef de projet
               </div>
-              <div style={{ fontWeight: "600", color: "#fff", marginBottom: "0.5rem", fontSize: "1.1rem" }}>
+              <Link
+                to={`/users/${projet.chef_projet_details.id}/profile`}
+                style={{
+                  fontWeight: "600",
+                  color: "#fff",
+                  marginBottom: "0.5rem",
+                  fontSize: "1.1rem",
+                  textDecoration: "none",
+                  display: "block",
+                  transition: "color 0.2s",
+                }}
+                onMouseEnter={(e) => {
+                  e.target.style.color = "#7c3aed";
+                }}
+                onMouseLeave={(e) => {
+                  e.target.style.color = "#fff";
+                }}
+              >
                 {projet.chef_projet_details.username}
-              </div>
+              </Link>
               <div style={{ fontSize: "0.9rem", color: "#c4b5fd" }}>{projet.chef_projet_details.email}</div>
             </div>
           )}
@@ -636,8 +670,9 @@ export default function ProjetDetails() {
             </h3>
             <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(220px, 1fr))", gap: "1rem" }}>
               {projet.membres_details.map((membre) => (
-                <div
+                <Link
                   key={membre.id}
+                  to={`/users/${membre.id}/profile`}
                   style={{
                     padding: "1rem",
                     backgroundColor: "#1e1b4b",
@@ -645,19 +680,23 @@ export default function ProjetDetails() {
                     fontSize: "0.9rem",
                     border: `1px solid ${"#4c1d95"}`,
                     transition: "all 0.2s",
+                    textDecoration: "none",
+                    display: "block",
                   }}
                   onMouseEnter={(e) => {
                     e.currentTarget.style.backgroundColor = "#4c1d95";
+                    e.currentTarget.style.transform = "translateY(-2px)";
                   }}
                   onMouseLeave={(e) => {
                     e.currentTarget.style.backgroundColor = "#1e1b4b";
+                    e.currentTarget.style.transform = "translateY(0)";
                   }}
                 >
                   <div style={{ fontWeight: "600", color: "#fff", marginBottom: "0.25rem" }}>
                     {membre.username}
                   </div>
                   <div style={{ fontSize: "0.85rem", color: "#c4b5fd" }}>{membre.role}</div>
-                </div>
+                </Link>
               ))}
             </div>
           </div>

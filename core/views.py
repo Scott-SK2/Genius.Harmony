@@ -74,6 +74,68 @@ class UserUpdateView(generics.UpdateAPIView):
     permission_classes = [IsAdminUserProfile]
 
 
+class UserProfileDetailView(APIView):
+    """
+    Vue pour récupérer le profil complet d'un utilisateur avec tous ses projets et tâches
+    """
+    permission_classes = [permissions.IsAuthenticated]
+
+    def get(self, request, pk):
+        try:
+            user = User.objects.select_related('profile', 'profile__pole').get(pk=pk)
+        except User.DoesNotExist:
+            return Response({"detail": "Utilisateur introuvable"}, status=status.HTTP_404_NOT_FOUND)
+
+        # Informations de base
+        profile = getattr(user, 'profile', None)
+        user_data = {
+            "id": user.id,
+            "username": user.username,
+            "email": user.email,
+            "first_name": user.first_name,
+            "last_name": user.last_name,
+            "role": profile.role if profile else None,
+            "pole": profile.pole.name if profile and profile.pole else None,
+            "pole_id": profile.pole.id if profile and profile.pole else None,
+            "client_type": profile.client_type if profile else None,
+            "date_joined": user.date_joined,
+        }
+
+        # Projets où l'utilisateur est client
+        projets_client = Projet.objects.filter(client=user).select_related('pole', 'chef_projet', 'created_by')
+        user_data["projets_client"] = ProjetListSerializer(projets_client, many=True).data
+
+        # Projets où l'utilisateur est chef de projet
+        projets_chef = Projet.objects.filter(chef_projet=user).select_related('pole', 'client', 'created_by')
+        user_data["projets_chef"] = ProjetListSerializer(projets_chef, many=True).data
+
+        # Projets où l'utilisateur est membre
+        projets_membre = Projet.objects.filter(membres=user).select_related('pole', 'client', 'chef_projet', 'created_by')
+        user_data["projets_membre"] = ProjetListSerializer(projets_membre, many=True).data
+
+        # Projets créés par l'utilisateur
+        projets_crees = Projet.objects.filter(created_by=user).select_related('pole', 'client', 'chef_projet')
+        user_data["projets_crees"] = ProjetListSerializer(projets_crees, many=True).data
+
+        # Tâches assignées à l'utilisateur
+        taches_assignees = Tache.objects.filter(assigne_a=user).select_related('projet', 'projet__pole')
+        user_data["taches_assignees"] = TacheSerializer(taches_assignees, many=True).data
+
+        # Statistiques
+        user_data["stats"] = {
+            "total_projets_client": projets_client.count(),
+            "total_projets_chef": projets_chef.count(),
+            "total_projets_membre": projets_membre.count(),
+            "total_projets_crees": projets_crees.count(),
+            "total_taches_assignees": taches_assignees.count(),
+            "taches_a_faire": taches_assignees.filter(statut='a_faire').count(),
+            "taches_en_cours": taches_assignees.filter(statut='en_cours').count(),
+            "taches_terminees": taches_assignees.filter(statut='termine').count(),
+        }
+
+        return Response(user_data)
+
+
 # ===============================
 # Permissions pour les projets
 # ===============================
