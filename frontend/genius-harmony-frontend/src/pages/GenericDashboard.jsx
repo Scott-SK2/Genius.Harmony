@@ -2,7 +2,6 @@
 import { useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
-import { useTheme } from "../context/ThemeContext";
 import AdminDashboard from "./AdminDashboard";
 import ChefPoleDashboard from "./ChefPoleDashboard";
 import MembreDashboard from "./MembreDashboard";
@@ -10,7 +9,6 @@ import ClientDashboard from "./ClientDashboard";
 
 export default function GenericDashboard() {
   const { user, loading } = useAuth();
-  const { theme } = useTheme();
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -29,7 +27,7 @@ export default function GenericDashboard() {
           justifyContent: "center",
           alignItems: "center",
           minHeight: "60vh",
-          color: theme.text.secondary,
+          color: "#c4b5fd",
           fontSize: "1.1rem",
         }}
       >
@@ -59,27 +57,17 @@ export default function GenericDashboard() {
       return (
         <div>
           <div style={{ marginBottom: "2rem" }}>
-            <h1
-              style={{
-                margin: 0,
-                marginBottom: "0.5rem",
-                color: theme.text.primary,
-                fontSize: "2rem",
-              }}
-            >
-              Mon espace – Genius.Harmony
-            </h1>
-            <p style={{ margin: 0, color: theme.text.secondary, fontSize: "1.05rem" }}>
-              Bienvenue, <strong style={{ color: theme.text.primary }}>{user.username}</strong>
+            <p style={{ margin: 0, color: "#c4b5fd", fontSize: "1.05rem" }}>
+              Bienvenue, <strong style={{ color: "#fff" }}>{user.username}</strong>
             </p>
           </div>
           <div
             style={{
               padding: "2rem",
-              backgroundColor: `${theme.colors.danger}10`,
-              border: `1px solid ${theme.colors.danger}`,
+              backgroundColor: "rgba(248, 113, 113, 0.1)",
+              border: "1px solid #f87171",
               borderRadius: "12px",
-              color: theme.colors.danger,
+              color: "#f87171",
             }}
           >
             <div style={{ marginBottom: "1rem", fontSize: "1.1rem", fontWeight: "600" }}>

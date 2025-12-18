@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { useParams, Link } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
-import { useTheme } from "../context/ThemeContext";
+
 import { fetchProjetDetails } from "../api/projets";
 import FormTache from "../components/FormTache";
 import UploadDocument from "../components/UploadDocument";
@@ -41,7 +41,7 @@ const TACHE_PRIORITE_LABELS = {
 export default function ProjetDetails() {
   const { id } = useParams();
   const { token } = useAuth();
-  const { theme } = useTheme();
+  
   const [projet, setProjet] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -67,19 +67,19 @@ export default function ProjetDetails() {
   }, [token, id]);
 
   const STATUT_COLORS = {
-    brouillon: theme.text.secondary,
-    en_attente: theme.colors.warning,
-    en_cours: theme.colors.primary,
-    en_revision: theme.colors.purple,
-    termine: theme.colors.success,
-    annule: theme.colors.danger,
+    brouillon: "#c4b5fd",
+    en_attente: "#f59e0b",
+    en_cours: "#7c3aed",
+    en_revision: "#a78bfa",
+    termine: "#10b981",
+    annule: "#f87171",
   };
 
   const PRIORITE_COLORS = {
-    basse: theme.text.secondary,
-    normale: theme.colors.primary,
-    haute: theme.colors.warning,
-    urgente: theme.colors.danger,
+    basse: "#c4b5fd",
+    normale: "#7c3aed",
+    haute: "#f59e0b",
+    urgente: "#f87171",
   };
 
   if (loading) {
@@ -90,7 +90,7 @@ export default function ProjetDetails() {
           justifyContent: "center",
           alignItems: "center",
           minHeight: "60vh",
-          color: theme.text.secondary,
+          color: #c4b5fd,
           fontSize: "1.1rem",
         }}
       >
@@ -108,10 +108,10 @@ export default function ProjetDetails() {
         <div
           style={{
             padding: "2rem",
-            backgroundColor: `${theme.colors.danger}10`,
-            border: `1px solid ${theme.colors.danger}`,
+            backgroundColor: `${#f87171}10`,
+            border: `1px solid ${#f87171}`,
             borderRadius: "12px",
-            color: theme.colors.danger,
+            color: #f87171,
             marginBottom: "1.5rem",
           }}
         >
@@ -120,7 +120,7 @@ export default function ProjetDetails() {
         <Link
           to="/projets"
           style={{
-            color: theme.colors.primary,
+            color: #7c3aed,
             textDecoration: "none",
             fontSize: "1rem",
             fontWeight: "500",
@@ -145,21 +145,21 @@ export default function ProjetDetails() {
           style={{
             textAlign: "center",
             padding: "3rem",
-            backgroundColor: theme.bg.card,
+            backgroundColor: #2d1b69,
             borderRadius: "12px",
-            border: `1px dashed ${theme.border.medium}`,
+            border: `1px dashed ${#4c1d95}`,
             marginBottom: "1.5rem",
           }}
         >
           <div style={{ fontSize: "3rem", marginBottom: "1rem" }}>❓</div>
-          <p style={{ color: theme.text.secondary, fontSize: "1.1rem" }}>
+          <p style={{ color: #c4b5fd, fontSize: "1.1rem" }}>
             Projet introuvable
           </p>
         </div>
         <Link
           to="/projets"
           style={{
-            color: theme.colors.primary,
+            color: #7c3aed,
             textDecoration: "none",
             fontSize: "1rem",
             fontWeight: "500",
@@ -184,7 +184,7 @@ export default function ProjetDetails() {
         <Link
           to="/projets"
           style={{
-            color: theme.colors.primary,
+            color: #7c3aed,
             textDecoration: "none",
             fontSize: "1rem",
             fontWeight: "600",
@@ -204,15 +204,15 @@ export default function ProjetDetails() {
       <div
         style={{
           marginBottom: "2.5rem",
-          backgroundColor: theme.bg.card,
+          backgroundColor: #2d1b69,
           padding: "2rem",
           borderRadius: "16px",
-          boxShadow: theme.shadow.md,
-          border: `1px solid ${theme.border.light}`,
+          boxShadow: "0 4px 16px rgba(124, 58, 237, 0.3)",
+          border: `1px solid ${#4c1d95}`,
         }}
       >
         <div style={{ display: "flex", alignItems: "center", gap: "1rem", marginBottom: "1.5rem", flexWrap: "wrap" }}>
-          <h1 style={{ margin: 0, color: theme.text.primary, fontSize: "2rem" }}>
+          <h1 style={{ margin: 0, color: #fff, fontSize: "2rem" }}>
             {projet.titre}
           </h1>
           <span
@@ -222,23 +222,23 @@ export default function ProjetDetails() {
               borderRadius: "8px",
               fontSize: "0.9rem",
               fontWeight: "600",
-              backgroundColor: `${STATUT_COLORS[projet.statut] || theme.text.secondary}20`,
-              color: STATUT_COLORS[projet.statut] || theme.text.secondary,
-              border: `1px solid ${STATUT_COLORS[projet.statut] || theme.text.secondary}40`,
+              backgroundColor: `${STATUT_COLORS[projet.statut] || #c4b5fd}20`,
+              color: STATUT_COLORS[projet.statut] || #c4b5fd,
+              border: `1px solid ${STATUT_COLORS[projet.statut] || #c4b5fd}40`,
             }}
           >
             {STATUT_LABELS[projet.statut] || projet.statut}
           </span>
         </div>
 
-        <div style={{ color: theme.text.secondary, fontSize: "0.95rem", lineHeight: "1.8" }}>
+        <div style={{ color: #c4b5fd, fontSize: "0.95rem", lineHeight: "1.8" }}>
           <div style={{ marginBottom: "0.5rem" }}>
             <span style={{ marginRight: "2rem" }}>
-              <strong style={{ color: theme.text.primary }}>📋 Type:</strong> {TYPE_LABELS[projet.type] || projet.type}
+              <strong style={{ color: #fff }}>📋 Type:</strong> {TYPE_LABELS[projet.type] || projet.type}
             </span>
             {projet.pole_details && (
               <span>
-                <strong style={{ color: theme.text.primary }}>🎯 Pôle:</strong> {projet.pole_details.name}
+                <strong style={{ color: #fff }}>🎯 Pôle:</strong> {projet.pole_details.name}
               </span>
             )}
           </div>
@@ -246,12 +246,12 @@ export default function ProjetDetails() {
             <div>
               {projet.date_debut && (
                 <span style={{ marginRight: "2rem" }}>
-                  <strong style={{ color: theme.text.primary }}>📅 Début:</strong> {new Date(projet.date_debut).toLocaleDateString("fr-FR")}
+                  <strong style={{ color: #fff }}>📅 Début:</strong> {new Date(projet.date_debut).toLocaleDateString("fr-FR")}
                 </span>
               )}
               {projet.date_fin_prevue && (
                 <span>
-                  <strong style={{ color: theme.text.primary }}>🏁 Fin prévue:</strong> {new Date(projet.date_fin_prevue).toLocaleDateString("fr-FR")}
+                  <strong style={{ color: #fff }}>🏁 Fin prévue:</strong> {new Date(projet.date_fin_prevue).toLocaleDateString("fr-FR")}
                 </span>
               )}
             </div>
@@ -264,18 +264,18 @@ export default function ProjetDetails() {
         <div
           style={{
             padding: "2rem",
-            backgroundColor: theme.bg.card,
+            backgroundColor: #2d1b69,
             borderRadius: "16px",
             marginBottom: "2.5rem",
-            border: `1px solid ${theme.border.light}`,
-            boxShadow: theme.shadow.sm,
+            border: `1px solid ${#4c1d95}`,
+            boxShadow: "0 2px 8px rgba(124, 58, 237, 0.1)",
           }}
         >
           <h3
             style={{
               marginTop: 0,
               marginBottom: "1rem",
-              color: theme.text.primary,
+              color: #fff,
               fontSize: "1.3rem",
             }}
           >
@@ -285,7 +285,7 @@ export default function ProjetDetails() {
             style={{
               margin: 0,
               whiteSpace: "pre-wrap",
-              color: theme.text.secondary,
+              color: #c4b5fd,
               lineHeight: "1.6",
             }}
           >
@@ -298,7 +298,7 @@ export default function ProjetDetails() {
       <div style={{ marginBottom: "2.5rem" }}>
         <h2
           style={{
-            color: theme.text.primary,
+            color: #fff,
             marginBottom: "1.5rem",
             fontSize: "1.5rem",
           }}
@@ -310,23 +310,23 @@ export default function ProjetDetails() {
             <div
               style={{
                 padding: "1.5rem",
-                backgroundColor: theme.bg.card,
+                backgroundColor: #2d1b69,
                 borderRadius: "12px",
-                border: `1px solid ${theme.border.light}`,
-                boxShadow: theme.shadow.sm,
+                border: `1px solid ${#4c1d95}`,
+                boxShadow: "0 2px 8px rgba(124, 58, 237, 0.1)",
                 transition: "all 0.2s",
               }}
               onMouseEnter={(e) => {
-                e.currentTarget.style.boxShadow = theme.shadow.md;
+                e.currentTarget.style.boxShadow = "0 4px 16px rgba(124, 58, 237, 0.3)";
               }}
               onMouseLeave={(e) => {
-                e.currentTarget.style.boxShadow = theme.shadow.sm;
+                e.currentTarget.style.boxShadow = "0 2px 8px rgba(124, 58, 237, 0.1)";
               }}
             >
               <div
                 style={{
                   fontSize: "0.85rem",
-                  color: theme.text.tertiary,
+                  color: #a78bfa,
                   marginBottom: "0.75rem",
                   fontWeight: "600",
                   textTransform: "uppercase",
@@ -335,10 +335,10 @@ export default function ProjetDetails() {
               >
                 👤 Client
               </div>
-              <div style={{ fontWeight: "600", color: theme.text.primary, marginBottom: "0.5rem", fontSize: "1.1rem" }}>
+              <div style={{ fontWeight: "600", color: #fff, marginBottom: "0.5rem", fontSize: "1.1rem" }}>
                 {projet.client_details.username}
               </div>
-              <div style={{ fontSize: "0.9rem", color: theme.text.secondary }}>{projet.client_details.email}</div>
+              <div style={{ fontSize: "0.9rem", color: #c4b5fd }}>{projet.client_details.email}</div>
             </div>
           )}
 
@@ -346,23 +346,23 @@ export default function ProjetDetails() {
             <div
               style={{
                 padding: "1.5rem",
-                backgroundColor: theme.bg.card,
+                backgroundColor: #2d1b69,
                 borderRadius: "12px",
-                border: `1px solid ${theme.border.light}`,
-                boxShadow: theme.shadow.sm,
+                border: `1px solid ${#4c1d95}`,
+                boxShadow: "0 2px 8px rgba(124, 58, 237, 0.1)",
                 transition: "all 0.2s",
               }}
               onMouseEnter={(e) => {
-                e.currentTarget.style.boxShadow = theme.shadow.md;
+                e.currentTarget.style.boxShadow = "0 4px 16px rgba(124, 58, 237, 0.3)";
               }}
               onMouseLeave={(e) => {
-                e.currentTarget.style.boxShadow = theme.shadow.sm;
+                e.currentTarget.style.boxShadow = "0 2px 8px rgba(124, 58, 237, 0.1)";
               }}
             >
               <div
                 style={{
                   fontSize: "0.85rem",
-                  color: theme.text.tertiary,
+                  color: #a78bfa,
                   marginBottom: "0.75rem",
                   fontWeight: "600",
                   textTransform: "uppercase",
@@ -371,10 +371,10 @@ export default function ProjetDetails() {
               >
                 🎯 Chef de projet
               </div>
-              <div style={{ fontWeight: "600", color: theme.text.primary, marginBottom: "0.5rem", fontSize: "1.1rem" }}>
+              <div style={{ fontWeight: "600", color: #fff, marginBottom: "0.5rem", fontSize: "1.1rem" }}>
                 {projet.chef_projet_details.username}
               </div>
-              <div style={{ fontSize: "0.9rem", color: theme.text.secondary }}>{projet.chef_projet_details.email}</div>
+              <div style={{ fontSize: "0.9rem", color: #c4b5fd }}>{projet.chef_projet_details.email}</div>
             </div>
           )}
         </div>
@@ -383,7 +383,7 @@ export default function ProjetDetails() {
           <div style={{ marginTop: "2rem" }}>
             <h3
               style={{
-                color: theme.text.primary,
+                color: #fff,
                 marginBottom: "1rem",
                 fontSize: "1.2rem",
               }}
@@ -396,23 +396,23 @@ export default function ProjetDetails() {
                   key={membre.id}
                   style={{
                     padding: "1rem",
-                    backgroundColor: theme.bg.tertiary,
+                    backgroundColor: #1e1b4b,
                     borderRadius: "8px",
                     fontSize: "0.9rem",
-                    border: `1px solid ${theme.border.light}`,
+                    border: `1px solid ${#4c1d95}`,
                     transition: "all 0.2s",
                   }}
                   onMouseEnter={(e) => {
-                    e.currentTarget.style.backgroundColor = theme.bg.hover;
+                    e.currentTarget.style.backgroundColor = #4c1d95;
                   }}
                   onMouseLeave={(e) => {
-                    e.currentTarget.style.backgroundColor = theme.bg.tertiary;
+                    e.currentTarget.style.backgroundColor = #1e1b4b;
                   }}
                 >
-                  <div style={{ fontWeight: "600", color: theme.text.primary, marginBottom: "0.25rem" }}>
+                  <div style={{ fontWeight: "600", color: #fff, marginBottom: "0.25rem" }}>
                     {membre.username}
                   </div>
-                  <div style={{ fontSize: "0.85rem", color: theme.text.secondary }}>{membre.role}</div>
+                  <div style={{ fontSize: "0.85rem", color: #c4b5fd }}>{membre.role}</div>
                 </div>
               ))}
             </div>
@@ -423,29 +423,29 @@ export default function ProjetDetails() {
       {/* Tâches */}
       <div style={{ marginBottom: "2.5rem" }}>
         <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "1.5rem" }}>
-          <h2 style={{ margin: 0, color: theme.text.primary, fontSize: "1.5rem" }}>
+          <h2 style={{ margin: 0, color: #fff, fontSize: "1.5rem" }}>
             ✓ Tâches ({projet.taches?.length || 0})
           </h2>
           <button
             onClick={() => setShowFormTache(true)}
             style={{
               padding: "0.75rem 1.5rem",
-              backgroundColor: theme.colors.info,
-              color: theme.text.inverse,
+              backgroundColor: #7c3aed,
+              color: #fff,
               border: "none",
               borderRadius: "8px",
               cursor: "pointer",
               fontWeight: "600",
               transition: "all 0.2s",
-              boxShadow: theme.shadow.sm,
+              boxShadow: "0 2px 8px rgba(124, 58, 237, 0.1)",
             }}
             onMouseEnter={(e) => {
               e.target.style.transform = "translateY(-2px)";
-              e.target.style.boxShadow = theme.shadow.md;
+              e.target.style.boxShadow = "0 4px 16px rgba(124, 58, 237, 0.3)";
             }}
             onMouseLeave={(e) => {
               e.target.style.transform = "translateY(0)";
-              e.target.style.boxShadow = theme.shadow.sm;
+              e.target.style.boxShadow = "0 2px 8px rgba(124, 58, 237, 0.1)";
             }}
           >
             + Nouvelle tâche
@@ -456,35 +456,35 @@ export default function ProjetDetails() {
             style={{
               textAlign: "center",
               padding: "3rem",
-              backgroundColor: theme.bg.card,
+              backgroundColor: #2d1b69,
               borderRadius: "12px",
-              border: `1px dashed ${theme.border.medium}`,
+              border: `1px dashed ${#4c1d95}`,
             }}
           >
             <div style={{ fontSize: "3rem", marginBottom: "1rem" }}>📋</div>
-            <p style={{ color: theme.text.secondary, margin: 0 }}>
+            <p style={{ color: #c4b5fd, margin: 0 }}>
               Aucune tâche pour ce projet.
             </p>
           </div>
         ) : (
           <div
             style={{
-              backgroundColor: theme.bg.card,
+              backgroundColor: #2d1b69,
               borderRadius: "12px",
-              border: `1px solid ${theme.border.light}`,
+              border: `1px solid ${#4c1d95}`,
               overflow: "hidden",
-              boxShadow: theme.shadow.sm,
+              boxShadow: "0 2px 8px rgba(124, 58, 237, 0.1)",
             }}
           >
             <table style={{ width: "100%", borderCollapse: "collapse" }}>
               <thead>
-                <tr style={{ backgroundColor: theme.bg.secondary }}>
+                <tr style={{ backgroundColor: #4c1d95 }}>
                   <th
                     style={{
-                      borderBottom: `2px solid ${theme.border.medium}`,
+                      borderBottom: `2px solid ${#4c1d95}`,
                       textAlign: "left",
                       padding: "1rem",
-                      color: theme.text.primary,
+                      color: #fff,
                       fontWeight: "600",
                     }}
                   >
@@ -492,10 +492,10 @@ export default function ProjetDetails() {
                   </th>
                   <th
                     style={{
-                      borderBottom: `2px solid ${theme.border.medium}`,
+                      borderBottom: `2px solid ${#4c1d95}`,
                       textAlign: "left",
                       padding: "1rem",
-                      color: theme.text.primary,
+                      color: #fff,
                       fontWeight: "600",
                     }}
                   >
@@ -503,10 +503,10 @@ export default function ProjetDetails() {
                   </th>
                   <th
                     style={{
-                      borderBottom: `2px solid ${theme.border.medium}`,
+                      borderBottom: `2px solid ${#4c1d95}`,
                       textAlign: "left",
                       padding: "1rem",
-                      color: theme.text.primary,
+                      color: #fff,
                       fontWeight: "600",
                     }}
                   >
@@ -514,10 +514,10 @@ export default function ProjetDetails() {
                   </th>
                   <th
                     style={{
-                      borderBottom: `2px solid ${theme.border.medium}`,
+                      borderBottom: `2px solid ${#4c1d95}`,
                       textAlign: "left",
                       padding: "1rem",
-                      color: theme.text.primary,
+                      color: #fff,
                       fontWeight: "600",
                     }}
                   >
@@ -525,10 +525,10 @@ export default function ProjetDetails() {
                   </th>
                   <th
                     style={{
-                      borderBottom: `2px solid ${theme.border.medium}`,
+                      borderBottom: `2px solid ${#4c1d95}`,
                       textAlign: "left",
                       padding: "1rem",
-                      color: theme.text.primary,
+                      color: #fff,
                       fontWeight: "600",
                     }}
                   >
@@ -541,20 +541,20 @@ export default function ProjetDetails() {
                   <tr
                     key={tache.id}
                     style={{
-                      borderBottom: `1px solid ${theme.border.light}`,
-                      backgroundColor: index % 2 === 0 ? theme.bg.card : theme.bg.tertiary,
+                      borderBottom: `1px solid ${#4c1d95}`,
+                      backgroundColor: index % 2 === 0 ? #2d1b69 : #1e1b4b,
                       transition: "background-color 0.2s",
                     }}
                     onMouseEnter={(e) => {
-                      e.currentTarget.style.backgroundColor = theme.bg.hover;
+                      e.currentTarget.style.backgroundColor = #4c1d95;
                     }}
                     onMouseLeave={(e) => {
-                      e.currentTarget.style.backgroundColor = index % 2 === 0 ? theme.bg.card : theme.bg.tertiary;
+                      e.currentTarget.style.backgroundColor = index % 2 === 0 ? #2d1b69 : #1e1b4b;
                     }}
                   >
-                    <td style={{ padding: "1rem", fontWeight: "500", color: theme.text.primary }}>{tache.titre}</td>
+                    <td style={{ padding: "1rem", fontWeight: "500", color: #fff }}>{tache.titre}</td>
                     <td style={{ padding: "1rem" }}>
-                      <span style={{ fontSize: "0.9rem", color: theme.text.secondary }}>
+                      <span style={{ fontSize: "0.9rem", color: #c4b5fd }}>
                         {TACHE_STATUT_LABELS[tache.statut] || tache.statut}
                       </span>
                     </td>
@@ -566,18 +566,18 @@ export default function ProjetDetails() {
                           borderRadius: "6px",
                           fontSize: "0.85rem",
                           fontWeight: "600",
-                          backgroundColor: `${PRIORITE_COLORS[tache.priorite] || theme.text.secondary}20`,
-                          color: PRIORITE_COLORS[tache.priorite] || theme.text.secondary,
-                          border: `1px solid ${PRIORITE_COLORS[tache.priorite] || theme.text.secondary}40`,
+                          backgroundColor: `${PRIORITE_COLORS[tache.priorite] || #c4b5fd}20`,
+                          color: PRIORITE_COLORS[tache.priorite] || #c4b5fd,
+                          border: `1px solid ${PRIORITE_COLORS[tache.priorite] || #c4b5fd}40`,
                         }}
                       >
                         {TACHE_PRIORITE_LABELS[tache.priorite] || tache.priorite}
                       </span>
                     </td>
-                    <td style={{ padding: "1rem", fontSize: "0.9rem", color: theme.text.secondary }}>
+                    <td style={{ padding: "1rem", fontSize: "0.9rem", color: #c4b5fd }}>
                       {tache.assigne_a_details?.username || "—"}
                     </td>
-                    <td style={{ padding: "1rem", fontSize: "0.9rem", color: theme.text.secondary }}>
+                    <td style={{ padding: "1rem", fontSize: "0.9rem", color: #c4b5fd }}>
                       {tache.deadline ? new Date(tache.deadline).toLocaleDateString("fr-FR") : "—"}
                     </td>
                   </tr>
@@ -591,29 +591,29 @@ export default function ProjetDetails() {
       {/* Documents */}
       <div style={{ marginBottom: "2.5rem" }}>
         <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "1.5rem" }}>
-          <h2 style={{ margin: 0, color: theme.text.primary, fontSize: "1.5rem" }}>
+          <h2 style={{ margin: 0, color: #fff, fontSize: "1.5rem" }}>
             📄 Documents ({projet.documents?.length || 0})
           </h2>
           <button
             onClick={() => setShowUploadDoc(true)}
             style={{
               padding: "0.75rem 1.5rem",
-              backgroundColor: theme.colors.primary,
-              color: theme.text.inverse,
+              backgroundColor: #7c3aed,
+              color: #fff,
               border: "none",
               borderRadius: "8px",
               cursor: "pointer",
               fontWeight: "600",
               transition: "all 0.2s",
-              boxShadow: theme.shadow.sm,
+              boxShadow: "0 2px 8px rgba(124, 58, 237, 0.1)",
             }}
             onMouseEnter={(e) => {
               e.target.style.transform = "translateY(-2px)";
-              e.target.style.boxShadow = theme.shadow.md;
+              e.target.style.boxShadow = "0 4px 16px rgba(124, 58, 237, 0.3)";
             }}
             onMouseLeave={(e) => {
               e.target.style.transform = "translateY(0)";
-              e.target.style.boxShadow = theme.shadow.sm;
+              e.target.style.boxShadow = "0 2px 8px rgba(124, 58, 237, 0.1)";
             }}
           >
             + Uploader un document
@@ -624,13 +624,13 @@ export default function ProjetDetails() {
             style={{
               textAlign: "center",
               padding: "3rem",
-              backgroundColor: theme.bg.card,
+              backgroundColor: #2d1b69,
               borderRadius: "12px",
-              border: `1px dashed ${theme.border.medium}`,
+              border: `1px dashed ${#4c1d95}`,
             }}
           >
             <div style={{ fontSize: "3rem", marginBottom: "1rem" }}>📁</div>
-            <p style={{ color: theme.text.secondary, margin: 0 }}>
+            <p style={{ color: #c4b5fd, margin: 0 }}>
               Aucun document pour ce projet.
             </p>
           </div>
@@ -641,20 +641,20 @@ export default function ProjetDetails() {
                 key={doc.id}
                 style={{
                   padding: "1.5rem",
-                  backgroundColor: theme.bg.card,
+                  backgroundColor: #2d1b69,
                   borderRadius: "12px",
-                  border: `1px solid ${theme.border.light}`,
+                  border: `1px solid ${#4c1d95}`,
                   display: "flex",
                   justifyContent: "space-between",
                   alignItems: "center",
-                  boxShadow: theme.shadow.sm,
+                  boxShadow: "0 2px 8px rgba(124, 58, 237, 0.1)",
                   transition: "all 0.2s",
                 }}
                 onMouseEnter={(e) => {
-                  e.currentTarget.style.boxShadow = theme.shadow.md;
+                  e.currentTarget.style.boxShadow = "0 4px 16px rgba(124, 58, 237, 0.3)";
                 }}
                 onMouseLeave={(e) => {
-                  e.currentTarget.style.boxShadow = theme.shadow.sm;
+                  e.currentTarget.style.boxShadow = "0 2px 8px rgba(124, 58, 237, 0.1)";
                 }}
               >
                 <div style={{ flex: 1 }}>
@@ -662,13 +662,13 @@ export default function ProjetDetails() {
                     style={{
                       fontWeight: "600",
                       marginBottom: "0.75rem",
-                      color: theme.text.primary,
+                      color: #fff,
                       fontSize: "1.05rem",
                     }}
                   >
                     📎 {doc.titre}
                   </div>
-                  <div style={{ fontSize: "0.9rem", color: theme.text.secondary, marginBottom: "0.5rem" }}>
+                  <div style={{ fontSize: "0.9rem", color: #c4b5fd, marginBottom: "0.5rem" }}>
                     Type: <strong>{doc.type}</strong> · Uploadé par{" "}
                     <strong>{doc.uploade_par_details?.username || "—"}</strong> le{" "}
                     {new Date(doc.created_at).toLocaleDateString("fr-FR")}
@@ -677,10 +677,10 @@ export default function ProjetDetails() {
                     <div
                       style={{
                         fontSize: "0.9rem",
-                        color: theme.text.tertiary,
+                        color: #a78bfa,
                         marginTop: "0.5rem",
                         paddingTop: "0.5rem",
-                        borderTop: `1px solid ${theme.border.light}`,
+                        borderTop: `1px solid ${#4c1d95}`,
                       }}
                     >
                       {doc.description}
@@ -694,24 +694,24 @@ export default function ProjetDetails() {
                     rel="noopener noreferrer"
                     style={{
                       padding: "0.75rem 1.5rem",
-                      backgroundColor: theme.colors.primary,
-                      color: theme.text.inverse,
+                      backgroundColor: #7c3aed,
+                      color: #fff,
                       borderRadius: "8px",
                       textDecoration: "none",
                       fontSize: "0.9rem",
                       fontWeight: "600",
                       marginLeft: "1.5rem",
                       transition: "all 0.2s",
-                      boxShadow: theme.shadow.sm,
+                      boxShadow: "0 2px 8px rgba(124, 58, 237, 0.1)",
                       whiteSpace: "nowrap",
                     }}
                     onMouseEnter={(e) => {
                       e.target.style.transform = "translateY(-2px)";
-                      e.target.style.boxShadow = theme.shadow.md;
+                      e.target.style.boxShadow = "0 4px 16px rgba(124, 58, 237, 0.3)";
                     }}
                     onMouseLeave={(e) => {
                       e.target.style.transform = "translateY(0)";
-                      e.target.style.boxShadow = theme.shadow.sm;
+                      e.target.style.boxShadow = "0 2px 8px rgba(124, 58, 237, 0.1)";
                     }}
                   >
                     ⬇ Télécharger
@@ -728,30 +728,30 @@ export default function ProjetDetails() {
         <div
           style={{
             padding: "2rem",
-            backgroundColor: `${theme.colors.info}10`,
+            backgroundColor: `${#7c3aed}10`,
             borderRadius: "12px",
-            borderLeft: `4px solid ${theme.colors.info}`,
-            border: `1px solid ${theme.colors.info}40`,
+            borderLeft: `4px solid ${#7c3aed}`,
+            border: `1px solid ${#7c3aed}40`,
           }}
         >
           <h3
             style={{
               marginTop: 0,
               marginBottom: "1rem",
-              color: theme.text.primary,
+              color: #fff,
               fontSize: "1.3rem",
             }}
           >
             🔗 Informations Odoo
           </h3>
           {projet.odoo_project_id && (
-            <div style={{ marginBottom: "0.75rem", color: theme.text.secondary }}>
-              <strong style={{ color: theme.text.primary }}>ID Projet Odoo:</strong> {projet.odoo_project_id}
+            <div style={{ marginBottom: "0.75rem", color: #c4b5fd }}>
+              <strong style={{ color: #fff }}>ID Projet Odoo:</strong> {projet.odoo_project_id}
             </div>
           )}
           {projet.odoo_invoice_id && (
-            <div style={{ color: theme.text.secondary }}>
-              <strong style={{ color: theme.text.primary }}>ID Facture Odoo:</strong> {projet.odoo_invoice_id}
+            <div style={{ color: #c4b5fd }}>
+              <strong style={{ color: #fff }}>ID Facture Odoo:</strong> {projet.odoo_invoice_id}
             </div>
           )}
         </div>

@@ -29,9 +29,9 @@ function App() {
               path="/dashboard"
               element={
                 <ProtectedRoute>
-                  <Layout>
+                  <AdminLayout pageTitle="Mon Dashboard">
                     <GenericDashboard />
-                  </Layout>
+                  </AdminLayout>
                 </ProtectedRoute>
               }
             />
@@ -77,9 +77,9 @@ function App() {
               path="/projets"
               element={
                 <ProtectedRoute>
-                  <Layout>
+                  <AdminLayout pageTitle="Mes Projets">
                     <ProjetsList />
-                  </Layout>
+                  </AdminLayout>
                 </ProtectedRoute>
               }
             />
@@ -87,9 +87,9 @@ function App() {
               path="/projets/:id"
               element={
                 <ProtectedRoute>
-                  <Layout>
+                  <AdminLayout pageTitle="Détails du Projet">
                     <ProjetDetails />
-                  </Layout>
+                  </AdminLayout>
                 </ProtectedRoute>
               }
             />
@@ -99,9 +99,9 @@ function App() {
               path="/kanban"
               element={
                 <ProtectedRoute>
-                  <Layout>
+                  <AdminLayout pageTitle="Kanban - Gestion des Tâches">
                     <KanbanTaches />
-                  </Layout>
+                  </AdminLayout>
                 </ProtectedRoute>
               }
             />
