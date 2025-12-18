@@ -41,7 +41,7 @@ function App() {
               path="/admin/dashboard"
               element={
                 <ProtectedRoute allowedRoles={["admin"]}>
-                  <AdminLayout>
+                  <AdminLayout pageTitle="Dashboard Administrateur">
                     <AdminDashboard />
                   </AdminLayout>
                 </ProtectedRoute>
@@ -53,7 +53,7 @@ function App() {
               path="/admin/users"
               element={
                 <ProtectedRoute allowedRoles={["admin"]}>
-                  <AdminLayout>
+                  <AdminLayout pageTitle="Gestion des Utilisateurs">
                     <AdminUsers />
                   </AdminLayout>
                 </ProtectedRoute>
@@ -65,7 +65,7 @@ function App() {
               path="/admin/poles"
               element={
                 <ProtectedRoute allowedRoles={["admin"]}>
-                  <AdminLayout>
+                  <AdminLayout pageTitle="Gestion des Pôles">
                     <AdminPoles />
                   </AdminLayout>
                 </ProtectedRoute>

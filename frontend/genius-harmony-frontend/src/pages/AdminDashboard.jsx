@@ -125,51 +125,31 @@ export default function AdminDashboard() {
 
   return (
     <>
-      {/* Header */}
+      {/* Stats Cards - 4 cartes alignées */}
       <div
         style={{
-          backgroundColor: "#c0392b",
-          padding: "1.5rem 2rem",
-          borderRadius: "12px",
-          marginBottom: "2rem",
-          display: "flex",
-          justifyContent: "space-between",
-          alignItems: "center",
+          display: "grid",
+          gridTemplateColumns: "repeat(4, 1fr)",
+          gap: "1.5rem",
+          marginBottom: "3rem",
         }}
       >
-        <h1 style={{ color: "#fff", margin: 0, fontSize: "1.8rem" }}>Dashboard Administrateur</h1>
-        <button
-          style={{
-            backgroundColor: "rgba(255,255,255,0.2)",
-            color: "#fff",
-            border: "none",
-            padding: "0.75rem 1.5rem",
-            borderRadius: "8px",
-            cursor: "pointer",
-            fontWeight: "500",
-          }}
-        >
-          + Dashboard Administrateur
-        </button>
-      </div>
-
-      <h2 style={{ color: "#fff", marginBottom: "2rem", fontSize: "2.5rem" }}>Dashboard</h2>
-
-        {/* Stats Cards */}
-        <div
-          style={{
-            display: "grid",
-            gridTemplateColumns: "repeat(3, 1fr)",
-            gap: "1.5rem",
-            marginBottom: "3rem",
-          }}
-        >
           <div
             style={{
               backgroundColor: "#1a1a1a",
               padding: "1.5rem",
               borderRadius: "12px",
               border: "1px solid #333",
+              cursor: "pointer",
+              transition: "all 0.2s",
+            }}
+            onMouseEnter={(e) => {
+              e.currentTarget.style.borderColor = "#555";
+              e.currentTarget.style.transform = "translateY(-4px)";
+            }}
+            onMouseLeave={(e) => {
+              e.currentTarget.style.borderColor = "#333";
+              e.currentTarget.style.transform = "translateY(0)";
             }}
           >
             <div style={{ display: "flex", alignItems: "center", gap: "1rem", marginBottom: "0.5rem" }}>
@@ -192,7 +172,7 @@ export default function AdminDashboard() {
                 <div style={{ color: "#fff", fontSize: "2rem", fontWeight: "bold" }}>{stats.totalProjets}</div>
               </div>
             </div>
-            <div style={{ color: "#666", fontSize: "0.85rem" }}>En cours</div>
+            <div style={{ color: "#666", fontSize: "0.85rem" }}>Total des projets</div>
           </div>
 
           <div
@@ -201,6 +181,16 @@ export default function AdminDashboard() {
               padding: "1.5rem",
               borderRadius: "12px",
               border: "1px solid #333",
+              cursor: "pointer",
+              transition: "all 0.2s",
+            }}
+            onMouseEnter={(e) => {
+              e.currentTarget.style.borderColor = "#555";
+              e.currentTarget.style.transform = "translateY(-4px)";
+            }}
+            onMouseLeave={(e) => {
+              e.currentTarget.style.borderColor = "#333";
+              e.currentTarget.style.transform = "translateY(0)";
             }}
           >
             <div style={{ display: "flex", alignItems: "center", gap: "1rem", marginBottom: "0.5rem" }}>
@@ -220,10 +210,10 @@ export default function AdminDashboard() {
               </div>
               <div>
                 <div style={{ color: "#999", fontSize: "0.9rem" }}>Tâches</div>
-                <div style={{ color: "#fff", fontSize: "2rem", fontWeight: "bold" }}>{stats.tachesAFaire}</div>
+                <div style={{ color: "#fff", fontSize: "2rem", fontWeight: "bold" }}>{stats.totalTaches}</div>
               </div>
             </div>
-            <div style={{ color: "#666", fontSize: "0.85rem" }}>À faire</div>
+            <div style={{ color: "#666", fontSize: "0.85rem" }}>Total des tâches</div>
           </div>
 
           <div
@@ -232,6 +222,16 @@ export default function AdminDashboard() {
               padding: "1.5rem",
               borderRadius: "12px",
               border: "1px solid #333",
+              cursor: "pointer",
+              transition: "all 0.2s",
+            }}
+            onMouseEnter={(e) => {
+              e.currentTarget.style.borderColor = "#555";
+              e.currentTarget.style.transform = "translateY(-4px)";
+            }}
+            onMouseLeave={(e) => {
+              e.currentTarget.style.borderColor = "#333";
+              e.currentTarget.style.transform = "translateY(0)";
             }}
           >
             <div style={{ display: "flex", alignItems: "center", gap: "1rem", marginBottom: "0.5rem" }}>
@@ -254,114 +254,157 @@ export default function AdminDashboard() {
                 <div style={{ color: "#fff", fontSize: "2rem", fontWeight: "bold" }}>{stats.totalPoles}</div>
               </div>
             </div>
-            <div style={{ color: "#666", fontSize: "0.85rem" }}>Définis</div>
+            <div style={{ color: "#666", fontSize: "0.85rem" }}>Pôles définis</div>
+          </div>
+
+          <div
+            style={{
+              backgroundColor: "#1a1a1a",
+              padding: "1.5rem",
+              borderRadius: "12px",
+              border: "1px solid #333",
+              cursor: "pointer",
+              transition: "all 0.2s",
+            }}
+            onMouseEnter={(e) => {
+              e.currentTarget.style.borderColor = "#555";
+              e.currentTarget.style.transform = "translateY(-4px)";
+            }}
+            onMouseLeave={(e) => {
+              e.currentTarget.style.borderColor = "#333";
+              e.currentTarget.style.transform = "translateY(0)";
+            }}
+          >
+            <div style={{ display: "flex", alignItems: "center", gap: "1rem", marginBottom: "0.5rem" }}>
+              <div
+                style={{
+                  width: "50px",
+                  height: "50px",
+                  backgroundColor: "#2c2c2c",
+                  borderRadius: "8px",
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  fontSize: "1.5rem",
+                }}
+              >
+                👥
+              </div>
+              <div>
+                <div style={{ color: "#999", fontSize: "0.9rem" }}>Utilisateurs</div>
+                <div style={{ color: "#fff", fontSize: "2rem", fontWeight: "bold" }}>{stats.totalUtilisateurs}</div>
+              </div>
+            </div>
+            <div style={{ color: "#666", fontSize: "0.85rem" }}>Membres de l'équipe</div>
           </div>
         </div>
 
-        {/* Main Content Grid */}
-        <div style={{ display: "grid", gridTemplateColumns: "2fr 1fr", gap: "2rem" }}>
-          {/* Gestion des Pôles */}
-          <div>
-            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "1.5rem" }}>
-              <h3 style={{ color: "#fff", margin: 0, fontSize: "1.5rem" }}>Gestion des Pôles</h3>
-              <button
-                onClick={() => handleOpenModal()}
-                style={{
-                  backgroundColor: "#c0392b",
-                  color: "#fff",
-                  border: "none",
-                  padding: "0.75rem 1.5rem",
-                  borderRadius: "8px",
-                  cursor: "pointer",
-                  fontWeight: "500",
-                }}
-              >
-                + Ajouter un pôle
-              </button>
-            </div>
-
-            <div style={{ backgroundColor: "#1a1a1a", borderRadius: "12px", overflow: "hidden", border: "1px solid #333" }}>
-              <table style={{ width: "100%", borderCollapse: "collapse" }}>
-                <thead>
-                  <tr style={{ borderBottom: "1px solid #333" }}>
-                    <th style={{ padding: "1rem", textAlign: "left", color: "#999", fontWeight: "500" }}>Nom</th>
-                    <th style={{ padding: "1rem", textAlign: "left", color: "#999", fontWeight: "500" }}>Prôjets</th>
-                    <th style={{ padding: "1rem", textAlign: "left", color: "#999", fontWeight: "500" }}>Assignee</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {poles.length === 0 ? (
-                    <tr>
-                      <td colSpan="3" style={{ padding: "2rem", textAlign: "center", color: "#666" }}>
-                        Aucun pôle créé
-                      </td>
-                    </tr>
-                  ) : (
-                    poles.map((pole) => (
-                      <tr key={pole.id} style={{ borderBottom: "1px solid #222" }}>
-                        <td style={{ padding: "1rem", color: "#fff", fontWeight: "500" }}>{pole.name}</td>
-                        <td style={{ padding: "1rem", color: "#999" }}>2 pôles</td>
-                        <td style={{ padding: "1rem" }}>
-                          <div style={{ display: "flex", gap: "0.5rem" }}>
-                            <button
-                              onClick={() => handleOpenModal(pole)}
-                              style={{
-                                backgroundColor: "transparent",
-                                color: "#3498db",
-                                border: "1px solid #3498db",
-                                padding: "0.5rem 1rem",
-                                borderRadius: "6px",
-                                cursor: "pointer",
-                                fontSize: "0.85rem",
-                              }}
-                            >
-                              Modifier
-                            </button>
-                            <button
-                              onClick={() => handleDelete(pole.id)}
-                              style={{
-                                backgroundColor: "transparent",
-                                color: "#c0392b",
-                                border: "1px solid #c0392b",
-                                padding: "0.5rem 1rem",
-                                borderRadius: "6px",
-                                cursor: "pointer",
-                                fontSize: "0.85rem",
-                              }}
-                            >
-                              Supprimer
-                            </button>
-                          </div>
-                        </td>
-                      </tr>
-                    ))
-                  )}
-                </tbody>
-              </table>
-            </div>
+        {/* Gestion des Pôles */}
+        <div>
+          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "1.5rem" }}>
+            <h3 style={{ color: "#fff", margin: 0, fontSize: "1.5rem" }}>Pôles récents</h3>
+            <button
+              onClick={() => handleOpenModal()}
+              style={{
+                backgroundColor: "#c0392b",
+                color: "#fff",
+                border: "none",
+                padding: "0.75rem 1.5rem",
+                borderRadius: "8px",
+                cursor: "pointer",
+                fontWeight: "500",
+                transition: "background-color 0.2s",
+              }}
+              onMouseEnter={(e) => (e.target.style.backgroundColor = "#a02e24")}
+              onMouseLeave={(e) => (e.target.style.backgroundColor = "#c0392b")}
+            >
+              + Ajouter un pôle
+            </button>
           </div>
 
-          {/* Utilisateurs */}
-          <div>
-            <h3 style={{ color: "#fff", marginBottom: "1.5rem", fontSize: "1.5rem" }}>Utilisateurs</h3>
-
-            <div style={{ backgroundColor: "#1a1a1a", padding: "2rem", borderRadius: "12px", border: "1px solid #333" }}>
-              <div style={{ display: "flex", alignItems: "center", gap: "1rem", marginBottom: "2rem" }}>
-                <div style={{ fontSize: "2rem" }}>👥</div>
-                <div>
-                  <div style={{ color: "#fff", fontSize: "2rem", fontWeight: "bold" }}>{stats.totalUtilisateurs}</div>
-                  <div style={{ color: "#999", fontSize: "0.9rem" }}>Membres de l'équipe</div>
-                </div>
-              </div>
-
-              <div style={{ display: "flex", alignItems: "center", gap: "1rem" }}>
-                <div style={{ fontSize: "2rem" }}>🎯</div>
-                <div>
-                  <div style={{ color: "#fff", fontSize: "2rem", fontWeight: "bold" }}>{stats.totalPoles}</div>
-                  <div style={{ color: "#999", fontSize: "0.9rem" }}>Pôles</div>
-                </div>
-              </div>
-            </div>
+          <div style={{ backgroundColor: "#1a1a1a", borderRadius: "12px", overflow: "hidden", border: "1px solid #333" }}>
+            <table style={{ width: "100%", borderCollapse: "collapse" }}>
+              <thead>
+                <tr style={{ borderBottom: "1px solid #333" }}>
+                  <th style={{ padding: "1rem", textAlign: "left", color: "#999", fontWeight: "500" }}>Nom</th>
+                  <th style={{ padding: "1rem", textAlign: "left", color: "#999", fontWeight: "500" }}>Description</th>
+                  <th style={{ padding: "1rem", textAlign: "left", color: "#999", fontWeight: "500" }}>Chef de pôle</th>
+                  <th style={{ padding: "1rem", textAlign: "left", color: "#999", fontWeight: "500" }}>Actions</th>
+                </tr>
+              </thead>
+              <tbody>
+                {poles.length === 0 ? (
+                  <tr>
+                    <td colSpan="4" style={{ padding: "2rem", textAlign: "center", color: "#666" }}>
+                      Aucun pôle créé
+                    </td>
+                  </tr>
+                ) : (
+                  poles.map((pole) => (
+                    <tr
+                      key={pole.id}
+                      style={{ borderBottom: "1px solid #222", transition: "background-color 0.2s" }}
+                      onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = "#222")}
+                      onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = "transparent")}
+                    >
+                      <td style={{ padding: "1rem", color: "#fff", fontWeight: "500" }}>{pole.name}</td>
+                      <td style={{ padding: "1rem", color: "#999" }}>{pole.description || "-"}</td>
+                      <td style={{ padding: "1rem", color: "#999" }}>{pole.chef_username || "Non assigné"}</td>
+                      <td style={{ padding: "1rem" }}>
+                        <div style={{ display: "flex", gap: "0.5rem" }}>
+                          <button
+                            onClick={() => handleOpenModal(pole)}
+                            style={{
+                              backgroundColor: "transparent",
+                              color: "#3498db",
+                              border: "1px solid #3498db",
+                              padding: "0.5rem 1rem",
+                              borderRadius: "6px",
+                              cursor: "pointer",
+                              fontSize: "0.85rem",
+                              transition: "all 0.2s",
+                            }}
+                            onMouseEnter={(e) => {
+                              e.target.style.backgroundColor = "#3498db";
+                              e.target.style.color = "#fff";
+                            }}
+                            onMouseLeave={(e) => {
+                              e.target.style.backgroundColor = "transparent";
+                              e.target.style.color = "#3498db";
+                            }}
+                          >
+                            Modifier
+                          </button>
+                          <button
+                            onClick={() => handleDelete(pole.id)}
+                            style={{
+                              backgroundColor: "transparent",
+                              color: "#c0392b",
+                              border: "1px solid #c0392b",
+                              padding: "0.5rem 1rem",
+                              borderRadius: "6px",
+                              cursor: "pointer",
+                              fontSize: "0.85rem",
+                              transition: "all 0.2s",
+                            }}
+                            onMouseEnter={(e) => {
+                              e.target.style.backgroundColor = "#c0392b";
+                              e.target.style.color = "#fff";
+                            }}
+                            onMouseLeave={(e) => {
+                              e.target.style.backgroundColor = "transparent";
+                              e.target.style.color = "#c0392b";
+                            }}
+                          >
+                            Supprimer
+                          </button>
+                        </div>
+                      </td>
+                    </tr>
+                  ))
+                )}
+              </tbody>
+            </table>
           </div>
         </div>
 

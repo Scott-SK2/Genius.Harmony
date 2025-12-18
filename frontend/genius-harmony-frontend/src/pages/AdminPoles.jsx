@@ -113,31 +113,13 @@ export default function AdminPoles() {
 
   return (
     <>
-      {/* Header */}
-      <div
-        style={{
-          backgroundColor: "#c0392b",
-          padding: "1.5rem 2rem",
-          borderRadius: "12px",
-          marginBottom: "2rem",
-          display: "flex",
-          justifyContent: "space-between",
-          alignItems: "center",
-        }}
-      >
-        <div>
-          <h1 style={{ color: "#fff", margin: 0, fontSize: "1.8rem" }}>
-            🎯 Gestion des Pôles
-          </h1>
-          <p style={{ margin: 0, marginTop: "0.5rem", color: "rgba(255,255,255,0.9)", fontSize: "1.05rem" }}>
-            Créez et gérez les pôles de votre organisation
-          </p>
-        </div>
+      {/* Bouton Créer un pôle */}
+      <div style={{ display: "flex", justifyContent: "flex-end", marginBottom: "2rem" }}>
         <button
           onClick={() => handleOpenModal()}
           style={{
             padding: "0.75rem 1.5rem",
-            backgroundColor: "rgba(255,255,255,0.2)",
+            backgroundColor: "#c0392b",
             color: "#fff",
             border: "none",
             borderRadius: "8px",
@@ -147,10 +129,10 @@ export default function AdminPoles() {
             transition: "all 0.2s",
           }}
           onMouseEnter={(e) => {
-            e.target.style.backgroundColor = "rgba(255,255,255,0.3)";
+            e.target.style.backgroundColor = "#a02e24";
           }}
           onMouseLeave={(e) => {
-            e.target.style.backgroundColor = "rgba(255,255,255,0.2)";
+            e.target.style.backgroundColor = "#c0392b";
           }}
         >
           ➕ Créer un pôle

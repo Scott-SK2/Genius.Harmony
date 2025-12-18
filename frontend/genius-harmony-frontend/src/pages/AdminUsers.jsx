@@ -86,23 +86,6 @@ export default function AdminUsers() {
 
   return (
     <>
-      {/* Header */}
-      <div
-        style={{
-          backgroundColor: "#c0392b",
-          padding: "1.5rem 2rem",
-          borderRadius: "12px",
-          marginBottom: "2rem",
-        }}
-      >
-        <h1 style={{ color: "#fff", margin: 0, fontSize: "1.8rem" }}>
-          👥 Gestion des utilisateurs
-        </h1>
-        <p style={{ margin: 0, marginTop: "0.5rem", color: "rgba(255,255,255,0.9)", fontSize: "1.05rem" }}>
-          Attribuez les rôles et les pôles aux utilisateurs
-        </p>
-      </div>
-
       {users.length === 0 ? (
         <div
           style={{
