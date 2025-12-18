@@ -96,7 +96,7 @@ export default function ProjetsList() {
   const canCreateProjet = user?.role === "admin" || user?.role === "chef_pole";
 
   return (
-    <div>
+    <div style={{ width: "100%" }}>
       <div
         style={{
           display: "flex",

@@ -178,7 +178,7 @@ export default function ProjetDetails() {
   }
 
   return (
-    <div style={{ maxWidth: "1200px", margin: "0 auto" }}>
+    <div style={{ width: "100%" }}>
       {/* Navigation */}
       <div style={{ marginBottom: "2rem" }}>
         <Link
