@@ -5,7 +5,7 @@ from .views import (
     RegisterView, MeView,
     PoleListCreateView, PoleDetailView,
     UserListView, UserUpdateView,
-    ProjetListCreateView, ProjetDetailView,
+    ProjetListCreateView, ProjetDetailView, ProjetUpdateStatutView,
     TacheListCreateView, TacheDetailView,
     DocumentListCreateView, DocumentDetailView,
 )
@@ -28,6 +28,7 @@ urlpatterns = [
     # Projets
     path('projets/', ProjetListCreateView.as_view(), name='projets-list-create'),
     path('projets/<int:pk>/', ProjetDetailView.as_view(), name='projets-detail'),
+    path('projets/<int:pk>/update-statut/', ProjetUpdateStatutView.as_view(), name='projets-update-statut'),
 
     # Tâches
     path('taches/', TacheListCreateView.as_view(), name='taches-list-create'),

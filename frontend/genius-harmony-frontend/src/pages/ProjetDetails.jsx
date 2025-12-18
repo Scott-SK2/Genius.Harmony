@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { useParams, Link } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 
-import { fetchProjetDetails } from "../api/projets";
+import { fetchProjetDetails, updateProjetStatut } from "../api/projets";
 import FormTache from "../components/FormTache";
 import UploadDocument from "../components/UploadDocument";
 
@@ -40,13 +40,14 @@ const TACHE_PRIORITE_LABELS = {
 
 export default function ProjetDetails() {
   const { id } = useParams();
-  const { token } = useAuth();
-  
+  const { token, user } = useAuth();
+
   const [projet, setProjet] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [showFormTache, setShowFormTache] = useState(false);
   const [showUploadDoc, setShowUploadDoc] = useState(false);
+  const [isChangingStatut, setIsChangingStatut] = useState(false);
 
   const loadProjet = async () => {
     if (!token || !id) return;
@@ -80,6 +81,63 @@ export default function ProjetDetails() {
     normale: "#7c3aed",
     haute: "#f59e0b",
     urgente: "#f87171",
+  };
+
+  // Fonction pour vérifier si l'utilisateur peut changer le statut
+  const canChangeStatut = () => {
+    if (!projet || !user) return false;
+
+    // Admin peut tout faire
+    if (user.role === 'admin') return true;
+
+    // Créateur du projet peut changer le statut
+    if (projet.created_by === user.id) return true;
+
+    // Chef de pôle peut changer le statut des projets de son pôle
+    if (user.role === 'chef_pole' && projet.pole === user.pole) return true;
+
+    // Chef de projet peut mettre en_revision, termine, annule uniquement
+    if (projet.chef_projet === user.id) return true;
+
+    return false;
+  };
+
+  // Fonction pour déterminer les statuts disponibles selon le rôle
+  const getAvailableStatuts = () => {
+    if (!projet || !user) return [];
+
+    const allStatuts = ['brouillon', 'en_attente', 'en_cours', 'en_revision', 'termine', 'annule'];
+
+    // Admin peut tout faire
+    if (user.role === 'admin') return allStatuts;
+
+    // Créateur et chef de pôle peuvent accéder à tous les statuts
+    if (projet.created_by === user.id || (user.role === 'chef_pole' && projet.pole === user.pole)) {
+      return allStatuts;
+    }
+
+    // Chef de projet peut seulement mettre en_revision, termine, annule
+    if (projet.chef_projet === user.id) {
+      return ['en_revision', 'termine', 'annule'];
+    }
+
+    return [];
+  };
+
+  // Fonction pour changer le statut du projet
+  const handleChangeStatut = async (nouveauStatut) => {
+    if (!canChangeStatut()) return;
+
+    setIsChangingStatut(true);
+    try {
+      const updatedProjet = await updateProjetStatut(token, id, nouveauStatut);
+      setProjet(updatedProjet);
+    } catch (err) {
+      console.error("Erreur changement statut:", err);
+      setError("Impossible de changer le statut du projet");
+    } finally {
+      setIsChangingStatut(false);
+    }
   };
 
   if (loading) {
@@ -215,20 +273,47 @@ export default function ProjetDetails() {
           <h1 style={{ margin: 0, color: "#fff", fontSize: "2rem" }}>
             {projet.titre}
           </h1>
-          <span
-            style={{
-              display: "inline-block",
-              padding: "0.5rem 1rem",
-              borderRadius: "8px",
-              fontSize: "0.9rem",
-              fontWeight: "600",
-              backgroundColor: `${STATUT_COLORS[projet.statut] || "#c4b5fd"}20`,
-              color: STATUT_COLORS[projet.statut] || "#c4b5fd",
-              border: `1px solid ${STATUT_COLORS[projet.statut] || "#c4b5fd"}40`,
-            }}
-          >
-            {STATUT_LABELS[projet.statut] || projet.statut}
-          </span>
+
+          {/* Sélecteur de statut ou affichage du statut */}
+          {canChangeStatut() ? (
+            <select
+              value={projet.statut}
+              onChange={(e) => handleChangeStatut(e.target.value)}
+              disabled={isChangingStatut}
+              style={{
+                padding: "0.5rem 1rem",
+                borderRadius: "8px",
+                fontSize: "0.9rem",
+                fontWeight: "600",
+                backgroundColor: `${STATUT_COLORS[projet.statut] || "#c4b5fd"}20`,
+                color: STATUT_COLORS[projet.statut] || "#c4b5fd",
+                border: `2px solid ${STATUT_COLORS[projet.statut] || "#c4b5fd"}`,
+                cursor: isChangingStatut ? "wait" : "pointer",
+                outline: "none",
+              }}
+            >
+              {getAvailableStatuts().map((statut) => (
+                <option key={statut} value={statut} style={{ backgroundColor: "#2d1b69", color: "#fff" }}>
+                  {STATUT_LABELS[statut]}
+                </option>
+              ))}
+            </select>
+          ) : (
+            <span
+              style={{
+                display: "inline-block",
+                padding: "0.5rem 1rem",
+                borderRadius: "8px",
+                fontSize: "0.9rem",
+                fontWeight: "600",
+                backgroundColor: `${STATUT_COLORS[projet.statut] || "#c4b5fd"}20`,
+                color: STATUT_COLORS[projet.statut] || "#c4b5fd",
+                border: `1px solid ${STATUT_COLORS[projet.statut] || "#c4b5fd"}40`,
+              }}
+            >
+              {STATUT_LABELS[projet.statut] || projet.statut}
+            </span>
+          )}
         </div>
 
         <div style={{ color: "#c4b5fd", fontSize: "0.95rem", lineHeight: "1.8" }}>

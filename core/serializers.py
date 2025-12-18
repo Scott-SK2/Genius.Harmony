@@ -158,6 +158,7 @@ class ProjetListSerializer(serializers.ModelSerializer):
     pole_name = serializers.CharField(source='pole.name', read_only=True)
     client_username = serializers.CharField(source='client.username', read_only=True)
     chef_projet_username = serializers.CharField(source='chef_projet.username', read_only=True)
+    created_by_username = serializers.CharField(source='created_by.username', read_only=True)
     nombre_taches = serializers.SerializerMethodField()
     nombre_membres = serializers.SerializerMethodField()
 
@@ -166,10 +167,11 @@ class ProjetListSerializer(serializers.ModelSerializer):
         fields = [
             'id', 'titre', 'type', 'statut', 'pole', 'pole_name',
             'client', 'client_username', 'chef_projet', 'chef_projet_username',
+            'created_by', 'created_by_username',
             'nombre_taches', 'nombre_membres', 'date_debut', 'date_fin_prevue',
             'created_at', 'updated_at'
         ]
-        read_only_fields = ['id', 'created_at', 'updated_at']
+        read_only_fields = ['id', 'created_by', 'created_at', 'updated_at']
 
     def get_nombre_taches(self, obj):
         return obj.taches.count()
@@ -183,6 +185,7 @@ class ProjetDetailSerializer(serializers.ModelSerializer):
     pole_details = PoleSerializer(source='pole', read_only=True)
     client_details = UserSimpleSerializer(source='client', read_only=True)
     chef_projet_details = UserSimpleSerializer(source='chef_projet', read_only=True)
+    created_by_details = UserSimpleSerializer(source='created_by', read_only=True)
     membres_details = UserSimpleSerializer(source='membres', many=True, read_only=True)
     taches = TacheSerializer(many=True, read_only=True)
     documents = DocumentSerializer(many=True, read_only=True)
@@ -194,13 +197,14 @@ class ProjetDetailSerializer(serializers.ModelSerializer):
             'pole', 'pole_details',
             'client', 'client_details',
             'chef_projet', 'chef_projet_details',
+            'created_by', 'created_by_details',
             'membres', 'membres_details',
             'taches', 'documents',
             'odoo_project_id', 'odoo_invoice_id',
             'date_debut', 'date_fin_prevue', 'date_fin_reelle',
             'created_at', 'updated_at'
         ]
-        read_only_fields = ['id', 'created_at', 'updated_at']
+        read_only_fields = ['id', 'created_by', 'created_at', 'updated_at']
 
 
 class ProjetCreateUpdateSerializer(serializers.ModelSerializer):

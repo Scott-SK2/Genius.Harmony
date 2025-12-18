@@ -81,6 +81,7 @@ class Projet(models.Model):
     client = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True, related_name='projets_client')
     chef_projet = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True, related_name='projets_geres')
     membres = models.ManyToManyField(User, blank=True, related_name='projets_membre')
+    created_by = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True, related_name='projets_crees', help_text="Utilisateur qui a créé le projet")
 
     # Liens Odoo (pour plus tard)
     odoo_project_id = models.IntegerField(null=True, blank=True)

@@ -80,11 +80,10 @@ class UserUpdateView(generics.UpdateAPIView):
 
 class CanViewProjet(permissions.BasePermission):
     """
-    Permission pour voir les projets selon le rôle :
+    Permission pour voir les projets selon le rôle et le statut :
     - Admin : voit tout
-    - Chef de pôle : voit les projets de son pôle
-    - Membre/Stagiaire/Technicien : voient TOUS les projets (lecture universelle)
-    - Artiste/Client/Partenaire : voient leurs propres projets
+    - Chef de pôle : voit selon les règles de visibilité
+    - Autres : voient uniquement les projets publics (en_cours, en_revision, termine, annule)
     """
 
     def has_permission(self, request, view):
@@ -102,17 +101,30 @@ class CanViewProjet(permissions.BasePermission):
         if profile.role == 'admin':
             return True
 
-        # Chef de pôle voit les projets de son pôle
-        if profile.role == 'chef_pole' and profile.pole:
-            return obj.pole == profile.pole
+        # Statuts publics visibles par tous
+        if obj.statut in ['en_cours', 'en_revision', 'termine', 'annule']:
+            # Chef de pôle doit être du même pôle
+            if profile.role == 'chef_pole' and profile.pole:
+                return obj.pole == profile.pole
+            # Membre/Stagiaire/Technicien voient tous les projets publics
+            if profile.role in ['membre', 'stagiaire', 'technicien']:
+                return True
+            # Artiste/Client/Partenaire voient leurs propres projets
+            if profile.role in ['artiste', 'client', 'partenaire']:
+                return obj.client == user
 
-        # Membre/Stagiaire/Technicien voient TOUS les projets (lecture universelle)
-        if profile.role in ['membre', 'stagiaire', 'technicien']:
-            return True
+        # Brouillon : visible uniquement par admin, créateur, chef de projet du même pôle
+        if obj.statut == 'brouillon':
+            if profile.role == 'chef_pole' and profile.pole:
+                return (obj.pole == profile.pole and
+                       (obj.created_by == user or obj.chef_projet == user))
+            return False
 
-        # Artiste/Client/Partenaire voient leurs propres projets
-        if profile.role in ['artiste', 'client', 'partenaire']:
-            return obj.client == user
+        # En attente : visible par admin et créateur
+        if obj.statut == 'en_attente':
+            if profile.role == 'chef_pole':
+                return obj.created_by == user
+            return False
 
         return False
 
@@ -176,21 +188,33 @@ class ProjetListCreateView(generics.ListCreateAPIView):
         if not profile:
             return Projet.objects.none()
 
-        # Admin voit tout
+        queryset = Projet.objects.all().select_related('pole', 'client', 'chef_projet', 'created_by').prefetch_related('membres')
+
+        # Admin voit tout (tous les statuts)
         if profile.role == 'admin':
-            return Projet.objects.all().select_related('pole', 'client', 'chef_projet').prefetch_related('membres')
+            return queryset
 
-        # Chef de pôle voit les projets de son pôle
+        # Chef de pôle
         if profile.role == 'chef_pole' and profile.pole:
-            return Projet.objects.filter(pole=profile.pole).select_related('pole', 'client', 'chef_projet').prefetch_related('membres')
+            # Voit les projets de son pôle selon les règles de visibilité
+            return queryset.filter(
+                Q(pole=profile.pole) & (
+                    Q(statut__in=['en_cours', 'en_revision', 'termine', 'annule']) |  # Statuts publics
+                    Q(statut='brouillon', created_by=user) |  # Brouillons créés par lui
+                    Q(statut='brouillon', chef_projet=user) |  # Brouillons dont il est chef projet
+                    Q(statut='en_attente', created_by=user)  # En attente créés par lui
+                )
+            )
 
-        # Membre/Stagiaire/Technicien voient TOUS les projets (lecture universelle)
+        # Membre/Stagiaire/Technicien voient les projets publics uniquement
         if profile.role in ['membre', 'stagiaire', 'technicien']:
-            return Projet.objects.all().select_related('pole', 'client', 'chef_projet').prefetch_related('membres')
+            return queryset.filter(statut__in=['en_cours', 'en_revision', 'termine', 'annule'])
 
-        # Artiste/Client/Partenaire voient leurs propres projets
+        # Artiste/Client/Partenaire voient leurs propres projets publics
         if profile.role in ['artiste', 'client', 'partenaire']:
-            return Projet.objects.filter(client=user).select_related('pole', 'client', 'chef_projet').prefetch_related('membres')
+            return queryset.filter(
+                Q(client=user) & Q(statut__in=['en_cours', 'en_revision', 'termine', 'annule'])
+            )
 
         return Projet.objects.none()
 
@@ -202,7 +226,16 @@ class ProjetListCreateView(generics.ListCreateAPIView):
                 {"detail": "Vous n'avez pas la permission de créer un projet"},
                 status=status.HTTP_403_FORBIDDEN
             )
-        serializer.save()
+
+        # Logique de statut automatique
+        statut = serializer.validated_data.get('statut', 'brouillon')
+
+        # Si créé par admin et statut est brouillon ou en_attente, passer directement à en_cours
+        if profile.role == 'admin' and statut in ['brouillon', 'en_attente']:
+            statut = 'en_cours'
+
+        # Sauvegarder avec created_by et statut ajusté
+        serializer.save(created_by=self.request.user, statut=statut)
 
 
 class ProjetDetailView(generics.RetrieveUpdateDestroyAPIView):
@@ -240,6 +273,79 @@ class ProjetDetailView(generics.RetrieveUpdateDestroyAPIView):
                 status=status.HTTP_403_FORBIDDEN
             )
         return super().destroy(request, *args, **kwargs)
+
+
+class ProjetUpdateStatutView(APIView):
+    """
+    Endpoint pour changer le statut d'un projet
+    Permissions:
+    - Admin: peut changer n'importe quel statut
+    - Créateur du projet: peut changer le statut
+    - Chef de pôle: peut changer le statut des projets de son pôle
+    - Chef de projet: peut mettre en_revision, termine, annule
+    """
+    permission_classes = [permissions.IsAuthenticated]
+
+    def patch(self, request, pk):
+        try:
+            projet = Projet.objects.select_related('pole', 'created_by', 'chef_projet').get(pk=pk)
+        except Projet.DoesNotExist:
+            return Response(
+                {"detail": "Projet introuvable"},
+                status=status.HTTP_404_NOT_FOUND
+            )
+
+        user = request.user
+        profile = getattr(user, 'profile', None)
+
+        if not profile:
+            return Response(
+                {"detail": "Profil utilisateur non trouvé"},
+                status=status.HTTP_403_FORBIDDEN
+            )
+
+        nouveau_statut = request.data.get('statut')
+
+        if not nouveau_statut:
+            return Response(
+                {"detail": "Le champ 'statut' est requis"},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+
+        # Vérifier les permissions selon le rôle
+        can_change = False
+
+        # Admin peut tout faire
+        if profile.role == 'admin':
+            can_change = True
+
+        # Créateur du projet peut changer le statut
+        elif projet.created_by == user:
+            can_change = True
+
+        # Chef de pôle peut changer le statut des projets de son pôle
+        elif profile.role == 'chef_pole' and profile.pole and projet.pole == profile.pole:
+            can_change = True
+
+        # Chef de projet peut mettre en_revision, termine, annule
+        elif projet.chef_projet == user:
+            if nouveau_statut in ['en_revision', 'termine', 'annule']:
+                can_change = True
+
+        if not can_change:
+            return Response(
+                {"detail": "Vous n'avez pas la permission de modifier le statut de ce projet"},
+                status=status.HTTP_403_FORBIDDEN
+            )
+
+        # Changer le statut
+        projet.statut = nouveau_statut
+        projet.save()
+
+        # Retourner le projet mis à jour
+        from .serializers import ProjetDetailSerializer
+        serializer = ProjetDetailSerializer(projet)
+        return Response(serializer.data)
 
 
 # ===============================
