@@ -224,7 +224,7 @@ export default function AdminLayout({ children, pageTitle = "Dashboard" }) {
       </header>
 
       {/* Main content */}
-      <main style={{ marginTop: "70px", flex: 1, padding: "2rem 3rem" }}>
+      <main style={{ marginTop: "70px", flex: 1, padding: "2rem 3rem", width: "100%", maxWidth: "100%", boxSizing: "border-box" }}>
         {children}
       </main>
     </div>

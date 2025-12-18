@@ -124,7 +124,7 @@ export default function AdminDashboard() {
   }
 
   return (
-    <>
+    <div style={{ width: "100%", maxWidth: "100%" }}>
       {/* Stats Cards - 4 cartes alignées */}
       <div
         style={{
@@ -539,6 +539,6 @@ export default function AdminDashboard() {
             </div>
           </div>
         )}
-    </>
+    </div>
   );
 }
