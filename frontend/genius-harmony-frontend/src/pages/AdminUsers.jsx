@@ -91,22 +91,22 @@ export default function AdminUsers() {
           style={{
             textAlign: "center",
             padding: "4rem 2rem",
-            backgroundColor: "#1a1a1a",
+            backgroundColor: "#2d1b69",
             borderRadius: "12px",
-            border: "1px solid #333",
+            border: "1px solid #4c1d95",
           }}
         >
           <div style={{ fontSize: "4rem", marginBottom: "1rem" }}>👤</div>
-          <p style={{ margin: 0, color: "#999", fontSize: "1.1rem" }}>
+          <p style={{ margin: 0, color: "#c4b5fd", fontSize: "1.1rem" }}>
             Aucun utilisateur trouvé.
           </p>
         </div>
       ) : (
         <div
           style={{
-            backgroundColor: "#1a1a1a",
+            backgroundColor: "#2d1b69",
             borderRadius: "12px",
-            border: "1px solid #333",
+            border: "1px solid #4c1d95",
             overflow: "hidden",
           }}
         >
@@ -120,10 +120,10 @@ export default function AdminUsers() {
               <tr>
                 <th
                   style={{
-                    borderBottom: "1px solid #333",
+                    borderBottom: "1px solid #4c1d95",
                     textAlign: "left",
                     padding: "1rem",
-                    color: "#999",
+                    color: "#c4b5fd",
                     fontWeight: "500",
                   }}
                 >
@@ -131,10 +131,10 @@ export default function AdminUsers() {
                 </th>
                 <th
                   style={{
-                    borderBottom: "1px solid #333",
+                    borderBottom: "1px solid #4c1d95",
                     textAlign: "left",
                     padding: "1rem",
-                    color: "#999",
+                    color: "#c4b5fd",
                     fontWeight: "500",
                   }}
                 >
@@ -142,10 +142,10 @@ export default function AdminUsers() {
                 </th>
                 <th
                   style={{
-                    borderBottom: "1px solid #333",
+                    borderBottom: "1px solid #4c1d95",
                     textAlign: "left",
                     padding: "1rem",
-                    color: "#999",
+                    color: "#c4b5fd",
                     fontWeight: "500",
                   }}
                 >
@@ -153,10 +153,10 @@ export default function AdminUsers() {
                 </th>
                 <th
                   style={{
-                    borderBottom: "1px solid #333",
+                    borderBottom: "1px solid #4c1d95",
                     textAlign: "left",
                     padding: "1rem",
-                    color: "#999",
+                    color: "#c4b5fd",
                     fontWeight: "500",
                   }}
                 >
@@ -164,10 +164,10 @@ export default function AdminUsers() {
                 </th>
                 <th
                   style={{
-                    borderBottom: "1px solid #333",
+                    borderBottom: "1px solid #4c1d95",
                     textAlign: "left",
                     padding: "1rem",
-                    color: "#999",
+                    color: "#c4b5fd",
                     fontWeight: "500",
                   }}
                 >
@@ -180,23 +180,23 @@ export default function AdminUsers() {
                 <tr
                   key={u.id}
                   style={{
-                    borderBottom: "1px solid #222",
+                    borderBottom: "1px solid #4c1d95",
                     transition: "background-color 0.2s",
                   }}
                   onMouseEnter={(e) => {
-                    e.currentTarget.style.backgroundColor = "#222";
+                    e.currentTarget.style.backgroundColor = "#4c1d95";
                   }}
                   onMouseLeave={(e) => {
                     e.currentTarget.style.backgroundColor = "transparent";
                   }}
                 >
-                  <td style={{ padding: "1rem", color: "#666" }}>
+                  <td style={{ padding: "1rem", color: "#a78bfa" }}>
                     #{u.id}
                   </td>
                   <td style={{ padding: "1rem", color: "#fff", fontWeight: "500" }}>
                     {u.username}
                   </td>
-                  <td style={{ padding: "1rem", color: "#999" }}>
+                  <td style={{ padding: "1rem", color: "#c4b5fd" }}>
                     {u.email}
                   </td>
                   <td style={{ padding: "1rem" }}>
@@ -207,8 +207,8 @@ export default function AdminUsers() {
                       style={{
                         padding: "0.5rem 0.75rem",
                         borderRadius: "8px",
-                        border: "1px solid #333",
-                        backgroundColor: "#0f0f0f",
+                        border: "1px solid #4c1d95",
+                        backgroundColor: "#1e1b4b",
                         color: "#fff",
                         fontSize: "0.95rem",
                         cursor: "pointer",
@@ -232,8 +232,8 @@ export default function AdminUsers() {
                         style={{
                           padding: "0.5rem 0.75rem",
                           borderRadius: "8px",
-                          border: "1px solid #333",
-                          backgroundColor: "#0f0f0f",
+                          border: "1px solid #4c1d95",
+                          backgroundColor: "#1e1b4b",
                           color: "#fff",
                           fontSize: "0.95rem",
                           cursor: "pointer",
@@ -248,7 +248,7 @@ export default function AdminUsers() {
                         ))}
                       </select>
                       {u.pole_name && (
-                        <span style={{ color: "#666", fontSize: "0.9rem" }}>
+                        <span style={{ color: "#a78bfa", fontSize: "0.9rem" }}>
                           ({u.pole_name})
                         </span>
                       )}

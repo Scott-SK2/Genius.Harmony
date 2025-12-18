@@ -50,11 +50,11 @@ export default function AdminLayout({ children, pageTitle = "Dashboard" }) {
   const isActive = (path) => location.pathname === path;
 
   return (
-    <div style={{ display: "flex", flexDirection: "column", backgroundColor: "#0f0f0f", minHeight: "100vh" }}>
+    <div style={{ display: "flex", flexDirection: "column", backgroundColor: "#1e1b4b", minHeight: "100vh" }}>
       {/* Top Header */}
       <header
         style={{
-          backgroundColor: "#c0392b",
+          backgroundColor: "#7c3aed",
           height: "70px",
           display: "flex",
           alignItems: "center",
@@ -65,6 +65,7 @@ export default function AdminLayout({ children, pageTitle = "Dashboard" }) {
           left: 0,
           right: 0,
           zIndex: 100,
+          boxShadow: "0 4px 6px rgba(0, 0, 0, 0.3)",
         }}
       >
         {/* Left: Logo + Menu */}
@@ -93,8 +94,8 @@ export default function AdminLayout({ children, pageTitle = "Dashboard" }) {
                 top: "100%",
                 left: 0,
                 marginTop: "1rem",
-                backgroundColor: "#1a1a1a",
-                border: "1px solid #333",
+                backgroundColor: "#2d1b69",
+                border: "1px solid #a78bfa",
                 borderRadius: "8px",
                 minWidth: "200px",
                 boxShadow: "0 4px 12px rgba(0,0,0,0.5)",
@@ -102,17 +103,17 @@ export default function AdminLayout({ children, pageTitle = "Dashboard" }) {
               }}
             >
               <Link
-                to="/dashboard"
+                to="/admin/dashboard"
                 onClick={() => setShowMenu(false)}
                 style={{
                   display: "block",
                   padding: "0.875rem 1.5rem",
                   color: "#fff",
                   textDecoration: "none",
-                  borderBottom: "1px solid #333",
+                  borderBottom: "1px solid #4c1d95",
                   transition: "background-color 0.2s",
                 }}
-                onMouseEnter={(e) => (e.target.style.backgroundColor = "#222")}
+                onMouseEnter={(e) => (e.target.style.backgroundColor = "#4c1d95")}
                 onMouseLeave={(e) => (e.target.style.backgroundColor = "transparent")}
               >
                 📊 Dashboard
@@ -125,13 +126,29 @@ export default function AdminLayout({ children, pageTitle = "Dashboard" }) {
                   padding: "0.875rem 1.5rem",
                   color: "#fff",
                   textDecoration: "none",
-                  borderBottom: "1px solid #333",
+                  borderBottom: "1px solid #4c1d95",
                   transition: "background-color 0.2s",
                 }}
-                onMouseEnter={(e) => (e.target.style.backgroundColor = "#222")}
+                onMouseEnter={(e) => (e.target.style.backgroundColor = "#4c1d95")}
                 onMouseLeave={(e) => (e.target.style.backgroundColor = "transparent")}
               >
                 📋 Projets
+              </Link>
+              <Link
+                to="/kanban"
+                onClick={() => setShowMenu(false)}
+                style={{
+                  display: "block",
+                  padding: "0.875rem 1.5rem",
+                  color: "#fff",
+                  textDecoration: "none",
+                  borderBottom: "1px solid #4c1d95",
+                  transition: "background-color 0.2s",
+                }}
+                onMouseEnter={(e) => (e.target.style.backgroundColor = "#4c1d95")}
+                onMouseLeave={(e) => (e.target.style.backgroundColor = "transparent")}
+              >
+                📊 Kanban
               </Link>
               <Link
                 to="/admin/poles"
@@ -141,10 +158,10 @@ export default function AdminLayout({ children, pageTitle = "Dashboard" }) {
                   padding: "0.875rem 1.5rem",
                   color: "#fff",
                   textDecoration: "none",
-                  borderBottom: "1px solid #333",
+                  borderBottom: "1px solid #4c1d95",
                   transition: "background-color 0.2s",
                 }}
-                onMouseEnter={(e) => (e.target.style.backgroundColor = "#222")}
+                onMouseEnter={(e) => (e.target.style.backgroundColor = "#4c1d95")}
                 onMouseLeave={(e) => (e.target.style.backgroundColor = "transparent")}
               >
                 🎯 Pôles
@@ -159,7 +176,7 @@ export default function AdminLayout({ children, pageTitle = "Dashboard" }) {
                   textDecoration: "none",
                   transition: "background-color 0.2s",
                 }}
-                onMouseEnter={(e) => (e.target.style.backgroundColor = "#222")}
+                onMouseEnter={(e) => (e.target.style.backgroundColor = "#4c1d95")}
                 onMouseLeave={(e) => (e.target.style.backgroundColor = "transparent")}
               >
                 👥 Utilisateurs

@@ -119,7 +119,7 @@ export default function AdminPoles() {
           onClick={() => handleOpenModal()}
           style={{
             padding: "0.75rem 1.5rem",
-            backgroundColor: "#c0392b",
+            backgroundColor: "#7c3aed",
             color: "#fff",
             border: "none",
             borderRadius: "8px",
@@ -129,10 +129,10 @@ export default function AdminPoles() {
             transition: "all 0.2s",
           }}
           onMouseEnter={(e) => {
-            e.target.style.backgroundColor = "#a02e24";
+            e.target.style.backgroundColor = "#6d28d9";
           }}
           onMouseLeave={(e) => {
-            e.target.style.backgroundColor = "#c0392b";
+            e.target.style.backgroundColor = "#7c3aed";
           }}
         >
           ➕ Créer un pôle
@@ -145,13 +145,13 @@ export default function AdminPoles() {
           style={{
             textAlign: "center",
             padding: "4rem 2rem",
-            backgroundColor: "#1a1a1a",
+            backgroundColor: "#2d1b69",
             borderRadius: "12px",
-            border: "1px solid #333",
+            border: "1px solid #4c1d95",
           }}
         >
           <div style={{ fontSize: "4rem", marginBottom: "1rem" }}>🎯</div>
-          <p style={{ margin: 0, color: "#999", fontSize: "1.1rem" }}>
+          <p style={{ margin: 0, color: "#c4b5fd", fontSize: "1.1rem" }}>
             Aucun pôle trouvé. Créez-en un pour commencer !
           </p>
         </div>
@@ -161,17 +161,17 @@ export default function AdminPoles() {
             <div
               key={pole.id}
               style={{
-                backgroundColor: "#1a1a1a",
+                backgroundColor: "#2d1b69",
                 borderRadius: "12px",
                 padding: "1.5rem",
-                border: "1px solid #333",
+                border: "1px solid #4c1d95",
                 transition: "all 0.2s",
               }}
               onMouseEnter={(e) => {
                 e.currentTarget.style.borderColor = "#555";
               }}
               onMouseLeave={(e) => {
-                e.currentTarget.style.borderColor = "#333";
+                e.currentTarget.style.borderColor = "#4c1d95";
               }}
             >
               <div
@@ -197,7 +197,7 @@ export default function AdminPoles() {
                       style={{
                         margin: 0,
                         marginBottom: "1rem",
-                        color: "#999",
+                        color: "#c4b5fd",
                         lineHeight: "1.6",
                       }}
                     >
@@ -210,7 +210,7 @@ export default function AdminPoles() {
                         display: "inline-block",
                         padding: "0.5rem 1rem",
                         backgroundColor: "rgba(192, 57, 43, 0.2)",
-                        color: "#c0392b",
+                        color: "#7c3aed",
                         borderRadius: "8px",
                         fontSize: "0.9rem",
                         fontWeight: "600",
@@ -226,7 +226,7 @@ export default function AdminPoles() {
                         display: "inline-block",
                         padding: "0.5rem 1rem",
                         backgroundColor: "rgba(153, 153, 153, 0.2)",
-                        color: "#999",
+                        color: "#c4b5fd",
                         borderRadius: "8px",
                         fontSize: "0.9rem",
                         fontWeight: "600",
@@ -243,8 +243,8 @@ export default function AdminPoles() {
                     style={{
                       padding: "0.5rem 1rem",
                       backgroundColor: "transparent",
-                      color: "#3498db",
-                      border: "1px solid #3498db",
+                      color: "#a78bfa",
+                      border: "1px solid #a78bfa",
                       borderRadius: "8px",
                       fontSize: "0.9rem",
                       fontWeight: "600",
@@ -252,12 +252,12 @@ export default function AdminPoles() {
                       transition: "all 0.2s",
                     }}
                     onMouseEnter={(e) => {
-                      e.target.style.backgroundColor = "#3498db";
+                      e.target.style.backgroundColor = "#a78bfa";
                       e.target.style.color = "#fff";
                     }}
                     onMouseLeave={(e) => {
                       e.target.style.backgroundColor = "transparent";
-                      e.target.style.color = "#3498db";
+                      e.target.style.color = "#a78bfa";
                     }}
                   >
                     Modifier
@@ -267,8 +267,8 @@ export default function AdminPoles() {
                     style={{
                       padding: "0.5rem 1rem",
                       backgroundColor: "transparent",
-                      color: "#c0392b",
-                      border: "1px solid #c0392b",
+                      color: "#7c3aed",
+                      border: "1px solid #7c3aed",
                       borderRadius: "8px",
                       fontSize: "0.9rem",
                       fontWeight: "600",
@@ -276,12 +276,12 @@ export default function AdminPoles() {
                       transition: "all 0.2s",
                     }}
                     onMouseEnter={(e) => {
-                      e.target.style.backgroundColor = "#c0392b";
+                      e.target.style.backgroundColor = "#7c3aed";
                       e.target.style.color = "#fff";
                     }}
                     onMouseLeave={(e) => {
                       e.target.style.backgroundColor = "transparent";
-                      e.target.style.color = "#c0392b";
+                      e.target.style.color = "#7c3aed";
                     }}
                   >
                     Supprimer
@@ -312,12 +312,12 @@ export default function AdminPoles() {
         >
           <div
             style={{
-              backgroundColor: "#1a1a1a",
+              backgroundColor: "#2d1b69",
               borderRadius: "12px",
               padding: "2rem",
               width: "90%",
               maxWidth: "500px",
-              border: "1px solid #333",
+              border: "1px solid #4c1d95",
             }}
             onClick={(e) => e.stopPropagation()}
           >
@@ -337,7 +337,7 @@ export default function AdminPoles() {
                   style={{
                     display: "block",
                     marginBottom: "0.5rem",
-                    color: "#999",
+                    color: "#c4b5fd",
                     fontWeight: "500",
                   }}
                 >
@@ -354,8 +354,8 @@ export default function AdminPoles() {
                     width: "100%",
                     padding: "0.75rem",
                     borderRadius: "8px",
-                    border: "1px solid #333",
-                    backgroundColor: "#0f0f0f",
+                    border: "1px solid #4c1d95",
+                    backgroundColor: "#1e1b4b",
                     color: "#fff",
                     fontSize: "1rem",
                   }}
@@ -366,7 +366,7 @@ export default function AdminPoles() {
                   style={{
                     display: "block",
                     marginBottom: "0.5rem",
-                    color: "#999",
+                    color: "#c4b5fd",
                     fontWeight: "500",
                   }}
                 >
@@ -382,8 +382,8 @@ export default function AdminPoles() {
                     width: "100%",
                     padding: "0.75rem",
                     borderRadius: "8px",
-                    border: "1px solid #333",
-                    backgroundColor: "#0f0f0f",
+                    border: "1px solid #4c1d95",
+                    backgroundColor: "#1e1b4b",
                     color: "#fff",
                     fontSize: "1rem",
                     resize: "vertical",
@@ -395,7 +395,7 @@ export default function AdminPoles() {
                   style={{
                     display: "block",
                     marginBottom: "0.5rem",
-                    color: "#999",
+                    color: "#c4b5fd",
                     fontWeight: "500",
                   }}
                 >
@@ -410,8 +410,8 @@ export default function AdminPoles() {
                     width: "100%",
                     padding: "0.75rem",
                     borderRadius: "8px",
-                    border: "1px solid #333",
-                    backgroundColor: "#0f0f0f",
+                    border: "1px solid #4c1d95",
+                    backgroundColor: "#1e1b4b",
                     color: "#fff",
                     fontSize: "1rem",
                     cursor: "pointer",
@@ -434,7 +434,7 @@ export default function AdminPoles() {
                   style={{
                     flex: 1,
                     padding: "0.75rem",
-                    backgroundColor: "#333",
+                    backgroundColor: "#4c1d95",
                     color: "#fff",
                     border: "none",
                     borderRadius: "8px",
@@ -450,7 +450,7 @@ export default function AdminPoles() {
                   style={{
                     flex: 1,
                     padding: "0.75rem",
-                    backgroundColor: "#c0392b",
+                    backgroundColor: "#7c3aed",
                     color: "#fff",
                     border: "none",
                     borderRadius: "8px",

@@ -136,20 +136,23 @@ export default function AdminDashboard() {
       >
           <div
             style={{
-              backgroundColor: "#1a1a1a",
+              backgroundColor: "#2d1b69",
               padding: "1.5rem",
               borderRadius: "12px",
-              border: "1px solid #333",
+              border: "1px solid #4c1d95",
               cursor: "pointer",
               transition: "all 0.2s",
+              boxShadow: "0 2px 8px rgba(124, 58, 237, 0.1)",
             }}
             onMouseEnter={(e) => {
-              e.currentTarget.style.borderColor = "#555";
+              e.currentTarget.style.borderColor = "#a78bfa";
               e.currentTarget.style.transform = "translateY(-4px)";
+              e.currentTarget.style.boxShadow = "0 4px 16px rgba(124, 58, 237, 0.3)";
             }}
             onMouseLeave={(e) => {
-              e.currentTarget.style.borderColor = "#333";
+              e.currentTarget.style.borderColor = "#4c1d95";
               e.currentTarget.style.transform = "translateY(0)";
+              e.currentTarget.style.boxShadow = "0 2px 8px rgba(124, 58, 237, 0.1)";
             }}
           >
             <div style={{ display: "flex", alignItems: "center", gap: "1rem", marginBottom: "0.5rem" }}>
@@ -157,7 +160,7 @@ export default function AdminDashboard() {
                 style={{
                   width: "50px",
                   height: "50px",
-                  backgroundColor: "#2c2c2c",
+                  backgroundColor: "#4c1d95",
                   borderRadius: "8px",
                   display: "flex",
                   alignItems: "center",
@@ -168,29 +171,32 @@ export default function AdminDashboard() {
                 📋
               </div>
               <div>
-                <div style={{ color: "#999", fontSize: "0.9rem" }}>Projets</div>
+                <div style={{ color: "#c4b5fd", fontSize: "0.9rem" }}>Projets</div>
                 <div style={{ color: "#fff", fontSize: "2rem", fontWeight: "bold" }}>{stats.totalProjets}</div>
               </div>
             </div>
-            <div style={{ color: "#666", fontSize: "0.85rem" }}>Total des projets</div>
+            <div style={{ color: "#a78bfa", fontSize: "0.85rem" }}>Total des projets</div>
           </div>
 
           <div
             style={{
-              backgroundColor: "#1a1a1a",
+              backgroundColor: "#2d1b69",
               padding: "1.5rem",
               borderRadius: "12px",
-              border: "1px solid #333",
+              border: "1px solid #4c1d95",
               cursor: "pointer",
               transition: "all 0.2s",
+              boxShadow: "0 2px 8px rgba(124, 58, 237, 0.1)",
             }}
             onMouseEnter={(e) => {
-              e.currentTarget.style.borderColor = "#555";
+              e.currentTarget.style.borderColor = "#a78bfa";
               e.currentTarget.style.transform = "translateY(-4px)";
+              e.currentTarget.style.boxShadow = "0 4px 16px rgba(124, 58, 237, 0.3)";
             }}
             onMouseLeave={(e) => {
-              e.currentTarget.style.borderColor = "#333";
+              e.currentTarget.style.borderColor = "#4c1d95";
               e.currentTarget.style.transform = "translateY(0)";
+              e.currentTarget.style.boxShadow = "0 2px 8px rgba(124, 58, 237, 0.1)";
             }}
           >
             <div style={{ display: "flex", alignItems: "center", gap: "1rem", marginBottom: "0.5rem" }}>
@@ -198,7 +204,7 @@ export default function AdminDashboard() {
                 style={{
                   width: "50px",
                   height: "50px",
-                  backgroundColor: "#2c2c2c",
+                  backgroundColor: "#4c1d95",
                   borderRadius: "8px",
                   display: "flex",
                   alignItems: "center",
@@ -209,29 +215,32 @@ export default function AdminDashboard() {
                 ✓
               </div>
               <div>
-                <div style={{ color: "#999", fontSize: "0.9rem" }}>Tâches</div>
+                <div style={{ color: "#c4b5fd", fontSize: "0.9rem" }}>Tâches</div>
                 <div style={{ color: "#fff", fontSize: "2rem", fontWeight: "bold" }}>{stats.totalTaches}</div>
               </div>
             </div>
-            <div style={{ color: "#666", fontSize: "0.85rem" }}>Total des tâches</div>
+            <div style={{ color: "#a78bfa", fontSize: "0.85rem" }}>Total des tâches</div>
           </div>
 
           <div
             style={{
-              backgroundColor: "#1a1a1a",
+              backgroundColor: "#2d1b69",
               padding: "1.5rem",
               borderRadius: "12px",
-              border: "1px solid #333",
+              border: "1px solid #4c1d95",
               cursor: "pointer",
               transition: "all 0.2s",
+              boxShadow: "0 2px 8px rgba(124, 58, 237, 0.1)",
             }}
             onMouseEnter={(e) => {
-              e.currentTarget.style.borderColor = "#555";
+              e.currentTarget.style.borderColor = "#a78bfa";
               e.currentTarget.style.transform = "translateY(-4px)";
+              e.currentTarget.style.boxShadow = "0 4px 16px rgba(124, 58, 237, 0.3)";
             }}
             onMouseLeave={(e) => {
-              e.currentTarget.style.borderColor = "#333";
+              e.currentTarget.style.borderColor = "#4c1d95";
               e.currentTarget.style.transform = "translateY(0)";
+              e.currentTarget.style.boxShadow = "0 2px 8px rgba(124, 58, 237, 0.1)";
             }}
           >
             <div style={{ display: "flex", alignItems: "center", gap: "1rem", marginBottom: "0.5rem" }}>
@@ -239,7 +248,7 @@ export default function AdminDashboard() {
                 style={{
                   width: "50px",
                   height: "50px",
-                  backgroundColor: "#2c2c2c",
+                  backgroundColor: "#4c1d95",
                   borderRadius: "8px",
                   display: "flex",
                   alignItems: "center",
@@ -250,29 +259,32 @@ export default function AdminDashboard() {
                 🎯
               </div>
               <div>
-                <div style={{ color: "#999", fontSize: "0.9rem" }}>Pôles</div>
+                <div style={{ color: "#c4b5fd", fontSize: "0.9rem" }}>Pôles</div>
                 <div style={{ color: "#fff", fontSize: "2rem", fontWeight: "bold" }}>{stats.totalPoles}</div>
               </div>
             </div>
-            <div style={{ color: "#666", fontSize: "0.85rem" }}>Pôles définis</div>
+            <div style={{ color: "#a78bfa", fontSize: "0.85rem" }}>Pôles définis</div>
           </div>
 
           <div
             style={{
-              backgroundColor: "#1a1a1a",
+              backgroundColor: "#2d1b69",
               padding: "1.5rem",
               borderRadius: "12px",
-              border: "1px solid #333",
+              border: "1px solid #4c1d95",
               cursor: "pointer",
               transition: "all 0.2s",
+              boxShadow: "0 2px 8px rgba(124, 58, 237, 0.1)",
             }}
             onMouseEnter={(e) => {
-              e.currentTarget.style.borderColor = "#555";
+              e.currentTarget.style.borderColor = "#a78bfa";
               e.currentTarget.style.transform = "translateY(-4px)";
+              e.currentTarget.style.boxShadow = "0 4px 16px rgba(124, 58, 237, 0.3)";
             }}
             onMouseLeave={(e) => {
-              e.currentTarget.style.borderColor = "#333";
+              e.currentTarget.style.borderColor = "#4c1d95";
               e.currentTarget.style.transform = "translateY(0)";
+              e.currentTarget.style.boxShadow = "0 2px 8px rgba(124, 58, 237, 0.1)";
             }}
           >
             <div style={{ display: "flex", alignItems: "center", gap: "1rem", marginBottom: "0.5rem" }}>
@@ -280,7 +292,7 @@ export default function AdminDashboard() {
                 style={{
                   width: "50px",
                   height: "50px",
-                  backgroundColor: "#2c2c2c",
+                  backgroundColor: "#4c1d95",
                   borderRadius: "8px",
                   display: "flex",
                   alignItems: "center",
@@ -291,11 +303,11 @@ export default function AdminDashboard() {
                 👥
               </div>
               <div>
-                <div style={{ color: "#999", fontSize: "0.9rem" }}>Utilisateurs</div>
+                <div style={{ color: "#c4b5fd", fontSize: "0.9rem" }}>Utilisateurs</div>
                 <div style={{ color: "#fff", fontSize: "2rem", fontWeight: "bold" }}>{stats.totalUtilisateurs}</div>
               </div>
             </div>
-            <div style={{ color: "#666", fontSize: "0.85rem" }}>Membres de l'équipe</div>
+            <div style={{ color: "#a78bfa", fontSize: "0.85rem" }}>Membres de l'équipe</div>
           </div>
         </div>
 
@@ -306,7 +318,7 @@ export default function AdminDashboard() {
             <button
               onClick={() => handleOpenModal()}
               style={{
-                backgroundColor: "#c0392b",
+                backgroundColor: "#7c3aed",
                 color: "#fff",
                 border: "none",
                 padding: "0.75rem 1.5rem",
@@ -314,28 +326,35 @@ export default function AdminDashboard() {
                 cursor: "pointer",
                 fontWeight: "500",
                 transition: "background-color 0.2s",
+                boxShadow: "0 2px 8px rgba(124, 58, 237, 0.3)",
               }}
-              onMouseEnter={(e) => (e.target.style.backgroundColor = "#a02e24")}
-              onMouseLeave={(e) => (e.target.style.backgroundColor = "#c0392b")}
+              onMouseEnter={(e) => {
+                e.target.style.backgroundColor = "#6d28d9";
+                e.target.style.boxShadow = "0 4px 12px rgba(124, 58, 237, 0.5)";
+              }}
+              onMouseLeave={(e) => {
+                e.target.style.backgroundColor = "#7c3aed";
+                e.target.style.boxShadow = "0 2px 8px rgba(124, 58, 237, 0.3)";
+              }}
             >
               + Ajouter un pôle
             </button>
           </div>
 
-          <div style={{ backgroundColor: "#1a1a1a", borderRadius: "12px", overflow: "hidden", border: "1px solid #333" }}>
+          <div style={{ backgroundColor: "#2d1b69", borderRadius: "12px", overflow: "hidden", border: "1px solid #4c1d95" }}>
             <table style={{ width: "100%", borderCollapse: "collapse" }}>
               <thead>
-                <tr style={{ borderBottom: "1px solid #333" }}>
-                  <th style={{ padding: "1rem", textAlign: "left", color: "#999", fontWeight: "500" }}>Nom</th>
-                  <th style={{ padding: "1rem", textAlign: "left", color: "#999", fontWeight: "500" }}>Description</th>
-                  <th style={{ padding: "1rem", textAlign: "left", color: "#999", fontWeight: "500" }}>Chef de pôle</th>
-                  <th style={{ padding: "1rem", textAlign: "left", color: "#999", fontWeight: "500" }}>Actions</th>
+                <tr style={{ borderBottom: "1px solid #4c1d95" }}>
+                  <th style={{ padding: "1rem", textAlign: "left", color: "#c4b5fd", fontWeight: "500" }}>Nom</th>
+                  <th style={{ padding: "1rem", textAlign: "left", color: "#c4b5fd", fontWeight: "500" }}>Description</th>
+                  <th style={{ padding: "1rem", textAlign: "left", color: "#c4b5fd", fontWeight: "500" }}>Chef de pôle</th>
+                  <th style={{ padding: "1rem", textAlign: "left", color: "#c4b5fd", fontWeight: "500" }}>Actions</th>
                 </tr>
               </thead>
               <tbody>
                 {poles.length === 0 ? (
                   <tr>
-                    <td colSpan="4" style={{ padding: "2rem", textAlign: "center", color: "#666" }}>
+                    <td colSpan="4" style={{ padding: "2rem", textAlign: "center", color: "#a78bfa" }}>
                       Aucun pôle créé
                     </td>
                   </tr>
@@ -343,21 +362,21 @@ export default function AdminDashboard() {
                   poles.map((pole) => (
                     <tr
                       key={pole.id}
-                      style={{ borderBottom: "1px solid #222", transition: "background-color 0.2s" }}
-                      onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = "#222")}
+                      style={{ borderBottom: "1px solid #4c1d95", transition: "background-color 0.2s" }}
+                      onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = "#4c1d95")}
                       onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = "transparent")}
                     >
                       <td style={{ padding: "1rem", color: "#fff", fontWeight: "500" }}>{pole.name}</td>
-                      <td style={{ padding: "1rem", color: "#999" }}>{pole.description || "-"}</td>
-                      <td style={{ padding: "1rem", color: "#999" }}>{pole.chef_username || "Non assigné"}</td>
+                      <td style={{ padding: "1rem", color: "#c4b5fd" }}>{pole.description || "-"}</td>
+                      <td style={{ padding: "1rem", color: "#c4b5fd" }}>{pole.chef_username || "Non assigné"}</td>
                       <td style={{ padding: "1rem" }}>
                         <div style={{ display: "flex", gap: "0.5rem" }}>
                           <button
                             onClick={() => handleOpenModal(pole)}
                             style={{
                               backgroundColor: "transparent",
-                              color: "#3498db",
-                              border: "1px solid #3498db",
+                              color: "#a78bfa",
+                              border: "1px solid #a78bfa",
                               padding: "0.5rem 1rem",
                               borderRadius: "6px",
                               cursor: "pointer",
@@ -365,12 +384,12 @@ export default function AdminDashboard() {
                               transition: "all 0.2s",
                             }}
                             onMouseEnter={(e) => {
-                              e.target.style.backgroundColor = "#3498db";
-                              e.target.style.color = "#fff";
+                              e.target.style.backgroundColor = "#a78bfa";
+                              e.target.style.color = "#1e1b4b";
                             }}
                             onMouseLeave={(e) => {
                               e.target.style.backgroundColor = "transparent";
-                              e.target.style.color = "#3498db";
+                              e.target.style.color = "#a78bfa";
                             }}
                           >
                             Modifier
@@ -379,8 +398,8 @@ export default function AdminDashboard() {
                             onClick={() => handleDelete(pole.id)}
                             style={{
                               backgroundColor: "transparent",
-                              color: "#c0392b",
-                              border: "1px solid #c0392b",
+                              color: "#f87171",
+                              border: "1px solid #f87171",
                               padding: "0.5rem 1rem",
                               borderRadius: "6px",
                               cursor: "pointer",
@@ -388,12 +407,12 @@ export default function AdminDashboard() {
                               transition: "all 0.2s",
                             }}
                             onMouseEnter={(e) => {
-                              e.target.style.backgroundColor = "#c0392b";
+                              e.target.style.backgroundColor = "#f87171";
                               e.target.style.color = "#fff";
                             }}
                             onMouseLeave={(e) => {
                               e.target.style.backgroundColor = "transparent";
-                              e.target.style.color = "#c0392b";
+                              e.target.style.color = "#f87171";
                             }}
                           >
                             Supprimer
@@ -417,7 +436,7 @@ export default function AdminDashboard() {
               left: 0,
               right: 0,
               bottom: 0,
-              backgroundColor: "rgba(0, 0, 0, 0.8)",
+              backgroundColor: "rgba(30, 27, 75, 0.9)",
               display: "flex",
               justifyContent: "center",
               alignItems: "center",
@@ -427,12 +446,13 @@ export default function AdminDashboard() {
           >
             <div
               style={{
-                backgroundColor: "#1a1a1a",
+                backgroundColor: "#2d1b69",
                 borderRadius: "12px",
                 padding: "2rem",
                 width: "90%",
                 maxWidth: "500px",
-                border: "1px solid #333",
+                border: "1px solid #7c3aed",
+                boxShadow: "0 8px 32px rgba(124, 58, 237, 0.3)",
               }}
               onClick={(e) => e.stopPropagation()}
             >
@@ -441,7 +461,7 @@ export default function AdminDashboard() {
               </h2>
               <form onSubmit={handleSubmit}>
                 <div style={{ marginBottom: "1.5rem" }}>
-                  <label style={{ display: "block", marginBottom: "0.5rem", color: "#999" }}>Nom du pôle *</label>
+                  <label style={{ display: "block", marginBottom: "0.5rem", color: "#c4b5fd" }}>Nom du pôle *</label>
                   <input
                     type="text"
                     value={formData.name}
@@ -451,15 +471,15 @@ export default function AdminDashboard() {
                       width: "100%",
                       padding: "0.75rem",
                       borderRadius: "8px",
-                      border: "1px solid #333",
-                      backgroundColor: "#0f0f0f",
+                      border: "1px solid #4c1d95",
+                      backgroundColor: "#1e1b4b",
                       color: "#fff",
                       fontSize: "1rem",
                     }}
                   />
                 </div>
                 <div style={{ marginBottom: "1.5rem" }}>
-                  <label style={{ display: "block", marginBottom: "0.5rem", color: "#999" }}>Description</label>
+                  <label style={{ display: "block", marginBottom: "0.5rem", color: "#c4b5fd" }}>Description</label>
                   <textarea
                     value={formData.description}
                     onChange={(e) => setFormData({ ...formData, description: e.target.value })}
@@ -468,8 +488,8 @@ export default function AdminDashboard() {
                       width: "100%",
                       padding: "0.75rem",
                       borderRadius: "8px",
-                      border: "1px solid #333",
-                      backgroundColor: "#0f0f0f",
+                      border: "1px solid #4c1d95",
+                      backgroundColor: "#1e1b4b",
                       color: "#fff",
                       fontSize: "1rem",
                       resize: "vertical",
@@ -477,7 +497,7 @@ export default function AdminDashboard() {
                   />
                 </div>
                 <div style={{ marginBottom: "1.5rem" }}>
-                  <label style={{ display: "block", marginBottom: "0.5rem", color: "#999" }}>Chef de pôle</label>
+                  <label style={{ display: "block", marginBottom: "0.5rem", color: "#c4b5fd" }}>Chef de pôle</label>
                   <select
                     value={formData.chef}
                     onChange={(e) => setFormData({ ...formData, chef: e.target.value })}
@@ -485,8 +505,8 @@ export default function AdminDashboard() {
                       width: "100%",
                       padding: "0.75rem",
                       borderRadius: "8px",
-                      border: "1px solid #333",
-                      backgroundColor: "#0f0f0f",
+                      border: "1px solid #4c1d95",
+                      backgroundColor: "#1e1b4b",
                       color: "#fff",
                       fontSize: "1rem",
                       cursor: "pointer",
@@ -509,13 +529,16 @@ export default function AdminDashboard() {
                     style={{
                       flex: 1,
                       padding: "0.75rem",
-                      backgroundColor: "#333",
+                      backgroundColor: "#4c1d95",
                       color: "#fff",
                       border: "none",
                       borderRadius: "8px",
                       cursor: "pointer",
                       fontWeight: "500",
+                      transition: "background-color 0.2s",
                     }}
+                    onMouseEnter={(e) => (e.target.style.backgroundColor = "#5b21b6")}
+                    onMouseLeave={(e) => (e.target.style.backgroundColor = "#4c1d95")}
                   >
                     Annuler
                   </button>
@@ -524,13 +547,16 @@ export default function AdminDashboard() {
                     style={{
                       flex: 1,
                       padding: "0.75rem",
-                      backgroundColor: "#c0392b",
+                      backgroundColor: "#7c3aed",
                       color: "#fff",
                       border: "none",
                       borderRadius: "8px",
                       cursor: "pointer",
                       fontWeight: "500",
+                      transition: "background-color 0.2s",
                     }}
+                    onMouseEnter={(e) => (e.target.style.backgroundColor = "#6d28d9")}
+                    onMouseLeave={(e) => (e.target.style.backgroundColor = "#7c3aed")}
                   >
                     {editingPole ? "Mettre à jour" : "Créer"}
                   </button>
