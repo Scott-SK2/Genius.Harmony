@@ -213,13 +213,16 @@ export default function ProjetDetails() {
 
   // Fonction pour vérifier si l'utilisateur peut créer des tâches
   const canCreateTask = () => {
-    if (!user) return false;
+    if (!user || !projet) return false;
 
     // Admin peut créer
     if (user.role === 'admin') return true;
 
     // Chef de pôle peut créer
     if (user.role === 'chef_pole') return true;
+
+    // Chef de projet peut créer seulement s'il a accepté
+    if (projet.chef_projet === user.id && projet.chef_projet_status === 'accepted') return true;
 
     // Membres ne peuvent pas créer
     return false;
@@ -232,11 +235,11 @@ export default function ProjetDetails() {
     // Admin peut tout faire
     if (user.role === 'admin') return true;
 
-    // Chef de pôle peut déplacer les tâches des projets de son pôle
-    if (user.role === 'chef_pole' && projet?.pole === user.pole) return true;
+    // Chef de pôle peut déplacer les tâches
+    if (user.role === 'chef_pole') return true;
 
-    // Chef de projet peut déplacer les tâches de son projet
-    if (projet?.chef_projet === user.id) return true;
+    // Chef de projet peut déplacer les tâches de son projet s'il a accepté
+    if (projet?.chef_projet === user.id && projet?.chef_projet_status === 'accepted') return true;
 
     // Membre, Stagiaire et Partenaire peuvent déplacer uniquement les tâches qui leur sont assignées
     if ((user.role === 'membre' || user.role === 'stagiaire' || user.role === 'partenaire') && tache.assigne_a === user.id) return true;

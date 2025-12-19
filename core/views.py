@@ -259,11 +259,8 @@ class CanViewProjet(permissions.BasePermission):
 
         # Statuts publics visibles par tous
         if obj.statut in ['en_cours', 'en_revision', 'termine', 'annule']:
-            # Chef de pôle doit être du même pôle
-            if profile.role == 'chef_pole' and profile.pole:
-                return obj.pole == profile.pole
-            # Membre, Stagiaire et Partenaire: peuvent voir uniquement les projets où ils sont associés (membre, chef_projet, ou client)
-            if profile.role in ['membre', 'stagiaire', 'partenaire']:
+            # Chef de pôle, Membre, Stagiaire et Partenaire: peuvent voir uniquement les projets où ils sont associés (membre, chef_projet, ou client)
+            if profile.role in ['chef_pole', 'membre', 'stagiaire', 'partenaire']:
                 return (obj.membres.filter(id=user.id).exists() or
                        obj.chef_projet == user or
                        obj.client == user)
@@ -352,20 +349,8 @@ class ProjetListCreateView(generics.ListCreateAPIView):
         if profile.role == 'admin':
             return queryset
 
-        # Chef de pôle
-        if profile.role == 'chef_pole' and profile.pole:
-            # Voit les projets de son pôle selon les règles de visibilité
-            return queryset.filter(
-                Q(pole=profile.pole) & (
-                    Q(statut__in=['en_cours', 'en_revision', 'termine', 'annule']) |  # Statuts publics
-                    Q(statut='brouillon', created_by=user) |  # Brouillons créés par lui
-                    Q(statut='brouillon', chef_projet=user) |  # Brouillons dont il est chef projet
-                    Q(statut='en_attente', created_by=user)  # En attente créés par lui
-                )
-            )
-
-        # Membre, Stagiaire et Partenaire voient TOUS les projets (nouvelles règles)
-        if profile.role in ['membre', 'stagiaire', 'partenaire']:
+        # Chef de pôle, Membre, Stagiaire et Partenaire voient TOUS les projets (nouvelles règles)
+        if profile.role in ['chef_pole', 'membre', 'stagiaire', 'partenaire']:
             return queryset
 
         # Artiste/Client voient leurs propres projets publics
@@ -506,6 +491,100 @@ class ProjetUpdateStatutView(APIView):
         return Response(serializer.data)
 
 
+class ProjetAcceptChefView(APIView):
+    """
+    Endpoint pour accepter la désignation comme chef de projet
+    """
+    permission_classes = [permissions.IsAuthenticated]
+
+    def post(self, request, pk):
+        try:
+            projet = Projet.objects.select_related('chef_projet').get(pk=pk)
+        except Projet.DoesNotExist:
+            return Response(
+                {"detail": "Projet introuvable"},
+                status=status.HTTP_404_NOT_FOUND
+            )
+
+        user = request.user
+
+        # Vérifier que l'utilisateur est bien le chef de projet désigné
+        if projet.chef_projet != user:
+            return Response(
+                {"detail": "Vous n'êtes pas le chef de projet désigné pour ce projet"},
+                status=status.HTTP_403_FORBIDDEN
+            )
+
+        # Vérifier que le statut est en attente
+        if projet.chef_projet_status == 'accepted':
+            return Response(
+                {"detail": "Vous avez déjà accepté ce projet"},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+
+        if projet.chef_projet_status == 'declined':
+            return Response(
+                {"detail": "Vous avez déjà refusé ce projet"},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+
+        # Accepter
+        projet.chef_projet_status = 'accepted'
+        projet.save()
+
+        # Retourner le projet mis à jour
+        from .serializers import ProjetDetailSerializer
+        serializer = ProjetDetailSerializer(projet)
+        return Response(serializer.data)
+
+
+class ProjetDeclineChefView(APIView):
+    """
+    Endpoint pour refuser la désignation comme chef de projet
+    """
+    permission_classes = [permissions.IsAuthenticated]
+
+    def post(self, request, pk):
+        try:
+            projet = Projet.objects.select_related('chef_projet').get(pk=pk)
+        except Projet.DoesNotExist:
+            return Response(
+                {"detail": "Projet introuvable"},
+                status=status.HTTP_404_NOT_FOUND
+            )
+
+        user = request.user
+
+        # Vérifier que l'utilisateur est bien le chef de projet désigné
+        if projet.chef_projet != user:
+            return Response(
+                {"detail": "Vous n'êtes pas le chef de projet désigné pour ce projet"},
+                status=status.HTTP_403_FORBIDDEN
+            )
+
+        # Vérifier que le statut est en attente
+        if projet.chef_projet_status == 'accepted':
+            return Response(
+                {"detail": "Vous avez déjà accepté ce projet, vous ne pouvez plus refuser"},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+
+        if projet.chef_projet_status == 'declined':
+            return Response(
+                {"detail": "Vous avez déjà refusé ce projet"},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+
+        # Refuser
+        projet.chef_projet_status = 'declined'
+        projet.save()
+
+        # Retourner le projet mis à jour
+        from .serializers import ProjetDetailSerializer
+        serializer = ProjetDetailSerializer(projet)
+        return Response(serializer.data)
+
+
 # ===============================
 # Permissions pour les tâches
 # ===============================
@@ -553,8 +632,8 @@ class CanCreateTache(permissions.BasePermission):
     """
     Permission pour créer des tâches :
     - Admin : peut créer
-    - Chef de pôle : peut créer
-    - Chef de projet : peut créer
+    - Chef de pôle : peut créer dans les projets de son pôle
+    - Chef de projet accepté : peut créer dans son projet
     - Membres : ne peuvent PAS créer
     """
 
@@ -571,8 +650,13 @@ class CanCreateTache(permissions.BasePermission):
         if request.method in permissions.SAFE_METHODS:
             return True
 
-        # Création: admin, chef_pole uniquement (pas les membres)
-        return profile.role in ['admin', 'chef_pole']
+        # Création: admin et chef_pole peuvent créer
+        if profile.role in ['admin', 'chef_pole']:
+            return True
+
+        # Chef de projet accepté peut créer (vérifié au niveau objet)
+        # Pour la création, on retourne True et on vérifie dans perform_create
+        return True
 
 
 class CanManageTache(permissions.BasePermission):
@@ -673,6 +757,32 @@ class TacheListCreateView(generics.ListCreateAPIView):
             queryset = queryset.filter(statut=statut)
 
         return queryset
+
+    def perform_create(self, serializer):
+        user = self.request.user
+        profile = getattr(user, 'profile', None)
+        projet_id = serializer.validated_data.get('projet').id
+
+        # Récupérer le projet pour vérifier les permissions
+        try:
+            projet = Projet.objects.get(id=projet_id)
+        except Projet.DoesNotExist:
+            from rest_framework.exceptions import PermissionDenied
+            raise PermissionDenied("Projet introuvable")
+
+        # Admin et chef_pole peuvent créer
+        if profile.role in ['admin', 'chef_pole']:
+            serializer.save()
+            return
+
+        # Chef de projet peut créer seulement s'il a accepté
+        if projet.chef_projet == user and projet.chef_projet_status == 'accepted':
+            serializer.save()
+            return
+
+        # Sinon, refuser
+        from rest_framework.exceptions import PermissionDenied
+        raise PermissionDenied("Vous n'avez pas la permission de créer une tâche dans ce projet")
 
 
 class TacheDetailView(generics.RetrieveUpdateDestroyAPIView):

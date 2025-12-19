@@ -86,6 +86,12 @@ class Projet(models.Model):
         ('annule', 'Annulé'),
     ]
 
+    CHEF_PROJET_STATUS_CHOICES = [
+        ('pending', 'En attente'),
+        ('accepted', 'Accepté'),
+        ('declined', 'Refusé'),
+    ]
+
     titre = models.CharField(max_length=200)
     description = models.TextField(blank=True)
     type = models.CharField(max_length=30, choices=TYPE_CHOICES)
@@ -95,6 +101,7 @@ class Projet(models.Model):
     pole = models.ForeignKey(Pole, on_delete=models.SET_NULL, null=True, blank=True, related_name='projets')
     client = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True, related_name='projets_client')
     chef_projet = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True, related_name='projets_geres')
+    chef_projet_status = models.CharField(max_length=20, choices=CHEF_PROJET_STATUS_CHOICES, null=True, blank=True, help_text="Statut d'acceptation du chef de projet")
     membres = models.ManyToManyField(User, blank=True, related_name='projets_membre')
     created_by = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True, related_name='projets_crees', help_text="Utilisateur qui a créé le projet")
 

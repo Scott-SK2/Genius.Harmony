@@ -175,7 +175,7 @@ class ProjetListSerializer(serializers.ModelSerializer):
         model = Projet
         fields = [
             'id', 'titre', 'type', 'statut', 'pole', 'pole_name',
-            'client', 'client_username', 'chef_projet', 'chef_projet_username',
+            'client', 'client_username', 'chef_projet', 'chef_projet_username', 'chef_projet_status',
             'created_by', 'created_by_username',
             'nombre_taches', 'nombre_membres', 'date_debut', 'date_fin_prevue',
             'created_at', 'updated_at'
@@ -205,7 +205,7 @@ class ProjetDetailSerializer(serializers.ModelSerializer):
             'id', 'titre', 'description', 'type', 'statut',
             'pole', 'pole_details',
             'client', 'client_details',
-            'chef_projet', 'chef_projet_details',
+            'chef_projet', 'chef_projet_details', 'chef_projet_status',
             'created_by', 'created_by_details',
             'membres', 'membres_details',
             'taches', 'documents',
@@ -223,8 +223,21 @@ class ProjetCreateUpdateSerializer(serializers.ModelSerializer):
         model = Projet
         fields = [
             'id', 'titre', 'description', 'type', 'statut',
-            'pole', 'client', 'chef_projet', 'membres',
+            'pole', 'client', 'chef_projet', 'chef_projet_status', 'membres',
             'date_debut', 'date_fin_prevue', 'date_fin_reelle',
             'odoo_project_id', 'odoo_invoice_id'
         ]
-        read_only_fields = ['id']
+        read_only_fields = ['id', 'chef_projet_status']
+
+    def create(self, validated_data):
+        # Si un chef de projet est désigné, mettre le statut à 'pending'
+        if 'chef_projet' in validated_data and validated_data['chef_projet'] is not None:
+            validated_data['chef_projet_status'] = 'pending'
+        return super().create(validated_data)
+
+    def update(self, instance, validated_data):
+        # Si le chef de projet change, réinitialiser le statut à 'pending'
+        if 'chef_projet' in validated_data:
+            if validated_data['chef_projet'] != instance.chef_projet:
+                validated_data['chef_projet_status'] = 'pending'
+        return super().update(instance, validated_data)
