@@ -61,7 +61,7 @@ class IsAdminUserProfile(permissions.BasePermission):
 class CanViewUsers(permissions.BasePermission):
     """
     Permet aux membres de voir la liste des utilisateurs (lecture seule)
-    Stagiaires ne peuvent PAS voir la liste
+    Stagiaires et Partenaires ne peuvent PAS voir la liste
     Seuls les admins peuvent modifier
     """
 
@@ -73,9 +73,9 @@ class CanViewUsers(permissions.BasePermission):
         if not profile:
             return False
 
-        # Lecture: tous sauf stagiaire
+        # Lecture: tous sauf stagiaire et partenaire
         if request.method in permissions.SAFE_METHODS:
-            return profile.role != 'stagiaire'
+            return profile.role not in ['stagiaire', 'partenaire']
 
         # Modification: uniquement admin
         return profile.role == 'admin'
@@ -262,13 +262,13 @@ class CanViewProjet(permissions.BasePermission):
             # Chef de pôle doit être du même pôle
             if profile.role == 'chef_pole' and profile.pole:
                 return obj.pole == profile.pole
-            # Membre et Stagiaire: peuvent voir uniquement les projets où ils sont associés (membre, chef_projet, ou client)
-            if profile.role in ['membre', 'stagiaire']:
+            # Membre, Stagiaire et Partenaire: peuvent voir uniquement les projets où ils sont associés (membre, chef_projet, ou client)
+            if profile.role in ['membre', 'stagiaire', 'partenaire']:
                 return (obj.membres.filter(id=user.id).exists() or
                        obj.chef_projet == user or
                        obj.client == user)
-            # Artiste/Client/Partenaire voient leurs propres projets
-            if profile.role in ['artiste', 'client', 'partenaire']:
+            # Artiste/Client voient leurs propres projets
+            if profile.role in ['artiste', 'client']:
                 return obj.client == user
 
         # Brouillon : visible uniquement par admin, créateur, chef de projet du même pôle
@@ -364,12 +364,12 @@ class ProjetListCreateView(generics.ListCreateAPIView):
                 )
             )
 
-        # Membre et Stagiaire voient TOUS les projets (nouvelles règles)
-        if profile.role in ['membre', 'stagiaire']:
+        # Membre, Stagiaire et Partenaire voient TOUS les projets (nouvelles règles)
+        if profile.role in ['membre', 'stagiaire', 'partenaire']:
             return queryset
 
-        # Artiste/Client/Partenaire voient leurs propres projets publics
-        if profile.role in ['artiste', 'client', 'partenaire']:
+        # Artiste/Client voient leurs propres projets publics
+        if profile.role in ['artiste', 'client']:
             return queryset.filter(
                 Q(client=user) & Q(statut__in=['en_cours', 'en_revision', 'termine', 'annule'])
             )
