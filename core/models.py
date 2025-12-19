@@ -21,7 +21,6 @@ class Profile(models.Model):
         ('chef_pole', 'Chef de pôle'),
         ('membre', 'Membre'),
         ('stagiaire', 'Stagiaire'),
-        ('technicien', 'Technicien'),
         ('artiste', 'Artiste'),
         ('client', 'Client'),
         ('partenaire', 'Partenaire'),

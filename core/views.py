@@ -267,9 +267,6 @@ class CanViewProjet(permissions.BasePermission):
                 return (obj.membres.filter(id=user.id).exists() or
                        obj.chef_projet == user or
                        obj.client == user)
-            # Technicien voit tous les projets publics
-            if profile.role == 'technicien':
-                return True
             # Artiste/Client/Partenaire voient leurs propres projets
             if profile.role in ['artiste', 'client', 'partenaire']:
                 return obj.client == user
@@ -370,10 +367,6 @@ class ProjetListCreateView(generics.ListCreateAPIView):
         # Membre et Stagiaire voient TOUS les projets (nouvelles règles)
         if profile.role in ['membre', 'stagiaire']:
             return queryset
-
-        # Technicien voit les projets publics uniquement
-        if profile.role == 'technicien':
-            return queryset.filter(statut__in=['en_cours', 'en_revision', 'termine', 'annule'])
 
         # Artiste/Client/Partenaire voient leurs propres projets publics
         if profile.role in ['artiste', 'client', 'partenaire']:
