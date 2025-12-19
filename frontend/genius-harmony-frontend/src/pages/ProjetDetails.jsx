@@ -211,6 +211,20 @@ export default function ProjetDetails() {
     }
   };
 
+  // Fonction pour vérifier si l'utilisateur peut créer des tâches
+  const canCreateTask = () => {
+    if (!user) return false;
+
+    // Admin peut créer
+    if (user.role === 'admin') return true;
+
+    // Chef de pôle peut créer
+    if (user.role === 'chef_pole') return true;
+
+    // Membres ne peuvent pas créer
+    return false;
+  };
+
   // Fonction pour vérifier si l'utilisateur peut déplacer une tâche
   const canDragTask = (tache) => {
     if (!user || !tache) return false;
@@ -224,7 +238,10 @@ export default function ProjetDetails() {
     // Chef de projet peut déplacer les tâches de son projet
     if (projet?.chef_projet === user.id) return true;
 
-    // Personne assignée peut déplacer sa tâche
+    // Membre peut déplacer uniquement les tâches qui lui sont assignées
+    if (user.role === 'membre' && tache.assigne_a === user.id) return true;
+
+    // Personne assignée peut déplacer sa tâche (pour les autres rôles)
     if (tache.assigne_a === user.id) return true;
 
     return false;
@@ -709,30 +726,32 @@ export default function ProjetDetails() {
           <h2 style={{ margin: 0, color: "#fff", fontSize: "1.5rem" }}>
             📊 Kanban - Tâches du projet ({projet.taches?.length || 0})
           </h2>
-          <button
-            onClick={() => setShowFormTache(true)}
-            style={{
-              padding: "0.75rem 1.5rem",
-              backgroundColor: "#7c3aed",
-              color: "#fff",
-              border: "none",
-              borderRadius: "8px",
-              cursor: "pointer",
-              fontWeight: "600",
-              transition: "all 0.2s",
-              boxShadow: "0 2px 8px rgba(124, 58, 237, 0.1)",
-            }}
-            onMouseEnter={(e) => {
-              e.target.style.transform = "translateY(-2px)";
-              e.target.style.boxShadow = "0 4px 16px rgba(124, 58, 237, 0.3)";
-            }}
-            onMouseLeave={(e) => {
-              e.target.style.transform = "translateY(0)";
-              e.target.style.boxShadow = "0 2px 8px rgba(124, 58, 237, 0.1)";
-            }}
-          >
-            + Nouvelle tâche
-          </button>
+          {canCreateTask() && (
+            <button
+              onClick={() => setShowFormTache(true)}
+              style={{
+                padding: "0.75rem 1.5rem",
+                backgroundColor: "#7c3aed",
+                color: "#fff",
+                border: "none",
+                borderRadius: "8px",
+                cursor: "pointer",
+                fontWeight: "600",
+                transition: "all 0.2s",
+                boxShadow: "0 2px 8px rgba(124, 58, 237, 0.1)",
+              }}
+              onMouseEnter={(e) => {
+                e.target.style.transform = "translateY(-2px)";
+                e.target.style.boxShadow = "0 4px 16px rgba(124, 58, 237, 0.3)";
+              }}
+              onMouseLeave={(e) => {
+                e.target.style.transform = "translateY(0)";
+                e.target.style.boxShadow = "0 2px 8px rgba(124, 58, 237, 0.1)";
+              }}
+            >
+              + Nouvelle tâche
+            </button>
+          )}
         </div>
 
         {!projet.taches || projet.taches.length === 0 ? (

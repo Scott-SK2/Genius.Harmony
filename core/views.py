@@ -57,20 +57,64 @@ class IsAdminUserProfile(permissions.BasePermission):
         profile = getattr(user, 'profile', None)
         return bool(profile and profile.role == 'admin')
 
+
+class CanViewUsers(permissions.BasePermission):
+    """
+    Permet aux membres de voir la liste des utilisateurs (lecture seule)
+    Seuls les admins peuvent modifier
+    """
+
+    def has_permission(self, request, view):
+        user = request.user
+        if not user or not user.is_authenticated:
+            return False
+        profile = getattr(user, 'profile', None)
+        if not profile:
+            return False
+
+        # Lecture: tous les utilisateurs authentifiés
+        if request.method in permissions.SAFE_METHODS:
+            return True
+
+        # Modification: uniquement admin
+        return profile.role == 'admin'
+
+
+class CanViewPoles(permissions.BasePermission):
+    """
+    Permet aux membres de voir la liste des pôles (lecture seule)
+    Seuls les admins peuvent modifier
+    """
+
+    def has_permission(self, request, view):
+        user = request.user
+        if not user or not user.is_authenticated:
+            return False
+        profile = getattr(user, 'profile', None)
+        if not profile:
+            return False
+
+        # Lecture: tous les utilisateurs authentifiés
+        if request.method in permissions.SAFE_METHODS:
+            return True
+
+        # Modification/Création: uniquement admin
+        return profile.role == 'admin'
+
 class PoleDetailView(generics.RetrieveUpdateDestroyAPIView):
     queryset = Pole.objects.all()
     serializer_class = PoleSerializer
-    permission_classes = [IsAdminUserProfile]
+    permission_classes = [CanViewPoles]
 
 class PoleListCreateView(generics.ListCreateAPIView):
     queryset = Pole.objects.all()
     serializer_class = PoleSerializer
-    permission_classes = [IsAdminUserProfile]
+    permission_classes = [CanViewPoles]
 
 class UserListView(generics.ListAPIView):
     queryset = User.objects.all().select_related('profile', 'profile__pole')
     serializer_class = UserProfileSerializer
-    permission_classes = [IsAdminUserProfile]
+    permission_classes = [CanViewUsers]
 
 
 class UserUpdateView(generics.UpdateAPIView):
@@ -217,8 +261,13 @@ class CanViewProjet(permissions.BasePermission):
             # Chef de pôle doit être du même pôle
             if profile.role == 'chef_pole' and profile.pole:
                 return obj.pole == profile.pole
-            # Membre/Stagiaire/Technicien voient tous les projets publics
-            if profile.role in ['membre', 'stagiaire', 'technicien']:
+            # Membre: peut voir uniquement les projets où il est associé (membre, chef_projet, ou client)
+            if profile.role == 'membre':
+                return (obj.membres.filter(id=user.id).exists() or
+                       obj.chef_projet == user or
+                       obj.client == user)
+            # Stagiaire/Technicien voient tous les projets publics
+            if profile.role in ['stagiaire', 'technicien']:
                 return True
             # Artiste/Client/Partenaire voient leurs propres projets
             if profile.role in ['artiste', 'client', 'partenaire']:
@@ -317,8 +366,12 @@ class ProjetListCreateView(generics.ListCreateAPIView):
                 )
             )
 
-        # Membre/Stagiaire/Technicien voient les projets publics uniquement
-        if profile.role in ['membre', 'stagiaire', 'technicien']:
+        # Membre voit TOUS les projets (nouvelles règles)
+        if profile.role == 'membre':
+            return queryset
+
+        # Stagiaire/Technicien voient les projets publics uniquement
+        if profile.role in ['stagiaire', 'technicien']:
             return queryset.filter(statut__in=['en_cours', 'en_revision', 'termine', 'annule'])
 
         # Artiste/Client/Partenaire voient leurs propres projets publics
@@ -502,6 +555,32 @@ class CanViewTache(permissions.BasePermission):
         return False
 
 
+class CanCreateTache(permissions.BasePermission):
+    """
+    Permission pour créer des tâches :
+    - Admin : peut créer
+    - Chef de pôle : peut créer
+    - Chef de projet : peut créer
+    - Membres : ne peuvent PAS créer
+    """
+
+    def has_permission(self, request, view):
+        user = request.user
+        if not user or not user.is_authenticated:
+            return False
+
+        profile = getattr(user, 'profile', None)
+        if not profile:
+            return False
+
+        # Lecture: tous les utilisateurs authentifiés
+        if request.method in permissions.SAFE_METHODS:
+            return True
+
+        # Création: admin, chef_pole uniquement (pas les membres)
+        return profile.role in ['admin', 'chef_pole']
+
+
 class CanManageTache(permissions.BasePermission):
     """
     Permission pour gérer les tâches :
@@ -549,7 +628,7 @@ class TacheListCreateView(generics.ListCreateAPIView):
     GET: Liste les tâches (filtrées par projet si ?projet=<id>)
     POST: Crée une nouvelle tâche
     """
-    permission_classes = [permissions.IsAuthenticated]
+    permission_classes = [CanCreateTache]
 
     def get_serializer_class(self):
         if self.request.method == 'POST':
