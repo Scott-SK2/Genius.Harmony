@@ -238,8 +238,8 @@ export default function ProjetDetails() {
     // Chef de projet peut déplacer les tâches de son projet
     if (projet?.chef_projet === user.id) return true;
 
-    // Membre peut déplacer uniquement les tâches qui lui sont assignées
-    if (user.role === 'membre' && tache.assigne_a === user.id) return true;
+    // Membre et Stagiaire peuvent déplacer uniquement les tâches qui leur sont assignées
+    if ((user.role === 'membre' || user.role === 'stagiaire') && tache.assigne_a === user.id) return true;
 
     // Personne assignée peut déplacer sa tâche (pour les autres rôles)
     if (tache.assigne_a === user.id) return true;
