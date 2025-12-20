@@ -202,7 +202,8 @@ class Document(models.Model):
 def create_or_update_user_profile(sender, instance, created, **kwargs):
     if created:
         # Par défaut, on met un rôle générique 'membre'
-        Profile.objects.create(user=instance, role='membre')
+        # Utiliser get_or_create pour éviter les erreurs de duplication
+        Profile.objects.get_or_create(user=instance, defaults={'role': 'membre'})
     else:
         if hasattr(instance, 'profile'):
             instance.profile.save()
