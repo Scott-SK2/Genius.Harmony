@@ -41,13 +41,13 @@ export default function GenericDashboard() {
 
   // Router vers le bon dashboard selon le rôle
   switch (user.role) {
+    case "super_admin":
     case "admin":
       return <AdminDashboard />;
     case "chef_pole":
       return <ChefPoleDashboard />;
     case "membre":
     case "stagiaire":
-    case "technicien":
       return <MembreDashboard />;
     case "artiste":
     case "client":

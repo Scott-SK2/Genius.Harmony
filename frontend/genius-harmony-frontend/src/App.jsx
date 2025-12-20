@@ -36,11 +36,11 @@ function App() {
               }
             />
 
-            {/* Dashboard admin – réservé aux rôles "admin" */}
+            {/* Dashboard admin – réservé aux rôles "admin" et "super_admin" */}
             <Route
               path="/admin/dashboard"
               element={
-                <ProtectedRoute allowedRoles={["admin"]}>
+                <ProtectedRoute allowedRoles={["admin", "super_admin"]}>
                   <AdminLayout pageTitle="Dashboard Administrateur">
                     <AdminDashboard />
                   </AdminLayout>
@@ -52,7 +52,7 @@ function App() {
             <Route
               path="/admin/users"
               element={
-                <ProtectedRoute allowedRoles={["admin"]}>
+                <ProtectedRoute allowedRoles={["admin", "super_admin"]}>
                   <AdminLayout pageTitle="Gestion des Utilisateurs">
                     <AdminUsers />
                   </AdminLayout>
@@ -76,7 +76,7 @@ function App() {
             <Route
               path="/admin/poles"
               element={
-                <ProtectedRoute allowedRoles={["admin"]}>
+                <ProtectedRoute allowedRoles={["admin", "super_admin"]}>
                   <AdminLayout pageTitle="Gestion des Pôles">
                     <AdminPoles />
                   </AdminLayout>
