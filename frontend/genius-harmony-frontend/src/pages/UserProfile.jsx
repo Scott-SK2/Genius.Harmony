@@ -61,7 +61,7 @@ export default function UserProfile() {
 
   const canUploadPhoto = () => {
     if (!user || !id) return false;
-    return user.id === parseInt(id) || user.role === 'admin';
+    return user.id === parseInt(id) || user.role === 'admin' || user.role === 'super_admin';
   };
 
   const handlePhotoUpload = async (e) => {

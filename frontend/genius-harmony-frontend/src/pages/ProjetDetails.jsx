@@ -93,7 +93,7 @@ export default function ProjetDetails() {
     if (!projet || !user) return false;
 
     // Admin peut tout faire
-    if (user.role === 'admin') return true;
+    if (user.role === 'admin' || user.role === 'super_admin') return true;
 
     // Créateur du projet peut changer le statut
     if (projet.created_by === user.id) return true;
@@ -113,8 +113,8 @@ export default function ProjetDetails() {
 
     const allStatuts = ['brouillon', 'en_attente', 'en_cours', 'en_revision', 'termine', 'annule'];
 
-    // Admin peut tout faire
-    if (user.role === 'admin') return allStatuts;
+    // Admin et Super Admin peuvent tout faire
+    if (user.role === 'admin' || user.role === 'super_admin') return allStatuts;
 
     // Créateur et chef de pôle peuvent accéder à tous les statuts
     if (projet.created_by === user.id || (user.role === 'chef_pole' && projet.pole === user.pole)) {
@@ -150,7 +150,7 @@ export default function ProjetDetails() {
     if (!projet || !user) return false;
 
     // Admin peut tout faire
-    if (user.role === 'admin') return true;
+    if (user.role === 'admin' || user.role === 'super_admin') return true;
 
     // Chef de pôle peut gérer les projets de son pôle
     if (user.role === 'chef_pole' && projet.pole === user.pole) return true;
@@ -216,7 +216,7 @@ export default function ProjetDetails() {
     if (!user || !projet) return false;
 
     // Admin peut créer
-    if (user.role === 'admin') return true;
+    if (user.role === 'admin' || user.role === 'super_admin') return true;
 
     // Chef de pôle peut créer
     if (user.role === 'chef_pole') return true;
@@ -233,7 +233,7 @@ export default function ProjetDetails() {
     if (!user || !tache) return false;
 
     // Admin peut tout faire
-    if (user.role === 'admin') return true;
+    if (user.role === 'admin' || user.role === 'super_admin') return true;
 
     // Chef de pôle peut déplacer les tâches
     if (user.role === 'chef_pole') return true;

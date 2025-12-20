@@ -17,6 +17,7 @@ class Pole(models.Model):
 
 class Profile(models.Model):
     ROLE_CHOICES = [
+        ('super_admin', 'Super Administrateur'),
         ('admin', 'Administrateur'),
         ('chef_pole', 'Chef de pôle'),
         ('membre', 'Membre'),

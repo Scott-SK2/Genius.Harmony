@@ -26,8 +26,8 @@ export default function KanbanTaches() {
   const canDragTask = (tache) => {
     if (!user || !tache) return false;
 
-    // Admin peut tout faire
-    if (user.role === 'admin') return true;
+    // Admin et Super Admin peuvent tout faire
+    if (user.role === 'admin' || user.role === 'super_admin') return true;
 
     // Trouver le projet de la tâche
     const projet = projets.find(p => p.id === tache.projet);

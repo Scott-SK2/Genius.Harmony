@@ -18,6 +18,17 @@ from .models import Profile, Pole, Projet, Tache, Document
 User = get_user_model()
 
 
+# Helper functions pour vérifier les rôles
+def is_admin_or_super(profile):
+    """Vérifie si l'utilisateur est admin ou super_admin"""
+    return profile and profile.role in ['admin', 'super_admin']
+
+
+def is_super_admin(profile):
+    """Vérifie si l'utilisateur est super_admin uniquement"""
+    return profile and profile.role == 'super_admin'
+
+
 class RegisterView(generics.CreateAPIView):
     serializer_class = RegisterSerializer
     permission_classes = [permissions.AllowAny]
@@ -47,7 +58,7 @@ class MeView(APIView):
 
 class IsAdminUserProfile(permissions.BasePermission):
     """
-    Autorise uniquement les users avec profile.role == 'admin'
+    Autorise uniquement les users avec profile.role == 'admin' ou 'super_admin'
     """
 
     def has_permission(self, request, view):
@@ -55,7 +66,7 @@ class IsAdminUserProfile(permissions.BasePermission):
         if not user or not user.is_authenticated:
             return False
         profile = getattr(user, 'profile', None)
-        return bool(profile and profile.role == 'admin')
+        return is_admin_or_super(profile)
 
 
 class CanViewUsers(permissions.BasePermission):
@@ -77,8 +88,8 @@ class CanViewUsers(permissions.BasePermission):
         if request.method in permissions.SAFE_METHODS:
             return profile.role not in ['stagiaire', 'partenaire']
 
-        # Modification: uniquement admin
-        return profile.role == 'admin'
+        # Modification: uniquement admin ou super_admin
+        return is_admin_or_super(profile)
 
 
 class CanViewPoles(permissions.BasePermission):
@@ -99,8 +110,8 @@ class CanViewPoles(permissions.BasePermission):
         if request.method in permissions.SAFE_METHODS:
             return True
 
-        # Modification/Création: uniquement admin
-        return profile.role == 'admin'
+        # Modification/Création: uniquement admin ou super_admin
+        return is_admin_or_super(profile)
 
 class PoleDetailView(generics.RetrieveUpdateDestroyAPIView):
     queryset = Pole.objects.all()
@@ -253,8 +264,8 @@ class CanViewProjet(permissions.BasePermission):
         if not profile:
             return False
 
-        # Admin voit tout
-        if profile.role == 'admin':
+        # Admin et Super Admin voient tout
+        if is_admin_or_super(profile):
             return True
 
         # Statuts publics visibles par tous
@@ -287,8 +298,9 @@ class CanViewProjet(permissions.BasePermission):
 class CanManageProjet(permissions.BasePermission):
     """
     Permission pour créer/modifier/supprimer les projets :
-    - Admin : peut tout faire
-    - Chef de pôle : peut gérer les projets de son pôle
+    - Super Admin : peut tout faire (y compris supprimer)
+    - Admin : peut créer et modifier (pas supprimer)
+    - Chef de pôle : peut gérer les projets de son pôle (pas supprimer)
     """
 
     def has_permission(self, request, view):
@@ -299,8 +311,8 @@ class CanManageProjet(permissions.BasePermission):
         if not profile:
             return False
 
-        # Admin et chef de pôle peuvent créer
-        return profile.role in ['admin', 'chef_pole']
+        # Admin, super_admin et chef de pôle peuvent créer
+        return profile.role in ['admin', 'super_admin', 'chef_pole']
 
     def has_object_permission(self, request, view, obj):
         user = request.user
@@ -309,8 +321,12 @@ class CanManageProjet(permissions.BasePermission):
         if not profile:
             return False
 
-        # Admin peut tout modifier/supprimer
-        if profile.role == 'admin':
+        # DELETE: Seul super_admin peut supprimer
+        if request.method == 'DELETE':
+            return is_super_admin(profile)
+
+        # Modifier: Admin et Super Admin peuvent tout modifier
+        if is_admin_or_super(profile):
             return True
 
         # Chef de pôle peut gérer les projets de son pôle
@@ -345,8 +361,8 @@ class ProjetListCreateView(generics.ListCreateAPIView):
 
         queryset = Projet.objects.all().select_related('pole', 'client', 'chef_projet', 'created_by').prefetch_related('membres')
 
-        # Admin voit tout (tous les statuts)
-        if profile.role == 'admin':
+        # Admin et Super Admin voient tout (tous les statuts)
+        if is_admin_or_super(profile):
             return queryset
 
         # Chef de pôle, Membre, Stagiaire et Partenaire voient TOUS les projets (nouvelles règles)
@@ -373,8 +389,8 @@ class ProjetListCreateView(generics.ListCreateAPIView):
         # Logique de statut automatique
         statut = serializer.validated_data.get('statut', 'brouillon')
 
-        # Si créé par admin et statut est brouillon ou en_attente, passer directement à en_cours
-        if profile.role == 'admin' and statut in ['brouillon', 'en_attente']:
+        # Si créé par admin/super_admin et statut est brouillon ou en_attente, passer directement à en_cours
+        if is_admin_or_super(profile) and statut in ['brouillon', 'en_attente']:
             statut = 'en_cours'
 
         # Sauvegarder avec created_by et statut ajusté
@@ -458,8 +474,8 @@ class ProjetUpdateStatutView(APIView):
         # Vérifier les permissions selon le rôle
         can_change = False
 
-        # Admin peut tout faire
-        if profile.role == 'admin':
+        # Admin et Super Admin peuvent tout faire
+        if is_admin_or_super(profile):
             can_change = True
 
         # Créateur du projet peut changer le statut
@@ -605,8 +621,8 @@ class CanViewTache(permissions.BasePermission):
         if not profile:
             return False
 
-        # Admin voit tout
-        if profile.role == 'admin':
+        # Admin et Super Admin voient tout
+        if is_admin_or_super(profile):
             return True
 
         # Chef de pôle voit les tâches des projets de son pôle
@@ -650,8 +666,8 @@ class CanCreateTache(permissions.BasePermission):
         if request.method in permissions.SAFE_METHODS:
             return True
 
-        # Création: admin et chef_pole peuvent créer
-        if profile.role in ['admin', 'chef_pole']:
+        # Création: admin, super_admin et chef_pole peuvent créer
+        if profile.role in ['admin', 'super_admin', 'chef_pole']:
             return True
 
         # Chef de projet accepté peut créer (vérifié au niveau objet)
@@ -770,8 +786,8 @@ class TacheListCreateView(generics.ListCreateAPIView):
             from rest_framework.exceptions import PermissionDenied
             raise PermissionDenied("Projet introuvable")
 
-        # Admin et chef_pole peuvent créer
-        if profile.role in ['admin', 'chef_pole']:
+        # Admin, super_admin et chef_pole peuvent créer
+        if profile.role in ['admin', 'super_admin', 'chef_pole']:
             serializer.save()
             return
 
@@ -810,10 +826,10 @@ class TacheDetailView(generics.RetrieveUpdateDestroyAPIView):
                 status=status.HTTP_403_FORBIDDEN
             )
 
-        # Si c'est la personne assignée (mais pas admin, chef de pôle ou chef de projet)
+        # Si c'est la personne assignée (mais pas admin, super_admin, chef de pôle ou chef de projet)
         # alors elle peut seulement modifier le statut
         is_assigned = instance.assigne_a == user
-        is_admin = profile.role == 'admin'
+        is_admin = is_admin_or_super(profile)
         is_chef_pole = profile.role == 'chef_pole' and profile.pole and instance.projet.pole == profile.pole
         is_chef_projet = instance.projet.chef_projet == user
 
