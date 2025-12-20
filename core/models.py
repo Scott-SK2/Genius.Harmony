@@ -148,8 +148,8 @@ class Tache(models.Model):
     statut = models.CharField(max_length=20, choices=STATUT_CHOICES, default='a_faire')
     priorite = models.CharField(max_length=20, choices=PRIORITE_CHOICES, default='normale')
 
-    # Assignation
-    assigne_a = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True, related_name='taches_assignees')
+    # Assignation (plusieurs personnes possibles)
+    assigne_a = models.ManyToManyField(User, blank=True, related_name='taches_assignees')
 
     # Dates
     deadline = models.DateField(null=True, blank=True)

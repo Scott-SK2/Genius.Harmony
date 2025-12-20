@@ -114,7 +114,7 @@ class UserSimpleSerializer(serializers.ModelSerializer):
 
 # Serializers pour les tâches
 class TacheSerializer(serializers.ModelSerializer):
-    assigne_a_details = UserSimpleSerializer(source='assigne_a', read_only=True)
+    assigne_a_details = UserSimpleSerializer(source='assigne_a', many=True, read_only=True)
     projet_titre = serializers.CharField(source='projet.titre', read_only=True)
 
     class Meta:

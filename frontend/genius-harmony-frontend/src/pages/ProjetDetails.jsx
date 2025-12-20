@@ -266,10 +266,10 @@ export default function ProjetDetails() {
     if (projet?.chef_projet === user.id && projet?.chef_projet_status === 'accepted') return true;
 
     // Membre, Stagiaire et Partenaire peuvent déplacer uniquement les tâches qui leur sont assignées
-    if ((user.role === 'membre' || user.role === 'stagiaire' || user.role === 'partenaire') && tache.assigne_a === user.id) return true;
+    if ((user.role === 'membre' || user.role === 'stagiaire' || user.role === 'partenaire') && Array.isArray(tache.assigne_a) && tache.assigne_a.includes(user.id)) return true;
 
     // Personne assignée peut déplacer sa tâche (pour les autres rôles)
-    if (tache.assigne_a === user.id) return true;
+    if (Array.isArray(tache.assigne_a) && tache.assigne_a.includes(user.id)) return true;
 
     return false;
   };
@@ -1041,8 +1041,10 @@ export default function ProjetDetails() {
 
                               {/* Informations supplémentaires */}
                               <div style={{ fontSize: "0.9rem", color: "#c4b5fd", lineHeight: "1.6" }}>
-                                {tache.assigne_a_details && (
-                                  <div style={{ marginBottom: "0.5rem" }}>👤 {tache.assigne_a_details.username}</div>
+                                {tache.assigne_a_details && Array.isArray(tache.assigne_a_details) && tache.assigne_a_details.length > 0 && (
+                                  <div style={{ marginBottom: "0.5rem" }}>
+                                    👤 {tache.assigne_a_details.map(user => user.username).join(", ")}
+                                  </div>
                                 )}
                                 {tache.deadline && (
                                   <div>📅 {new Date(tache.deadline).toLocaleDateString("fr-FR")}</div>

@@ -29,7 +29,7 @@ export default function FormTache({ isOpen, onClose, tache, projetId, onSuccess 
     description: "",
     statut: "a_faire",
     priorite: "normale",
-    assigne_a: "",
+    assigne_a: [],
     deadline: "",
   });
 
@@ -60,7 +60,7 @@ export default function FormTache({ isOpen, onClose, tache, projetId, onSuccess 
         description: tache.description || "",
         statut: tache.statut || "a_faire",
         priorite: tache.priorite || "normale",
-        assigne_a: tache.assigne_a || "",
+        assigne_a: Array.isArray(tache.assigne_a) ? tache.assigne_a : (tache.assigne_a ? [tache.assigne_a] : []),
         deadline: tache.deadline || "",
       });
     } else {
@@ -71,7 +71,7 @@ export default function FormTache({ isOpen, onClose, tache, projetId, onSuccess 
         description: "",
         statut: "a_faire",
         priorite: "normale",
-        assigne_a: "",
+        assigne_a: [],
         deadline: "",
       });
     }
@@ -80,6 +80,19 @@ export default function FormTache({ isOpen, onClose, tache, projetId, onSuccess 
   const handleChange = (e) => {
     const { name, value } = e.target;
     setFormData((prev) => ({ ...prev, [name]: value }));
+  };
+
+  const handleAssigneToggle = (userId) => {
+    setFormData((prev) => {
+      const currentAssignees = prev.assigne_a || [];
+      if (currentAssignees.includes(userId)) {
+        // Retirer l'utilisateur
+        return { ...prev, assigne_a: currentAssignees.filter(id => id !== userId) };
+      } else {
+        // Ajouter l'utilisateur
+        return { ...prev, assigne_a: [...currentAssignees, userId] };
+      }
+    });
   };
 
   const handleSubmit = async (e) => {
@@ -100,7 +113,7 @@ export default function FormTache({ isOpen, onClose, tache, projetId, onSuccess 
       // Préparer les données
       const payload = {
         ...formData,
-        assigne_a: formData.assigne_a || null,
+        assigne_a: Array.isArray(formData.assigne_a) && formData.assigne_a.length > 0 ? formData.assigne_a : [],
         deadline: formData.deadline || null,
       };
 
@@ -241,29 +254,59 @@ export default function FormTache({ isOpen, onClose, tache, projetId, onSuccess 
           </div>
         </div>
 
-        {/* Assigné à */}
+        {/* Assigné à (sélection multiple) */}
         <div style={{ marginBottom: "1rem" }}>
           <label style={{ display: "block", marginBottom: "0.5rem", fontWeight: "500" }}>
-            Assigné à
+            Assigné à (plusieurs personnes possibles)
           </label>
-          <select
-            name="assigne_a"
-            value={formData.assigne_a}
-            onChange={handleChange}
+          <div
             style={{
-              width: "100%",
-              padding: "0.5rem",
-              borderRadius: "4px",
+              maxHeight: "200px",
+              overflowY: "auto",
               border: "1px solid #ccc",
+              borderRadius: "4px",
+              padding: "0.5rem",
+              backgroundColor: "#fff",
             }}
           >
-            <option value="">Personne</option>
-            {users.map((user) => (
-              <option key={user.id} value={user.id}>
-                {user.username} ({user.role})
-              </option>
-            ))}
-          </select>
+            {users.length === 0 ? (
+              <p style={{ margin: 0, color: "#999", fontSize: "0.9rem" }}>
+                Aucun utilisateur disponible
+              </p>
+            ) : (
+              users.map((user) => (
+                <div
+                  key={user.id}
+                  style={{
+                    padding: "0.4rem",
+                    display: "flex",
+                    alignItems: "center",
+                    cursor: "pointer",
+                    borderRadius: "4px",
+                    transition: "background-color 0.2s",
+                  }}
+                  onMouseEnter={(e) => e.currentTarget.style.backgroundColor = "#f0f0f0"}
+                  onMouseLeave={(e) => e.currentTarget.style.backgroundColor = "transparent"}
+                  onClick={() => handleAssigneToggle(user.id)}
+                >
+                  <input
+                    type="checkbox"
+                    checked={formData.assigne_a.includes(user.id)}
+                    onChange={() => handleAssigneToggle(user.id)}
+                    style={{ marginRight: "0.5rem", cursor: "pointer" }}
+                  />
+                  <span style={{ fontSize: "0.95rem" }}>
+                    {user.username} <span style={{ color: "#666" }}>({user.role})</span>
+                  </span>
+                </div>
+              ))
+            )}
+          </div>
+          {formData.assigne_a.length > 0 && (
+            <p style={{ margin: "0.5rem 0 0 0", fontSize: "0.85rem", color: "#666" }}>
+              {formData.assigne_a.length} personne{formData.assigne_a.length > 1 ? "s" : ""} sélectionnée{formData.assigne_a.length > 1 ? "s" : ""}
+            </p>
+          )}
         </div>
 
         {/* Deadline */}

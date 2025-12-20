@@ -40,7 +40,7 @@ export default function KanbanTaches() {
     if (projet.chef_projet === user.id) return true;
 
     // Personne assignée peut déplacer sa tâche
-    if (tache.assigne_a === user.id) return true;
+    if (Array.isArray(tache.assigne_a) && tache.assigne_a.includes(user.id)) return true;
 
     return false;
   };
@@ -532,8 +532,10 @@ export default function KanbanTaches() {
                     {tache.projet_details && (
                       <div style={{ marginBottom: "0.5rem" }}>📁 {tache.projet_details.titre}</div>
                     )}
-                    {tache.assigne_a_details && (
-                      <div style={{ marginBottom: "0.5rem" }}>👤 {tache.assigne_a_details.username}</div>
+                    {tache.assigne_a_details && Array.isArray(tache.assigne_a_details) && tache.assigne_a_details.length > 0 && (
+                      <div style={{ marginBottom: "0.5rem" }}>
+                        👤 {tache.assigne_a_details.map(user => user.username).join(", ")}
+                      </div>
                     )}
                     {tache.deadline && (
                       <div>📅 {new Date(tache.deadline).toLocaleDateString("fr-FR")}</div>

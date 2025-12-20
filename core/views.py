@@ -638,7 +638,7 @@ class CanViewTache(permissions.BasePermission):
             return True
 
         # Personne assignée voit la tâche
-        if obj.assigne_a == user:
+        if obj.assigne_a.filter(id=user.id).exists():
             return True
 
         return False
@@ -704,7 +704,7 @@ class CanManageTache(permissions.BasePermission):
             return True
 
         # Personne assignée peut modifier le statut uniquement
-        if obj.assigne_a == user:
+        if obj.assigne_a.filter(id=user.id).exists():
             # Vérifier que c'est uniquement pour modifier le statut
             if request.method in ['PUT', 'PATCH']:
                 return True
@@ -736,7 +736,7 @@ class TacheListCreateView(generics.ListCreateAPIView):
         if not profile:
             return Tache.objects.none()
 
-        queryset = Tache.objects.all().select_related('projet', 'assigne_a', 'projet__pole', 'projet__chef_projet')
+        queryset = Tache.objects.all().select_related('projet', 'projet__pole', 'projet__chef_projet').prefetch_related('assigne_a')
 
         # Admin et Super Admin voient toutes les tâches
         if is_admin_or_super(profile):
@@ -765,7 +765,7 @@ class TacheListCreateView(generics.ListCreateAPIView):
         # Filtrer par utilisateur assigné si demandé
         assigne_a = self.request.query_params.get('assigne_a')
         if assigne_a:
-            queryset = queryset.filter(assigne_a_id=assigne_a)
+            queryset = queryset.filter(assigne_a=assigne_a)
 
         # Filtrer par statut si demandé
         statut = self.request.query_params.get('statut')
@@ -807,7 +807,7 @@ class TacheDetailView(generics.RetrieveUpdateDestroyAPIView):
     PUT/PATCH: Modifie une tâche (selon permissions)
     DELETE: Supprime une tâche (selon permissions)
     """
-    queryset = Tache.objects.all().select_related('projet', 'assigne_a')
+    queryset = Tache.objects.all().select_related('projet').prefetch_related('assigne_a')
     permission_classes = [permissions.IsAuthenticated, CanManageTache]
 
     def get_serializer_class(self):
@@ -828,7 +828,7 @@ class TacheDetailView(generics.RetrieveUpdateDestroyAPIView):
 
         # Si c'est la personne assignée (mais pas admin, super_admin, chef de pôle ou chef de projet)
         # alors elle peut seulement modifier le statut
-        is_assigned = instance.assigne_a == user
+        is_assigned = instance.assigne_a.filter(id=user.id).exists()
         is_admin = is_admin_or_super(profile)
         is_chef_pole = profile.role == 'chef_pole' and profile.pole and instance.projet.pole == profile.pole
         is_chef_projet = instance.projet.chef_projet == user
