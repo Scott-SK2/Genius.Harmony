@@ -1,8 +1,8 @@
 import { useEffect, useState } from "react";
-import { useParams, Link } from "react-router-dom";
+import { useParams, Link, useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 
-import { fetchProjetDetails, updateProjetStatut } from "../api/projets";
+import { fetchProjetDetails, updateProjetStatut, deleteProjet } from "../api/projets";
 import { updateTache } from "../api/taches";
 import FormTache from "../components/FormTache";
 import UploadDocument from "../components/UploadDocument";
@@ -42,6 +42,7 @@ const TACHE_PRIORITE_LABELS = {
 export default function ProjetDetails() {
   const { id } = useParams();
   const { token, user } = useAuth();
+  const navigate = useNavigate();
 
   const [projet, setProjet] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -208,6 +209,29 @@ export default function ProjetDetails() {
     } catch (err) {
       console.error("Erreur modification membres:", err);
       setError("Impossible de modifier les membres du projet");
+    }
+  };
+
+  // Fonction pour supprimer le projet (réservée au super_admin)
+  const handleDeleteProjet = async () => {
+    if (!user || user.role !== 'super_admin') {
+      alert("Seul le Super Administrateur peut supprimer des projets");
+      return;
+    }
+
+    const confirmation = window.confirm(
+      `⚠️ ATTENTION ⚠️\n\nVoulez-vous vraiment supprimer le projet "${projet.titre}" ?\n\nCette action est IRRÉVERSIBLE et supprimera :\n- Le projet\n- Toutes ses tâches\n- Tous ses documents\n\nTapez OK pour confirmer la suppression.`
+    );
+
+    if (!confirmation) return;
+
+    try {
+      await deleteProjet(token, id);
+      alert("✓ Projet supprimé avec succès");
+      navigate("/projets");
+    } catch (err) {
+      console.error("Erreur suppression projet:", err);
+      alert("Erreur lors de la suppression du projet");
     }
   };
 
@@ -467,6 +491,42 @@ export default function ProjetDetails() {
             >
               {STATUT_LABELS[projet.statut] || projet.statut}
             </span>
+          )}
+
+          {/* Bouton de suppression - réservé au super_admin */}
+          {user?.role === 'super_admin' && (
+            <button
+              onClick={handleDeleteProjet}
+              style={{
+                marginLeft: "auto",
+                padding: "0.75rem 1.5rem",
+                backgroundColor: "rgba(239, 68, 68, 0.1)",
+                color: "#ef4444",
+                border: "2px solid #ef4444",
+                borderRadius: "8px",
+                cursor: "pointer",
+                fontWeight: "600",
+                fontSize: "0.9rem",
+                transition: "all 0.2s",
+                display: "flex",
+                alignItems: "center",
+                gap: "0.5rem",
+              }}
+              onMouseEnter={(e) => {
+                e.target.style.backgroundColor = "#ef4444";
+                e.target.style.color = "#fff";
+                e.target.style.transform = "translateY(-2px)";
+                e.target.style.boxShadow = "0 4px 12px rgba(239, 68, 68, 0.4)";
+              }}
+              onMouseLeave={(e) => {
+                e.target.style.backgroundColor = "rgba(239, 68, 68, 0.1)";
+                e.target.style.color = "#ef4444";
+                e.target.style.transform = "translateY(0)";
+                e.target.style.boxShadow = "none";
+              }}
+            >
+              🗑️ Supprimer le projet
+            </button>
           )}
         </div>
 
