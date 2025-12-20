@@ -380,7 +380,7 @@ class ProjetListCreateView(generics.ListCreateAPIView):
     def perform_create(self, serializer):
         # Vérifier que l'utilisateur a le droit de créer
         profile = getattr(self.request.user, 'profile', None)
-        if not profile or profile.role not in ['admin', 'chef_pole']:
+        if not profile or (not is_admin_or_super(profile) and profile.role != 'chef_pole'):
             return Response(
                 {"detail": "Vous n'avez pas la permission de créer un projet"},
                 status=status.HTTP_403_FORBIDDEN
@@ -691,8 +691,8 @@ class CanManageTache(permissions.BasePermission):
         if not profile:
             return False
 
-        # Admin peut tout faire
-        if profile.role == 'admin':
+        # Admin et Super Admin peuvent tout faire
+        if is_admin_or_super(profile):
             return True
 
         # Chef de pôle peut gérer les tâches des projets de son pôle
@@ -738,8 +738,8 @@ class TacheListCreateView(generics.ListCreateAPIView):
 
         queryset = Tache.objects.all().select_related('projet', 'assigne_a', 'projet__pole', 'projet__chef_projet')
 
-        # Admin voit toutes les tâches
-        if profile.role == 'admin':
+        # Admin et Super Admin voient toutes les tâches
+        if is_admin_or_super(profile):
             pass  # Pas de filtre supplémentaire
 
         # Chef de pôle voit les tâches des projets de son pôle

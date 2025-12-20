@@ -84,7 +84,7 @@ export default function Navbar() {
           📊 Kanban
         </Link>
 
-        {user.role === "admin" && (
+        {(user.role === "admin" || user.role === "super_admin") && (
           <>
             <Link
               to="/admin/users"

@@ -93,7 +93,7 @@ export default function ProjetsList() {
     );
   }
 
-  const canCreateProjet = user?.role === "admin" || user?.role === "chef_pole";
+  const canCreateProjet = user?.role === "admin" || user?.role === "super_admin" || user?.role === "chef_pole";
 
   return (
     <div style={{ width: "100%" }}>
