@@ -3,7 +3,6 @@ import { useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 import { fetchPoles, createPole, updatePole, deletePole } from "../api/poles";
 import { fetchProjets } from "../api/projets";
-import { fetchTaches } from "../api/taches";
 import { fetchUsers } from "../api/users";
 
 export default function AdminDashboard() {
@@ -13,11 +12,9 @@ export default function AdminDashboard() {
   const [users, setUsers] = useState([]);
   const [stats, setStats] = useState({
     totalProjets: 0,
-    totalTaches: 0,
     totalUtilisateurs: 0,
     totalPoles: 0,
     projetsEnCours: 0,
-    tachesAFaire: 0,
   });
   const [showModal, setShowModal] = useState(false);
   const [editingPole, setEditingPole] = useState(null);
@@ -30,10 +27,9 @@ export default function AdminDashboard() {
     (async () => {
       try {
         setLoading(true);
-        const [polesData, projetsData, tachesData, usersData] = await Promise.all([
+        const [polesData, projetsData, usersData] = await Promise.all([
           fetchPoles(token),
           fetchProjets(token),
-          fetchTaches(token),
           fetchUsers(token),
         ]);
 
@@ -42,11 +38,9 @@ export default function AdminDashboard() {
 
         setStats({
           totalProjets: projetsData.length,
-          totalTaches: tachesData.length,
           totalUtilisateurs: usersData.length,
           totalPoles: polesData.length,
           projetsEnCours: projetsData.filter((p) => p.statut === "en_cours").length,
-          tachesAFaire: tachesData.filter((t) => t.statut === "a_faire").length,
         });
       } catch (err) {
         console.error("Erreur fetch dashboard:", err);
@@ -127,11 +121,11 @@ export default function AdminDashboard() {
 
   return (
     <div style={{ width: "100%", maxWidth: "100%" }}>
-      {/* Stats Cards - 4 cartes alignées */}
+      {/* Stats Cards - 3 cartes alignées */}
       <div
         style={{
           display: "grid",
-          gridTemplateColumns: "repeat(4, 1fr)",
+          gridTemplateColumns: "repeat(3, 1fr)",
           gap: "1.5rem",
           marginBottom: "3rem",
         }}
@@ -179,51 +173,6 @@ export default function AdminDashboard() {
               </div>
             </div>
             <div style={{ color: "#a78bfa", fontSize: "0.85rem" }}>Total des projets</div>
-          </div>
-
-          <div
-            onClick={() => navigate("/kanban")}
-            style={{
-              backgroundColor: "#2d1b69",
-              padding: "1.5rem",
-              borderRadius: "12px",
-              border: "1px solid #4c1d95",
-              cursor: "pointer",
-              transition: "all 0.2s",
-              boxShadow: "0 2px 8px rgba(124, 58, 237, 0.1)",
-            }}
-            onMouseEnter={(e) => {
-              e.currentTarget.style.borderColor = "#a78bfa";
-              e.currentTarget.style.transform = "translateY(-4px)";
-              e.currentTarget.style.boxShadow = "0 4px 16px rgba(124, 58, 237, 0.3)";
-            }}
-            onMouseLeave={(e) => {
-              e.currentTarget.style.borderColor = "#4c1d95";
-              e.currentTarget.style.transform = "translateY(0)";
-              e.currentTarget.style.boxShadow = "0 2px 8px rgba(124, 58, 237, 0.1)";
-            }}
-          >
-            <div style={{ display: "flex", alignItems: "center", gap: "1rem", marginBottom: "0.5rem" }}>
-              <div
-                style={{
-                  width: "50px",
-                  height: "50px",
-                  backgroundColor: "#4c1d95",
-                  borderRadius: "8px",
-                  display: "flex",
-                  alignItems: "center",
-                  justifyContent: "center",
-                  fontSize: "1.5rem",
-                }}
-              >
-                ✓
-              </div>
-              <div>
-                <div style={{ color: "#c4b5fd", fontSize: "0.9rem" }}>Tâches</div>
-                <div style={{ color: "#fff", fontSize: "2rem", fontWeight: "bold" }}>{stats.totalTaches}</div>
-              </div>
-            </div>
-            <div style={{ color: "#a78bfa", fontSize: "0.85rem" }}>Total des tâches</div>
           </div>
 
           <div
