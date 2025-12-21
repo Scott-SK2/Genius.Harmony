@@ -1,10 +1,12 @@
 import { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 import { fetchPoles, createPole, updatePole, deletePole } from "../api/poles";
 import { fetchUsers } from "../api/users";
 
 export default function AdminPoles() {
   const { token } = useAuth();
+  const navigate = useNavigate();
   const [poles, setPoles] = useState([]);
   const [users, setUsers] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -166,12 +168,16 @@ export default function AdminPoles() {
                 padding: "1.5rem",
                 border: "1px solid #4c1d95",
                 transition: "all 0.2s",
+                cursor: "pointer",
               }}
+              onClick={() => navigate(`/admin/poles/${pole.id}`)}
               onMouseEnter={(e) => {
-                e.currentTarget.style.borderColor = "#555";
+                e.currentTarget.style.borderColor = "#7c3aed";
+                e.currentTarget.style.transform = "translateY(-2px)";
               }}
               onMouseLeave={(e) => {
                 e.currentTarget.style.borderColor = "#4c1d95";
+                e.currentTarget.style.transform = "translateY(0)";
               }}
             >
               <div
@@ -239,7 +245,10 @@ export default function AdminPoles() {
                 </div>
                 <div style={{ display: "flex", gap: "0.75rem" }}>
                   <button
-                    onClick={() => handleOpenModal(pole)}
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      handleOpenModal(pole);
+                    }}
                     style={{
                       padding: "0.5rem 1rem",
                       backgroundColor: "transparent",
@@ -263,7 +272,10 @@ export default function AdminPoles() {
                     Modifier
                   </button>
                   <button
-                    onClick={() => handleDelete(pole.id)}
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      handleDelete(pole.id);
+                    }}
                     style={{
                       padding: "0.5rem 1rem",
                       backgroundColor: "transparent",

@@ -8,6 +8,7 @@ import GenericDashboard from "./pages/GenericDashboard";
 import ProtectedRoute from "./components/ProtectedRoute";
 import AdminUsers from "./pages/AdminUsers";
 import AdminPoles from "./pages/AdminPoles";
+import PoleDetails from "./pages/PoleDetails";
 import ProjetsList from "./pages/ProjetsList";
 import ProjetDetails from "./pages/ProjetDetails";
 import UserProfile from "./pages/UserProfile";
@@ -79,6 +80,18 @@ function App() {
                 <ProtectedRoute allowedRoles={["admin", "super_admin"]}>
                   <AdminLayout pageTitle="Gestion des Pôles">
                     <AdminPoles />
+                  </AdminLayout>
+                </ProtectedRoute>
+              }
+            />
+
+            {/* Détails d'un pôle */}
+            <Route
+              path="/admin/poles/:id"
+              element={
+                <ProtectedRoute allowedRoles={["admin", "super_admin"]}>
+                  <AdminLayout pageTitle="Détails du Pôle">
+                    <PoleDetails />
                   </AdminLayout>
                 </ProtectedRoute>
               }
