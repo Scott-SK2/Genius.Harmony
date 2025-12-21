@@ -248,9 +248,9 @@ class UserProfileDetailView(APIView):
 class CanViewProjet(permissions.BasePermission):
     """
     Permission pour voir les projets selon le rôle et le statut :
-    - Admin : voit tout
-    - Chef de pôle : voit selon les règles de visibilité
-    - Autres : voient uniquement les projets publics (en_cours, en_revision, termine, annule)
+    - Admin et Super Admin : voient tout
+    - Tous les utilisateurs associés (membre, chef_projet, client, créateur) : voient leurs projets peu importe le statut
+    - Chef de pôle : voit les projets de son pôle selon les règles de visibilité
     """
 
     def has_permission(self, request, view):
@@ -268,29 +268,17 @@ class CanViewProjet(permissions.BasePermission):
         if is_admin_or_super(profile):
             return True
 
-        # Statuts publics visibles par tous
-        if obj.statut in ['en_cours', 'en_revision', 'termine', 'annule']:
-            # Chef de pôle, Membre, Stagiaire, Collaborateur et Partenaire: peuvent voir uniquement les projets où ils sont associés (membre, chef_projet, ou client)
-            if profile.role in ['chef_pole', 'membre', 'stagiaire', 'collaborateur', 'partenaire']:
-                return (obj.membres.filter(id=user.id).exists() or
-                       obj.chef_projet == user or
-                       obj.client == user)
-            # Artiste/Client voient leurs propres projets
-            if profile.role in ['artiste', 'client']:
-                return obj.client == user
+        # Les utilisateurs associés au projet peuvent toujours le voir (membre, chef_projet, client, créateur)
+        if (obj.membres.filter(id=user.id).exists() or
+            obj.chef_projet == user or
+            obj.client == user or
+            obj.created_by == user):
+            return True
 
-        # Brouillon : visible uniquement par admin, créateur, chef de projet du même pôle
-        if obj.statut == 'brouillon':
-            if profile.role == 'chef_pole' and profile.pole:
-                return (obj.pole == profile.pole and
-                       (obj.created_by == user or obj.chef_projet == user))
-            return False
-
-        # En attente : visible par admin et créateur
-        if obj.statut == 'en_attente':
-            if profile.role == 'chef_pole':
-                return obj.created_by == user
-            return False
+        # Chef de pôle peut voir les projets de son pôle
+        if profile.role == 'chef_pole' and profile.pole:
+            if obj.pole == profile.pole:
+                return True
 
         return False
 
