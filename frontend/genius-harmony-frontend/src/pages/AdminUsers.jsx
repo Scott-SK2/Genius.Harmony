@@ -5,25 +5,53 @@ import { fetchUsers, updateUser, deleteUser } from "../api/users";
 import { fetchPoles } from "../api/poles";
 
 const ROLE_LABELS = {
+  super_admin: "Super Administrateur",
   admin: "Administrateur",
   chef_pole: "Chef de pôle",
   membre: "Membre",
   stagiaire: "Stagiaire",
-  technicien: "Technicien",
   artiste: "Artiste",
   client: "Client",
   partenaire: "Partenaire",
 };
 
 const ROLE_OPTIONS = [
+  "super_admin",
   "admin",
   "chef_pole",
   "membre",
   "stagiaire",
-  "technicien",
   "artiste",
   "client",
   "partenaire",
+];
+
+const SPECIALITE_LABELS = {
+  "": "Non spécifié",
+  musicien: "Musicien",
+  manager: "Manager",
+  model: "Modèle",
+  photographe: "Photographe",
+  videaste: "Vidéaste",
+  graphiste: "Graphiste",
+  developpeur: "Développeur",
+  commercial: "Commercial",
+  assistant: "Assistant",
+  autre: "Autre",
+};
+
+const SPECIALITE_OPTIONS = [
+  "",
+  "musicien",
+  "manager",
+  "model",
+  "photographe",
+  "videaste",
+  "graphiste",
+  "developpeur",
+  "commercial",
+  "assistant",
+  "autre",
 ];
 
 export default function AdminUsers() {
@@ -80,6 +108,23 @@ export default function AdminUsers() {
     } catch (err) {
       console.error("Erreur update pole:", err);
       alert("Impossible de changer le pôle");
+    } finally {
+      setSavingId(null);
+    }
+  }
+
+  async function handleChangeSpecialite(userId, newSpecialite) {
+    try {
+      setSavingId(userId);
+      const updated = await updateUser(token, userId, { membre_specialite: newSpecialite });
+      setUsers((prev) =>
+        prev.map((u) =>
+          u.id === userId ? { ...u, membre_specialite: updated.membre_specialite } : u
+        )
+      );
+    } catch (err) {
+      console.error("Erreur update spécialité:", err);
+      alert("Impossible de changer la spécialité");
     } finally {
       setSavingId(null);
     }
@@ -202,6 +247,17 @@ export default function AdminUsers() {
                     fontWeight: "500",
                   }}
                 >
+                  Spécialité
+                </th>
+                <th
+                  style={{
+                    borderBottom: "1px solid #4c1d95",
+                    textAlign: "left",
+                    padding: "1rem",
+                    color: "#c4b5fd",
+                    fontWeight: "500",
+                  }}
+                >
                   Actions
                 </th>
               </tr>
@@ -284,6 +340,33 @@ export default function AdminUsers() {
                         </span>
                       )}
                     </div>
+                  </td>
+                  <td style={{ padding: "1rem" }}>
+                    {u.role === 'membre' ? (
+                      <select
+                        value={u.membre_specialite || ""}
+                        onChange={(e) => handleChangeSpecialite(u.id, e.target.value)}
+                        disabled={savingId === u.id}
+                        style={{
+                          padding: "0.5rem 0.75rem",
+                          borderRadius: "8px",
+                          border: "1px solid #4c1d95",
+                          backgroundColor: "#1e1b4b",
+                          color: "#fff",
+                          fontSize: "0.95rem",
+                          cursor: "pointer",
+                          minWidth: "160px",
+                        }}
+                      >
+                        {SPECIALITE_OPTIONS.map((s) => (
+                          <option key={s} value={s}>
+                            {SPECIALITE_LABELS[s]}
+                          </option>
+                        ))}
+                      </select>
+                    ) : (
+                      <span style={{ color: "#666", fontSize: "0.9rem" }}>—</span>
+                    )}
                   </td>
                   <td style={{ padding: "1rem" }}>
                     <div style={{ display: "flex", gap: "0.5rem" }}>

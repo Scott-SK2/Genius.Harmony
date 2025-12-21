@@ -3,14 +3,28 @@ import { useParams, Link } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 
 const ROLE_LABELS = {
+  super_admin: "Super Administrateur",
   admin: "Administrateur",
   chef_pole: "Chef de Pôle",
   membre: "Membre",
   stagiaire: "Stagiaire",
-  technicien: "Technicien",
   artiste: "Artiste",
   client: "Client",
   partenaire: "Partenaire",
+};
+
+const SPECIALITE_LABELS = {
+  "": "Non spécifié",
+  musicien: "Musicien",
+  manager: "Manager",
+  model: "Modèle",
+  photographe: "Photographe",
+  videaste: "Vidéaste",
+  graphiste: "Graphiste",
+  developpeur: "Développeur",
+  commercial: "Commercial",
+  assistant: "Assistant",
+  autre: "Autre",
 };
 
 const STATUT_PROJET_LABELS = {
@@ -293,7 +307,9 @@ export default function UserProfile() {
             </h1>
             <div style={{ color: "#c4b5fd", fontSize: "1.1rem", marginTop: "0.5rem" }}>
               {ROLE_LABELS[userProfile.role] || userProfile.role}
-              {userProfile.pole && ` • ${userProfile.pole}`}
+              {userProfile.role === 'membre' && userProfile.membre_specialite &&
+                ` (${SPECIALITE_LABELS[userProfile.membre_specialite] || userProfile.membre_specialite})`}
+              {userProfile.pole_name && ` • ${userProfile.pole_name}`}
             </div>
           </div>
         </div>

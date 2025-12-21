@@ -41,6 +41,27 @@ class Profile(models.Model):
         help_text="Ex: Artiste, Sponsor, Institution, Marque..."
     )
 
+    # Spécialité pour les membres (attribué par admin uniquement)
+    MEMBRE_SPECIALITE_CHOICES = [
+        ('', 'Non spécifié'),
+        ('musicien', 'Musicien'),
+        ('manager', 'Manager'),
+        ('model', 'Modèle'),
+        ('photographe', 'Photographe'),
+        ('videaste', 'Vidéaste'),
+        ('graphiste', 'Graphiste'),
+        ('developpeur', 'Développeur'),
+        ('commercial', 'Commercial'),
+        ('assistant', 'Assistant'),
+        ('autre', 'Autre'),
+    ]
+    membre_specialite = models.CharField(
+        max_length=50,
+        choices=MEMBRE_SPECIALITE_CHOICES,
+        blank=True,
+        help_text="Spécialité du membre (uniquement pour le rôle 'membre')"
+    )
+
     phone = models.CharField(max_length=50, blank=True)
     website = models.URLField(blank=True)
     instagram = models.URLField(blank=True)

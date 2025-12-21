@@ -68,12 +68,13 @@ class UserProfileSerializer(serializers.ModelSerializer):
     pole_name = serializers.CharField(
         source='profile.pole.name', read_only=True
     )
+    membre_specialite = serializers.CharField(source='profile.membre_specialite', required=False, allow_blank=True)
     photo = serializers.ImageField(source='profile.photo', read_only=True)
     photo_url = serializers.SerializerMethodField()
 
     class Meta:
         model = User
-        fields = ['id', 'username', 'email', 'role', 'pole', 'pole_name', 'photo', 'photo_url']
+        fields = ['id', 'username', 'email', 'role', 'pole', 'pole_name', 'membre_specialite', 'photo', 'photo_url']
 
     def get_photo_url(self, obj):
         if hasattr(obj, 'profile') and obj.profile.photo:
@@ -86,11 +87,14 @@ class UserProfileSerializer(serializers.ModelSerializer):
         profile_data = validated_data.pop('profile', {})
         role = profile_data.get('role')
         pole = profile_data.get('pole')
+        membre_specialite = profile_data.get('membre_specialite')
 
         if role is not None:
             instance.profile.role = role
         if 'pole' in profile_data:
             instance.profile.pole = pole
+        if membre_specialite is not None:
+            instance.profile.membre_specialite = membre_specialite
 
         instance.profile.save()
         instance.save()
@@ -102,11 +106,12 @@ class UserSimpleSerializer(serializers.ModelSerializer):
     """Serializer simple pour afficher les utilisateurs dans les projets/tâches"""
     full_name = serializers.SerializerMethodField()
     role = serializers.CharField(source='profile.role', read_only=True)
+    membre_specialite = serializers.CharField(source='profile.membre_specialite', read_only=True)
 
     class Meta:
         model = User
-        fields = ['id', 'username', 'email', 'full_name', 'role']
-        read_only_fields = ['id', 'username', 'email', 'full_name', 'role']
+        fields = ['id', 'username', 'email', 'full_name', 'role', 'membre_specialite']
+        read_only_fields = ['id', 'username', 'email', 'full_name', 'role', 'membre_specialite']
 
     def get_full_name(self, obj):
         return obj.get_full_name() or obj.username
