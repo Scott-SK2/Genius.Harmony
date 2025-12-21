@@ -678,7 +678,8 @@ class CanCreateTache(permissions.BasePermission):
 class CanManageTache(permissions.BasePermission):
     """
     Permission pour gérer les tâches :
-    - Admin : peut tout faire
+    - Admin et Super Admin : peuvent tout faire
+    - Créateur du projet : peut gérer les tâches de son projet
     - Chef de pôle : peut gérer les tâches des projets de son pôle
     - Chef de projet : peut gérer les tâches de son projet
     - Personne assignée : peut modifier le statut de sa tâche uniquement
@@ -693,6 +694,10 @@ class CanManageTache(permissions.BasePermission):
 
         # Admin et Super Admin peuvent tout faire
         if is_admin_or_super(profile):
+            return True
+
+        # Créateur du projet peut gérer toutes les tâches de son projet
+        if obj.projet.created_by == user:
             return True
 
         # Chef de pôle peut gérer les tâches des projets de son pôle

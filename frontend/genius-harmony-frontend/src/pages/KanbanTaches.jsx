@@ -33,6 +33,9 @@ export default function KanbanTaches() {
     const projet = projets.find(p => p.id === tache.projet);
     if (!projet) return false;
 
+    // Créateur du projet peut déplacer les tâches de son projet
+    if (projet.created_by === user.id) return true;
+
     // Chef de pôle peut déplacer les tâches des projets de son pôle
     if (user.role === 'chef_pole' && projet.pole === user.pole) return true;
 

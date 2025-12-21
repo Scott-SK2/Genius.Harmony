@@ -48,6 +48,7 @@ export default function ProjetDetails() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [showFormTache, setShowFormTache] = useState(false);
+  const [editingTache, setEditingTache] = useState(null);
   const [showUploadDoc, setShowUploadDoc] = useState(false);
   const [isChangingStatut, setIsChangingStatut] = useState(false);
   const [showManageMembres, setShowManageMembres] = useState(false);
@@ -239,8 +240,11 @@ export default function ProjetDetails() {
   const canCreateTask = () => {
     if (!user || !projet) return false;
 
-    // Admin peut créer
+    // Admin et Super Admin peuvent créer
     if (user.role === 'admin' || user.role === 'super_admin') return true;
+
+    // Créateur du projet peut créer
+    if (projet.created_by === user.id) return true;
 
     // Chef de pôle peut créer
     if (user.role === 'chef_pole') return true;
@@ -252,12 +256,35 @@ export default function ProjetDetails() {
     return false;
   };
 
+  // Fonction pour vérifier si l'utilisateur peut modifier une tâche
+  const canManageTask = (tache) => {
+    if (!user || !tache || !projet) return false;
+
+    // Admin et Super Admin peuvent tout modifier
+    if (user.role === 'admin' || user.role === 'super_admin') return true;
+
+    // Créateur du projet peut modifier toutes les tâches
+    if (projet.created_by === user.id) return true;
+
+    // Chef de pôle peut modifier les tâches
+    if (user.role === 'chef_pole') return true;
+
+    // Chef de projet peut modifier les tâches de son projet s'il a accepté
+    if (projet.chef_projet === user.id && projet.chef_projet_status === 'accepted') return true;
+
+    // Les personnes assignées ne peuvent que déplacer, pas modifier complètement
+    return false;
+  };
+
   // Fonction pour vérifier si l'utilisateur peut déplacer une tâche
   const canDragTask = (tache) => {
     if (!user || !tache) return false;
 
-    // Admin peut tout faire
+    // Admin et Super Admin peuvent tout faire
     if (user.role === 'admin' || user.role === 'super_admin') return true;
+
+    // Créateur du projet peut déplacer les tâches
+    if (projet?.created_by === user.id) return true;
 
     // Chef de pôle peut déplacer les tâches
     if (user.role === 'chef_pole') return true;
@@ -316,6 +343,17 @@ export default function ProjetDetails() {
       console.error("Erreur update tache:", err);
       setError("Impossible de déplacer la tâche");
     }
+  };
+
+  // Handlers pour l'édition de tâches
+  const handleEditTache = (tache) => {
+    setEditingTache(tache);
+    setShowFormTache(true);
+  };
+
+  const handleCloseFormTache = () => {
+    setShowFormTache(false);
+    setEditingTache(null);
   };
 
   if (loading) {
@@ -1051,6 +1089,38 @@ export default function ProjetDetails() {
                                 )}
                               </div>
 
+                              {/* Bouton d'édition si l'utilisateur peut modifier */}
+                              {canManageTask(tache) && (
+                                <div style={{ marginTop: "0.75rem" }}>
+                                  <button
+                                    onClick={(e) => {
+                                      e.stopPropagation();
+                                      handleEditTache(tache);
+                                    }}
+                                    style={{
+                                      padding: "0.5rem 1rem",
+                                      backgroundColor: "#7c3aed",
+                                      color: "#fff",
+                                      border: "none",
+                                      borderRadius: "8px",
+                                      fontSize: "0.85rem",
+                                      fontWeight: "600",
+                                      cursor: "pointer",
+                                      transition: "all 0.2s",
+                                      width: "100%",
+                                    }}
+                                    onMouseEnter={(e) => {
+                                      e.target.style.backgroundColor = "#6d28d9";
+                                    }}
+                                    onMouseLeave={(e) => {
+                                      e.target.style.backgroundColor = "#7c3aed";
+                                    }}
+                                  >
+                                    ✏️ Modifier
+                                  </button>
+                                </div>
+                              )}
+
                               {/* Indicateur si non draggable */}
                               {!isDraggable && (
                                 <div style={{ marginTop: "0.75rem", fontSize: "0.75rem", color: "#a78bfa", fontStyle: "italic" }}>
@@ -1078,7 +1148,7 @@ export default function ProjetDetails() {
                 fontSize: "0.9rem",
               }}
             >
-              💡 <strong>Astuce:</strong> Glissez-déposez les tâches pour changer leur statut. Seuls les administrateurs, chefs de pôle, chefs de projet et les personnes assignées peuvent déplacer les tâches.
+              💡 <strong>Astuce:</strong> Glissez-déposez les tâches pour changer leur statut. Les administrateurs, super administrateurs, créateurs de projet, chefs de pôle et chefs de projet peuvent modifier complètement les tâches. Les personnes assignées peuvent déplacer leurs tâches.
             </div>
           </>
         )}
@@ -1371,7 +1441,8 @@ export default function ProjetDetails() {
       {/* Modals */}
       <FormTache
         isOpen={showFormTache}
-        onClose={() => setShowFormTache(false)}
+        onClose={handleCloseFormTache}
+        tache={editingTache}
         projetId={parseInt(id)}
         onSuccess={loadProjet}
       />
