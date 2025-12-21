@@ -94,8 +94,9 @@ class CanViewUsers(permissions.BasePermission):
 
 class CanViewPoles(permissions.BasePermission):
     """
-    Permet aux membres de voir la liste des pôles (lecture seule)
-    Seuls les admins peuvent modifier
+    - Admins et Super Admins : peuvent voir et gérer les pôles
+    - Chefs de pôle : peuvent voir les pôles (lecture seule, pour créer des projets)
+    - Autres : pas d'accès
     """
 
     def has_permission(self, request, view):
@@ -106,11 +107,11 @@ class CanViewPoles(permissions.BasePermission):
         if not profile:
             return False
 
-        # Lecture: tous les utilisateurs authentifiés
+        # Lecture: admins, super admins et chefs de pôle
         if request.method in permissions.SAFE_METHODS:
-            return True
+            return is_admin_or_super(profile) or profile.role == 'chef_pole'
 
-        # Modification/Création: uniquement admin ou super_admin
+        # Modification/Création/Suppression: uniquement admins et super admins
         return is_admin_or_super(profile)
 
 class PoleDetailView(generics.RetrieveUpdateDestroyAPIView):
