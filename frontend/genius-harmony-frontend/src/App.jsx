@@ -73,12 +73,12 @@ function App() {
               }
             />
 
-            {/* gestion pôles admin */}
+            {/* gestion pôles - accessible en lecture pour membres et chefs de pôle */}
             <Route
               path="/admin/poles"
               element={
-                <ProtectedRoute allowedRoles={["admin", "super_admin"]}>
-                  <AdminLayout pageTitle="Gestion des Pôles">
+                <ProtectedRoute allowedRoles={["admin", "super_admin", "chef_pole", "membre"]}>
+                  <AdminLayout pageTitle="Liste des Pôles">
                     <AdminPoles />
                   </AdminLayout>
                 </ProtectedRoute>
@@ -89,7 +89,7 @@ function App() {
             <Route
               path="/admin/poles/:id"
               element={
-                <ProtectedRoute allowedRoles={["admin", "super_admin"]}>
+                <ProtectedRoute allowedRoles={["admin", "super_admin", "chef_pole", "membre"]}>
                   <AdminLayout pageTitle="Détails du Pôle">
                     <PoleDetails />
                   </AdminLayout>

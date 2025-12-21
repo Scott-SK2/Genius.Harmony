@@ -5,7 +5,7 @@ import { fetchPoles, createPole, updatePole, deletePole } from "../api/poles";
 import { fetchUsers } from "../api/users";
 
 export default function AdminPoles() {
-  const { token } = useAuth();
+  const { token, user } = useAuth();
   const navigate = useNavigate();
   const [poles, setPoles] = useState([]);
   const [users, setUsers] = useState([]);
@@ -17,6 +17,9 @@ export default function AdminPoles() {
     description: "",
     chef: "",
   });
+
+  // Vérifier si l'utilisateur peut modifier
+  const canEdit = user && (user.role === 'admin' || user.role === 'super_admin');
 
   useEffect(() => {
     if (!token) return;
@@ -115,31 +118,33 @@ export default function AdminPoles() {
 
   return (
     <>
-      {/* Bouton Créer un pôle */}
-      <div style={{ display: "flex", justifyContent: "flex-end", marginBottom: "2rem" }}>
-        <button
-          onClick={() => handleOpenModal()}
-          style={{
-            padding: "0.75rem 1.5rem",
-            backgroundColor: "#7c3aed",
-            color: "#fff",
-            border: "none",
-            borderRadius: "8px",
-            fontSize: "1rem",
-            fontWeight: "600",
-            cursor: "pointer",
-            transition: "all 0.2s",
-          }}
-          onMouseEnter={(e) => {
-            e.target.style.backgroundColor = "#6d28d9";
-          }}
-          onMouseLeave={(e) => {
-            e.target.style.backgroundColor = "#7c3aed";
-          }}
-        >
-          ➕ Créer un pôle
-        </button>
-      </div>
+      {/* Bouton Créer un pôle - uniquement pour admins */}
+      {canEdit && (
+        <div style={{ display: "flex", justifyContent: "flex-end", marginBottom: "2rem" }}>
+          <button
+            onClick={() => handleOpenModal()}
+            style={{
+              padding: "0.75rem 1.5rem",
+              backgroundColor: "#7c3aed",
+              color: "#fff",
+              border: "none",
+              borderRadius: "8px",
+              fontSize: "1rem",
+              fontWeight: "600",
+              cursor: "pointer",
+              transition: "all 0.2s",
+            }}
+            onMouseEnter={(e) => {
+              e.target.style.backgroundColor = "#6d28d9";
+            }}
+            onMouseLeave={(e) => {
+              e.target.style.backgroundColor = "#7c3aed";
+            }}
+          >
+            ➕ Créer un pôle
+          </button>
+        </div>
+      )}
 
       {/* Liste des pôles */}
       {poles.length === 0 ? (
@@ -243,62 +248,64 @@ export default function AdminPoles() {
                     </div>
                   )}
                 </div>
-                <div style={{ display: "flex", gap: "0.75rem" }}>
-                  <button
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      handleOpenModal(pole);
-                    }}
-                    style={{
-                      padding: "0.5rem 1rem",
-                      backgroundColor: "transparent",
-                      color: "#a78bfa",
-                      border: "1px solid #a78bfa",
-                      borderRadius: "8px",
-                      fontSize: "0.9rem",
-                      fontWeight: "600",
-                      cursor: "pointer",
-                      transition: "all 0.2s",
-                    }}
-                    onMouseEnter={(e) => {
-                      e.target.style.backgroundColor = "#a78bfa";
-                      e.target.style.color = "#fff";
-                    }}
-                    onMouseLeave={(e) => {
-                      e.target.style.backgroundColor = "transparent";
-                      e.target.style.color = "#a78bfa";
-                    }}
-                  >
-                    Modifier
-                  </button>
-                  <button
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      handleDelete(pole.id);
-                    }}
-                    style={{
-                      padding: "0.5rem 1rem",
-                      backgroundColor: "transparent",
-                      color: "#7c3aed",
-                      border: "1px solid #7c3aed",
-                      borderRadius: "8px",
-                      fontSize: "0.9rem",
-                      fontWeight: "600",
-                      cursor: "pointer",
-                      transition: "all 0.2s",
-                    }}
-                    onMouseEnter={(e) => {
-                      e.target.style.backgroundColor = "#7c3aed";
-                      e.target.style.color = "#fff";
-                    }}
-                    onMouseLeave={(e) => {
-                      e.target.style.backgroundColor = "transparent";
-                      e.target.style.color = "#7c3aed";
-                    }}
-                  >
-                    Supprimer
-                  </button>
-                </div>
+                {canEdit && (
+                  <div style={{ display: "flex", gap: "0.75rem" }}>
+                    <button
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        handleOpenModal(pole);
+                      }}
+                      style={{
+                        padding: "0.5rem 1rem",
+                        backgroundColor: "transparent",
+                        color: "#a78bfa",
+                        border: "1px solid #a78bfa",
+                        borderRadius: "8px",
+                        fontSize: "0.9rem",
+                        fontWeight: "600",
+                        cursor: "pointer",
+                        transition: "all 0.2s",
+                      }}
+                      onMouseEnter={(e) => {
+                        e.target.style.backgroundColor = "#a78bfa";
+                        e.target.style.color = "#fff";
+                      }}
+                      onMouseLeave={(e) => {
+                        e.target.style.backgroundColor = "transparent";
+                        e.target.style.color = "#a78bfa";
+                      }}
+                    >
+                      Modifier
+                    </button>
+                    <button
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        handleDelete(pole.id);
+                      }}
+                      style={{
+                        padding: "0.5rem 1rem",
+                        backgroundColor: "transparent",
+                        color: "#7c3aed",
+                        border: "1px solid #7c3aed",
+                        borderRadius: "8px",
+                        fontSize: "0.9rem",
+                        fontWeight: "600",
+                        cursor: "pointer",
+                        transition: "all 0.2s",
+                      }}
+                      onMouseEnter={(e) => {
+                        e.target.style.backgroundColor = "#7c3aed";
+                        e.target.style.color = "#fff";
+                      }}
+                      onMouseLeave={(e) => {
+                        e.target.style.backgroundColor = "transparent";
+                        e.target.style.color = "#7c3aed";
+                      }}
+                    >
+                      Supprimer
+                    </button>
+                  </div>
+                )}
               </div>
             </div>
           ))}

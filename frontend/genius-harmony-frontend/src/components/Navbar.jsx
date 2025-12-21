@@ -101,8 +101,8 @@ export default function Navbar() {
           </Link>
         )}
 
-        {/* Pôles - uniquement pour admin et super_admin */}
-        {(user.role === "admin" || user.role === "super_admin") && (
+        {/* Pôles - accessible aux admins, super admins, chefs de pôle et membres */}
+        {["admin", "super_admin", "chef_pole", "membre"].includes(user.role) && (
           <Link
             to="/admin/poles"
             style={{
