@@ -5,7 +5,8 @@ from .models import Profile, Pole, Projet, Tache, Document
 class TacheInline(admin.TabularInline):
     model = Tache
     extra = 0
-    fields = ['titre', 'assigne_a', 'statut', 'priorite', 'deadline']
+    fields = ['titre', 'statut', 'priorite', 'deadline']
+    readonly_fields = ['titre']
 
 
 class DocumentInline(admin.TabularInline):
@@ -58,11 +59,20 @@ class ProjetAdmin(admin.ModelAdmin):
 
 @admin.register(Tache)
 class TacheAdmin(admin.ModelAdmin):
-    list_display = ['titre', 'projet', 'assigne_a', 'statut', 'priorite', 'deadline']
+    list_display = ['titre', 'projet', 'get_assignes', 'statut', 'priorite', 'deadline']
     list_filter = ['statut', 'priorite', 'projet__pole', 'created_at']
     search_fields = ['titre', 'description', 'projet__titre']
-    raw_id_fields = ['projet', 'assigne_a']
+    raw_id_fields = ['projet']
+    filter_horizontal = ['assigne_a']
     date_hierarchy = 'deadline'
+
+    def get_assignes(self, obj):
+        """Retourne la liste des personnes assignées à cette tâche"""
+        assignes = obj.assigne_a.all()
+        if assignes.exists():
+            return ", ".join([user.username for user in assignes])
+        return "-"
+    get_assignes.short_description = 'Assigné à'
 
 
 @admin.register(Document)
