@@ -2,7 +2,6 @@ import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 import { fetchUsers, updateUser, deleteUser } from "../api/users";
-import { fetchPoles } from "../api/poles";
 
 const ROLE_LABELS = {
   super_admin: "Super Administrateur",
@@ -59,7 +58,6 @@ const SPECIALITE_OPTIONS = [
 export default function AdminUsers() {
   const { token, user } = useAuth();
   const [users, setUsers] = useState([]);
-  const [poles, setPoles] = useState([]);
   const [savingId, setSavingId] = useState(null);
 
   // Vérifier si l'utilisateur peut modifier
@@ -70,14 +68,10 @@ export default function AdminUsers() {
 
     (async () => {
       try {
-        const [u, p] = await Promise.all([
-          fetchUsers(token),
-          fetchPoles(token),
-        ]);
+        const u = await fetchUsers(token);
         setUsers(u);
-        setPoles(p);
       } catch (err) {
-        console.error("Erreur fetch users/poles:", err);
+        console.error("Erreur fetch users:", err);
       }
     })();
   }, [token]);
@@ -92,27 +86,6 @@ export default function AdminUsers() {
     } catch (err) {
       console.error("Erreur update role:", err);
       alert("Impossible de changer le rôle");
-    } finally {
-      setSavingId(null);
-    }
-  }
-
-  async function handleChangePole(userId, newPoleId) {
-    try {
-      setSavingId(userId);
-      const payload =
-        newPoleId === "" ? { pole: null } : { pole: parseInt(newPoleId, 10) };
-      const updated = await updateUser(token, userId, payload);
-      setUsers((prev) =>
-        prev.map((u) =>
-          u.id === userId
-            ? { ...u, pole: updated.pole, pole_name: updated.pole_name }
-            : u
-        )
-      );
-    } catch (err) {
-      console.error("Erreur update pole:", err);
-      alert("Impossible de changer le pôle");
     } finally {
       setSavingId(null);
     }
@@ -241,17 +214,6 @@ export default function AdminUsers() {
                     fontWeight: "500",
                   }}
                 >
-                  Pôle
-                </th>
-                <th
-                  style={{
-                    borderBottom: "1px solid #4c1d95",
-                    textAlign: "left",
-                    padding: "1rem",
-                    color: "#c4b5fd",
-                    fontWeight: "500",
-                  }}
-                >
                   Spécialité
                 </th>
                 <th
@@ -318,43 +280,6 @@ export default function AdminUsers() {
                     ) : (
                       <span style={{ color: "#c4b5fd", fontSize: "0.95rem" }}>
                         {ROLE_LABELS[u.role] || "—"}
-                      </span>
-                    )}
-                  </td>
-                  <td style={{ padding: "1rem" }}>
-                    {canEdit ? (
-                      <div style={{ display: "flex", alignItems: "center", gap: "0.75rem" }}>
-                        <select
-                          value={u.pole || ""}
-                          onChange={(e) => handleChangePole(u.id, e.target.value)}
-                          disabled={savingId === u.id}
-                          style={{
-                            padding: "0.5rem 0.75rem",
-                            borderRadius: "8px",
-                            border: "1px solid #4c1d95",
-                            backgroundColor: "#1e1b4b",
-                            color: "#fff",
-                            fontSize: "0.95rem",
-                            cursor: "pointer",
-                            minWidth: "160px",
-                          }}
-                        >
-                          <option value="">Aucun</option>
-                          {poles.map((p) => (
-                            <option key={p.id} value={p.id}>
-                              {p.name}
-                            </option>
-                          ))}
-                        </select>
-                        {u.pole_name && (
-                          <span style={{ color: "#a78bfa", fontSize: "0.9rem" }}>
-                            ({u.pole_name})
-                          </span>
-                        )}
-                      </div>
-                    ) : (
-                      <span style={{ color: "#c4b5fd", fontSize: "0.95rem" }}>
-                        {u.pole_name || "Aucun"}
                       </span>
                     )}
                   </td>
