@@ -342,7 +342,7 @@ export default function AdminUsers() {
                     </div>
                   </td>
                   <td style={{ padding: "1rem" }}>
-                    {u.role === 'membre' ? (
+                    {(u.role === 'membre' || u.role === 'chef_pole') ? (
                       <select
                         value={u.membre_specialite || ""}
                         onChange={(e) => handleChangeSpecialite(u.id, e.target.value)}

@@ -41,7 +41,7 @@ class Profile(models.Model):
         help_text="Ex: Artiste, Sponsor, Institution, Marque..."
     )
 
-    # Spécialité pour les membres (attribué par admin uniquement)
+    # Spécialité pour les membres et chefs de pôle (attribué par admin uniquement)
     MEMBRE_SPECIALITE_CHOICES = [
         ('', 'Non spécifié'),
         ('musicien', 'Musicien'),
@@ -59,7 +59,7 @@ class Profile(models.Model):
         max_length=50,
         choices=MEMBRE_SPECIALITE_CHOICES,
         blank=True,
-        help_text="Spécialité du membre (uniquement pour le rôle 'membre')"
+        help_text="Spécialité pour les membres et chefs de pôle"
     )
 
     phone = models.CharField(max_length=50, blank=True)

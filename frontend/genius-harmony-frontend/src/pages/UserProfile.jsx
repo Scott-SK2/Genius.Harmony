@@ -307,7 +307,7 @@ export default function UserProfile() {
             </h1>
             <div style={{ color: "#c4b5fd", fontSize: "1.1rem", marginTop: "0.5rem" }}>
               {ROLE_LABELS[userProfile.role] || userProfile.role}
-              {userProfile.role === 'membre' && userProfile.membre_specialite &&
+              {(userProfile.role === 'membre' || userProfile.role === 'chef_pole') && userProfile.membre_specialite &&
                 ` (${SPECIALITE_LABELS[userProfile.membre_specialite] || userProfile.membre_specialite})`}
               {userProfile.pole_name && ` • ${userProfile.pole_name}`}
             </div>
