@@ -372,24 +372,10 @@ class ProjetListCreateView(generics.ListCreateAPIView):
         # Les projets créés par l'utilisateur (tous les statuts)
         projets_crees = Q(created_by=user)
 
-        # Les projets publics (en_cours, en_revision, termine, annule) où l'utilisateur est associé
-        projets_publics = Q(
-            statut__in=['en_cours', 'en_revision', 'termine', 'annule']
-        ) & (
-            Q(membres=user) |
-            Q(chef_projet=user) |
-            Q(client=user)
-        )
+        # TOUS les projets publics (en_cours, en_revision, termine, annule) sont visibles par TOUS
+        projets_publics = Q(statut__in=['en_cours', 'en_revision', 'termine', 'annule'])
 
-        # Chef de pôle peut aussi voir les projets publics de son pôle
-        if profile.role == 'chef_pole' and profile.pole:
-            projets_pole_publics = Q(
-                pole=profile.pole,
-                statut__in=['en_cours', 'en_revision', 'termine', 'annule']
-            )
-            return queryset.filter(projets_crees | projets_publics | projets_pole_publics).distinct()
-
-        # Autres utilisateurs : projets créés + projets publics associés
+        # Tous les utilisateurs : projets créés + TOUS les projets publics
         return queryset.filter(projets_crees | projets_publics).distinct()
 
     def perform_create(self, serializer):
