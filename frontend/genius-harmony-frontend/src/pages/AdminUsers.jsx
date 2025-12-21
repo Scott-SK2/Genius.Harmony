@@ -57,10 +57,13 @@ const SPECIALITE_OPTIONS = [
 ];
 
 export default function AdminUsers() {
-  const { token } = useAuth();
+  const { token, user } = useAuth();
   const [users, setUsers] = useState([]);
   const [poles, setPoles] = useState([]);
   const [savingId, setSavingId] = useState(null);
+
+  // Vérifier si l'utilisateur peut modifier
+  const canEdit = user && (user.role === 'admin' || user.role === 'super_admin');
 
   useEffect(() => {
     if (!token) return;
@@ -289,34 +292,10 @@ export default function AdminUsers() {
                     {u.email}
                   </td>
                   <td style={{ padding: "1rem" }}>
-                    <select
-                      value={u.role || ""}
-                      onChange={(e) => handleChangeRole(u.id, e.target.value)}
-                      disabled={savingId === u.id}
-                      style={{
-                        padding: "0.5rem 0.75rem",
-                        borderRadius: "8px",
-                        border: "1px solid #4c1d95",
-                        backgroundColor: "#1e1b4b",
-                        color: "#fff",
-                        fontSize: "0.95rem",
-                        cursor: "pointer",
-                        minWidth: "160px",
-                      }}
-                    >
-                      <option value="">—</option>
-                      {ROLE_OPTIONS.map((r) => (
-                        <option key={r} value={r}>
-                          {ROLE_LABELS[r]}
-                        </option>
-                      ))}
-                    </select>
-                  </td>
-                  <td style={{ padding: "1rem" }}>
-                    <div style={{ display: "flex", alignItems: "center", gap: "0.75rem" }}>
+                    {canEdit ? (
                       <select
-                        value={u.pole || ""}
-                        onChange={(e) => handleChangePole(u.id, e.target.value)}
+                        value={u.role || ""}
+                        onChange={(e) => handleChangeRole(u.id, e.target.value)}
                         disabled={savingId === u.id}
                         style={{
                           padding: "0.5rem 0.75rem",
@@ -329,43 +308,85 @@ export default function AdminUsers() {
                           minWidth: "160px",
                         }}
                       >
-                        <option value="">Aucun</option>
-                        {poles.map((p) => (
-                          <option key={p.id} value={p.id}>
-                            {p.name}
+                        <option value="">—</option>
+                        {ROLE_OPTIONS.map((r) => (
+                          <option key={r} value={r}>
+                            {ROLE_LABELS[r]}
                           </option>
                         ))}
                       </select>
-                      {u.pole_name && (
-                        <span style={{ color: "#a78bfa", fontSize: "0.9rem" }}>
-                          ({u.pole_name})
-                        </span>
-                      )}
-                    </div>
+                    ) : (
+                      <span style={{ color: "#c4b5fd", fontSize: "0.95rem" }}>
+                        {ROLE_LABELS[u.role] || "—"}
+                      </span>
+                    )}
+                  </td>
+                  <td style={{ padding: "1rem" }}>
+                    {canEdit ? (
+                      <div style={{ display: "flex", alignItems: "center", gap: "0.75rem" }}>
+                        <select
+                          value={u.pole || ""}
+                          onChange={(e) => handleChangePole(u.id, e.target.value)}
+                          disabled={savingId === u.id}
+                          style={{
+                            padding: "0.5rem 0.75rem",
+                            borderRadius: "8px",
+                            border: "1px solid #4c1d95",
+                            backgroundColor: "#1e1b4b",
+                            color: "#fff",
+                            fontSize: "0.95rem",
+                            cursor: "pointer",
+                            minWidth: "160px",
+                          }}
+                        >
+                          <option value="">Aucun</option>
+                          {poles.map((p) => (
+                            <option key={p.id} value={p.id}>
+                              {p.name}
+                            </option>
+                          ))}
+                        </select>
+                        {u.pole_name && (
+                          <span style={{ color: "#a78bfa", fontSize: "0.9rem" }}>
+                            ({u.pole_name})
+                          </span>
+                        )}
+                      </div>
+                    ) : (
+                      <span style={{ color: "#c4b5fd", fontSize: "0.95rem" }}>
+                        {u.pole_name || "Aucun"}
+                      </span>
+                    )}
                   </td>
                   <td style={{ padding: "1rem" }}>
                     {(u.role === 'membre' || u.role === 'chef_pole') ? (
-                      <select
-                        value={u.membre_specialite || ""}
-                        onChange={(e) => handleChangeSpecialite(u.id, e.target.value)}
-                        disabled={savingId === u.id}
-                        style={{
-                          padding: "0.5rem 0.75rem",
-                          borderRadius: "8px",
-                          border: "1px solid #4c1d95",
-                          backgroundColor: "#1e1b4b",
-                          color: "#fff",
-                          fontSize: "0.95rem",
-                          cursor: "pointer",
-                          minWidth: "160px",
-                        }}
-                      >
-                        {SPECIALITE_OPTIONS.map((s) => (
-                          <option key={s} value={s}>
-                            {SPECIALITE_LABELS[s]}
-                          </option>
-                        ))}
-                      </select>
+                      canEdit ? (
+                        <select
+                          value={u.membre_specialite || ""}
+                          onChange={(e) => handleChangeSpecialite(u.id, e.target.value)}
+                          disabled={savingId === u.id}
+                          style={{
+                            padding: "0.5rem 0.75rem",
+                            borderRadius: "8px",
+                            border: "1px solid #4c1d95",
+                            backgroundColor: "#1e1b4b",
+                            color: "#fff",
+                            fontSize: "0.95rem",
+                            cursor: "pointer",
+                            minWidth: "160px",
+                          }}
+                        >
+                          {SPECIALITE_OPTIONS.map((s) => (
+                            <option key={s} value={s}>
+                              {SPECIALITE_LABELS[s]}
+                            </option>
+                          ))}
+                        </select>
+                      ) : (
+                        <span style={{ color: "#c4b5fd", fontSize: "0.95rem" }}>
+                          {SPECIALITE_LABELS[u.membre_specialite] || SPECIALITE_LABELS[""]}
+                        </span>
+                      )
                     ) : (
                       <span style={{ color: "#666", fontSize: "0.9rem" }}>—</span>
                     )}
@@ -396,35 +417,37 @@ export default function AdminUsers() {
                       >
                         👁️ Voir
                       </Link>
-                      <button
-                        onClick={() => handleDeleteUser(u.id, u.username)}
-                        disabled={savingId === u.id}
-                        style={{
-                          padding: "0.5rem 1rem",
-                          backgroundColor: "#f87171",
-                          color: "#fff",
-                          borderRadius: "8px",
-                          border: "none",
-                          fontSize: "0.9rem",
-                          fontWeight: "600",
-                          cursor: savingId === u.id ? "wait" : "pointer",
-                          transition: "all 0.2s",
-                        }}
-                        onMouseEnter={(e) => {
-                          if (savingId !== u.id) {
-                            e.target.style.backgroundColor = "#ef4444";
-                            e.target.style.transform = "translateY(-2px)";
-                          }
-                        }}
-                        onMouseLeave={(e) => {
-                          if (savingId !== u.id) {
-                            e.target.style.backgroundColor = "#f87171";
-                            e.target.style.transform = "translateY(0)";
-                          }
-                        }}
-                      >
-                        🗑️ Supprimer
-                      </button>
+                      {canEdit && (
+                        <button
+                          onClick={() => handleDeleteUser(u.id, u.username)}
+                          disabled={savingId === u.id}
+                          style={{
+                            padding: "0.5rem 1rem",
+                            backgroundColor: "#f87171",
+                            color: "#fff",
+                            borderRadius: "8px",
+                            border: "none",
+                            fontSize: "0.9rem",
+                            fontWeight: "600",
+                            cursor: savingId === u.id ? "wait" : "pointer",
+                            transition: "all 0.2s",
+                          }}
+                          onMouseEnter={(e) => {
+                            if (savingId !== u.id) {
+                              e.target.style.backgroundColor = "#ef4444";
+                              e.target.style.transform = "translateY(-2px)";
+                            }
+                          }}
+                          onMouseLeave={(e) => {
+                            if (savingId !== u.id) {
+                              e.target.style.backgroundColor = "#f87171";
+                              e.target.style.transform = "translateY(0)";
+                            }
+                          }}
+                        >
+                          🗑️ Supprimer
+                        </button>
+                      )}
                     </div>
                   </td>
                 </tr>

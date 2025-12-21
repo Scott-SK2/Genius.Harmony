@@ -49,12 +49,12 @@ function App() {
               }
             />
 
-            {/* gestion utilisateurs admin */}
+            {/* gestion utilisateurs - accessible en lecture pour membres, artistes, clients, chefs de pôle */}
             <Route
               path="/admin/users"
               element={
-                <ProtectedRoute allowedRoles={["admin", "super_admin"]}>
-                  <AdminLayout pageTitle="Gestion des Utilisateurs">
+                <ProtectedRoute allowedRoles={["admin", "super_admin", "chef_pole", "membre", "artiste", "client"]}>
+                  <AdminLayout pageTitle="Liste des Utilisateurs">
                     <AdminUsers />
                   </AdminLayout>
                 </ProtectedRoute>

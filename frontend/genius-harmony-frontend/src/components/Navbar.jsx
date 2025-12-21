@@ -84,35 +84,38 @@ export default function Navbar() {
           📊 Kanban
         </Link>
 
+        {/* Utilisateurs - accessible à tous sauf stagiaire, collaborateur et partenaire */}
+        {!["stagiaire", "collaborateur", "partenaire"].includes(user.role) && (
+          <Link
+            to="/admin/users"
+            style={{
+              color: theme.text.primary,
+              textDecoration: "none",
+              fontWeight: "500",
+              transition: "color 0.2s",
+            }}
+            onMouseEnter={(e) => (e.target.style.color = theme.colors.primary)}
+            onMouseLeave={(e) => (e.target.style.color = theme.text.primary)}
+          >
+            👥 Utilisateurs
+          </Link>
+        )}
+
+        {/* Pôles - uniquement pour admin et super_admin */}
         {(user.role === "admin" || user.role === "super_admin") && (
-          <>
-            <Link
-              to="/admin/users"
-              style={{
-                color: theme.text.primary,
-                textDecoration: "none",
-                fontWeight: "500",
-                transition: "color 0.2s",
-              }}
-              onMouseEnter={(e) => (e.target.style.color = theme.colors.primary)}
-              onMouseLeave={(e) => (e.target.style.color = theme.text.primary)}
-            >
-              👥 Utilisateurs
-            </Link>
-            <Link
-              to="/admin/poles"
-              style={{
-                color: theme.text.primary,
-                textDecoration: "none",
-                fontWeight: "500",
-                transition: "color 0.2s",
-              }}
-              onMouseEnter={(e) => (e.target.style.color = theme.colors.primary)}
-              onMouseLeave={(e) => (e.target.style.color = theme.text.primary)}
-            >
-              🎯 Pôles
-            </Link>
-          </>
+          <Link
+            to="/admin/poles"
+            style={{
+              color: theme.text.primary,
+              textDecoration: "none",
+              fontWeight: "500",
+              transition: "color 0.2s",
+            }}
+            onMouseEnter={(e) => (e.target.style.color = theme.colors.primary)}
+            onMouseLeave={(e) => (e.target.style.color = theme.text.primary)}
+          >
+            🎯 Pôles
+          </Link>
         )}
       </div>
 
