@@ -250,8 +250,9 @@ class CanViewProjet(permissions.BasePermission):
     """
     Permission pour voir les projets selon le rôle et le statut :
     - Admin et Super Admin : voient tout
-    - Tous les utilisateurs associés (membre, chef_projet, client, créateur) : voient leurs projets peu importe le statut
-    - Chef de pôle : voit les projets de son pôle selon les règles de visibilité
+    - Créateur du projet : voit tous ses projets (peu importe le statut)
+    - Autres utilisateurs : voient uniquement les projets publics (en_cours, en_revision, termine, annule)
+      - Ne voient PAS les projets "brouillon" et "en_attente"
     """
 
     def has_permission(self, request, view):
@@ -269,17 +270,26 @@ class CanViewProjet(permissions.BasePermission):
         if is_admin_or_super(profile):
             return True
 
-        # Les utilisateurs associés au projet peuvent toujours le voir (membre, chef_projet, client, créateur)
-        if (obj.membres.filter(id=user.id).exists() or
-            obj.chef_projet == user or
-            obj.client == user or
-            obj.created_by == user):
+        # Le créateur voit tous ses projets (peu importe le statut)
+        if obj.created_by == user:
             return True
 
-        # Chef de pôle peut voir les projets de son pôle
-        if profile.role == 'chef_pole' and profile.pole:
-            if obj.pole == profile.pole:
+        # Projets "brouillon" et "en_attente" : visibles uniquement par admin et créateur
+        if obj.statut in ['brouillon', 'en_attente']:
+            return False
+
+        # Projets publics : visibles par les personnes associées
+        if obj.statut in ['en_cours', 'en_revision', 'termine', 'annule']:
+            # Membres, chef de projet, client peuvent voir
+            if (obj.membres.filter(id=user.id).exists() or
+                obj.chef_projet == user or
+                obj.client == user):
                 return True
+
+            # Chef de pôle peut voir les projets de son pôle
+            if profile.role == 'chef_pole' and profile.pole:
+                if obj.pole == profile.pole:
+                    return True
 
         return False
 
@@ -288,8 +298,9 @@ class CanManageProjet(permissions.BasePermission):
     """
     Permission pour créer/modifier/supprimer les projets :
     - Super Admin : peut tout faire (y compris supprimer)
-    - Admin : peut créer et modifier (pas supprimer)
-    - Chef de pôle : peut gérer les projets de son pôle (pas supprimer)
+    - Admin : peut créer et modifier tous les projets
+    - Chef de pôle : peut créer et modifier les projets de son pôle
+    - Créateur du projet : peut modifier son propre projet (restrictions sur les statuts)
     """
 
     def has_permission(self, request, view):
@@ -316,6 +327,10 @@ class CanManageProjet(permissions.BasePermission):
 
         # Modifier: Admin et Super Admin peuvent tout modifier
         if is_admin_or_super(profile):
+            return True
+
+        # Créateur du projet peut modifier son projet
+        if obj.created_by == user:
             return True
 
         # Chef de pôle peut gérer les projets de son pôle
@@ -354,17 +369,28 @@ class ProjetListCreateView(generics.ListCreateAPIView):
         if is_admin_or_super(profile):
             return queryset
 
-        # Chef de pôle, Membre, Stagiaire, Collaborateur et Partenaire voient TOUS les projets (nouvelles règles)
-        if profile.role in ['chef_pole', 'membre', 'stagiaire', 'collaborateur', 'partenaire']:
-            return queryset
+        # Les projets créés par l'utilisateur (tous les statuts)
+        projets_crees = Q(created_by=user)
 
-        # Artiste/Client voient leurs propres projets publics
-        if profile.role in ['artiste', 'client']:
-            return queryset.filter(
-                Q(client=user) & Q(statut__in=['en_cours', 'en_revision', 'termine', 'annule'])
+        # Les projets publics (en_cours, en_revision, termine, annule) où l'utilisateur est associé
+        projets_publics = Q(
+            statut__in=['en_cours', 'en_revision', 'termine', 'annule']
+        ) & (
+            Q(membres=user) |
+            Q(chef_projet=user) |
+            Q(client=user)
+        )
+
+        # Chef de pôle peut aussi voir les projets publics de son pôle
+        if profile.role == 'chef_pole' and profile.pole:
+            projets_pole_publics = Q(
+                pole=profile.pole,
+                statut__in=['en_cours', 'en_revision', 'termine', 'annule']
             )
+            return queryset.filter(projets_crees | projets_publics | projets_pole_publics).distinct()
 
-        return Projet.objects.none()
+        # Autres utilisateurs : projets créés + projets publics associés
+        return queryset.filter(projets_crees | projets_publics).distinct()
 
     def perform_create(self, serializer):
         # Vérifier que l'utilisateur a le droit de créer
@@ -409,6 +435,21 @@ class ProjetDetailView(generics.RetrieveUpdateDestroyAPIView):
                 {"detail": "Vous n'avez pas la permission de modifier ce projet"},
                 status=status.HTTP_403_FORBIDDEN
             )
+
+        # Restriction sur les statuts pour les créateurs non-admin
+        user = request.user
+        profile = getattr(user, 'profile', None)
+        new_statut = request.data.get('statut')
+
+        # Si le statut est modifié et que l'utilisateur n'est pas admin/super_admin
+        if new_statut and not is_admin_or_super(profile):
+            # Les créateurs non-admin ne peuvent mettre que "brouillon" ou "en_attente"
+            if new_statut not in ['brouillon', 'en_attente']:
+                return Response(
+                    {"detail": "Vous ne pouvez mettre le projet qu'en statut 'brouillon' ou 'en_attente'. Seuls les administrateurs peuvent changer vers d'autres statuts."},
+                    status=status.HTTP_403_FORBIDDEN
+                )
+
         return super().update(request, *args, **kwargs)
 
     def destroy(self, request, *args, **kwargs):
