@@ -72,7 +72,7 @@ class IsAdminUserProfile(permissions.BasePermission):
 class CanViewUsers(permissions.BasePermission):
     """
     Permet aux membres de voir la liste des utilisateurs (lecture seule)
-    Stagiaires et Partenaires ne peuvent PAS voir la liste
+    Stagiaires, Collaborateurs, Partenaires et Clients ne peuvent PAS voir la liste
     Seuls les admins peuvent modifier
     """
 
@@ -84,9 +84,9 @@ class CanViewUsers(permissions.BasePermission):
         if not profile:
             return False
 
-        # Lecture: tous sauf stagiaire, collaborateur et partenaire
+        # Lecture: tous sauf stagiaire, collaborateur, partenaire et client
         if request.method in permissions.SAFE_METHODS:
-            return profile.role not in ['stagiaire', 'collaborateur', 'partenaire']
+            return profile.role not in ['stagiaire', 'collaborateur', 'partenaire', 'client']
 
         # Modification: uniquement admin ou super_admin
         return is_admin_or_super(profile)

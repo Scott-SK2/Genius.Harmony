@@ -84,8 +84,8 @@ export default function Navbar() {
           📊 Kanban
         </Link>
 
-        {/* Utilisateurs - accessible à tous sauf stagiaire, collaborateur et partenaire */}
-        {!["stagiaire", "collaborateur", "partenaire"].includes(user.role) && (
+        {/* Utilisateurs - accessible à tous sauf stagiaire, collaborateur, partenaire et client */}
+        {!["stagiaire", "collaborateur", "partenaire", "client"].includes(user.role) && (
           <Link
             to="/admin/users"
             style={{
