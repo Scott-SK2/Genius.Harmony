@@ -84,9 +84,9 @@ class CanViewUsers(permissions.BasePermission):
         if not profile:
             return False
 
-        # Lecture: tous sauf stagiaire et partenaire
+        # Lecture: tous sauf stagiaire, collaborateur et partenaire
         if request.method in permissions.SAFE_METHODS:
-            return profile.role not in ['stagiaire', 'partenaire']
+            return profile.role not in ['stagiaire', 'collaborateur', 'partenaire']
 
         # Modification: uniquement admin ou super_admin
         return is_admin_or_super(profile)
@@ -270,8 +270,8 @@ class CanViewProjet(permissions.BasePermission):
 
         # Statuts publics visibles par tous
         if obj.statut in ['en_cours', 'en_revision', 'termine', 'annule']:
-            # Chef de pôle, Membre, Stagiaire et Partenaire: peuvent voir uniquement les projets où ils sont associés (membre, chef_projet, ou client)
-            if profile.role in ['chef_pole', 'membre', 'stagiaire', 'partenaire']:
+            # Chef de pôle, Membre, Stagiaire, Collaborateur et Partenaire: peuvent voir uniquement les projets où ils sont associés (membre, chef_projet, ou client)
+            if profile.role in ['chef_pole', 'membre', 'stagiaire', 'collaborateur', 'partenaire']:
                 return (obj.membres.filter(id=user.id).exists() or
                        obj.chef_projet == user or
                        obj.client == user)
@@ -365,8 +365,8 @@ class ProjetListCreateView(generics.ListCreateAPIView):
         if is_admin_or_super(profile):
             return queryset
 
-        # Chef de pôle, Membre, Stagiaire et Partenaire voient TOUS les projets (nouvelles règles)
-        if profile.role in ['chef_pole', 'membre', 'stagiaire', 'partenaire']:
+        # Chef de pôle, Membre, Stagiaire, Collaborateur et Partenaire voient TOUS les projets (nouvelles règles)
+        if profile.role in ['chef_pole', 'membre', 'stagiaire', 'collaborateur', 'partenaire']:
             return queryset
 
         # Artiste/Client voient leurs propres projets publics

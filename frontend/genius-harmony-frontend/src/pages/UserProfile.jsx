@@ -8,6 +8,7 @@ const ROLE_LABELS = {
   chef_pole: "Chef de Pôle",
   membre: "Membre",
   stagiaire: "Stagiaire",
+  collaborateur: "Collaborateur",
   artiste: "Artiste",
   client: "Client",
   partenaire: "Partenaire",

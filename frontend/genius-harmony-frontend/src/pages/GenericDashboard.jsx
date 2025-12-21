@@ -48,6 +48,7 @@ export default function GenericDashboard() {
       return <ChefPoleDashboard />;
     case "membre":
     case "stagiaire":
+    case "collaborateur":
       return <MembreDashboard />;
     case "artiste":
     case "client":

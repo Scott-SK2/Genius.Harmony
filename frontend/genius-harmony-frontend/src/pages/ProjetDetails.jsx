@@ -265,8 +265,8 @@ export default function ProjetDetails() {
     // Chef de projet peut déplacer les tâches de son projet s'il a accepté
     if (projet?.chef_projet === user.id && projet?.chef_projet_status === 'accepted') return true;
 
-    // Membre, Stagiaire et Partenaire peuvent déplacer uniquement les tâches qui leur sont assignées
-    if ((user.role === 'membre' || user.role === 'stagiaire' || user.role === 'partenaire') && Array.isArray(tache.assigne_a) && tache.assigne_a.includes(user.id)) return true;
+    // Membre, Stagiaire, Collaborateur et Partenaire peuvent déplacer uniquement les tâches qui leur sont assignées
+    if ((user.role === 'membre' || user.role === 'stagiaire' || user.role === 'collaborateur' || user.role === 'partenaire') && Array.isArray(tache.assigne_a) && tache.assigne_a.includes(user.id)) return true;
 
     // Personne assignée peut déplacer sa tâche (pour les autres rôles)
     if (Array.isArray(tache.assigne_a) && tache.assigne_a.includes(user.id)) return true;

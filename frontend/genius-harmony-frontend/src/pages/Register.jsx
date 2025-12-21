@@ -6,6 +6,7 @@ import { useTheme } from "../context/ThemeContext";
 const ROLE_OPTIONS = [
   { value: "membre", label: "Membre", description: "Membre de l'équipe" },
   { value: "stagiaire", label: "Stagiaire", description: "Stagiaire ou apprenti" },
+  { value: "collaborateur", label: "Collaborateur", description: "Collaborateur externe" },
   { value: "artiste", label: "Artiste", description: "Artiste collaborateur" },
   { value: "client", label: "Client", description: "Client" },
   { value: "partenaire", label: "Partenaire", description: "Partenaire externe" },
