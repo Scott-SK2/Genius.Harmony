@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { useParams, useNavigate, Link } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
+import { useTheme } from "../context/ThemeContext";
 
 const SPECIALITE_OPTIONS = [
   { value: "", label: "Non spécifié" },
@@ -19,6 +20,7 @@ const SPECIALITE_OPTIONS = [
 export default function EditProfile() {
   const { id } = useParams();
   const { token, user } = useAuth();
+  const { theme } = useTheme();
   const navigate = useNavigate();
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
@@ -110,7 +112,7 @@ export default function EditProfile() {
       >
         <div style={{ textAlign: "center" }}>
           <div style={{ fontSize: "3rem", marginBottom: "1rem" }}>⏳</div>
-          <div style={{ color: "#c4b5fd" }}>Chargement...</div>
+          <div style={{ color: theme.text.secondary }}>Chargement...</div>
         </div>
       </div>
     );
@@ -123,9 +125,9 @@ export default function EditProfile() {
           style={{
             padding: "2rem",
             backgroundColor: "rgba(248, 113, 113, 0.1)",
-            border: "1px solid #f87171",
+            border: `1px solid ${theme.colors.danger}`,
             borderRadius: "12px",
-            color: "#f87171",
+            color: theme.colors.danger,
             marginBottom: "1.5rem",
           }}
         >
@@ -153,7 +155,7 @@ export default function EditProfile() {
         <Link
           to={`/users/${id}`}
           style={{
-            color: "#7c3aed",
+            color: theme.colors.primary,
             textDecoration: "none",
             fontSize: "1rem",
             fontWeight: "600",
@@ -170,7 +172,7 @@ export default function EditProfile() {
       </div>
 
       {/* Titre */}
-      <h1 style={{ margin: 0, marginBottom: "2rem", color: "#fff", fontSize: "2rem" }}>
+      <h1 style={{ margin: 0, marginBottom: "2rem", color: theme.text.primary, fontSize: "2rem" }}>
         ✏️ Modifier le profil
       </h1>
 
@@ -182,7 +184,7 @@ export default function EditProfile() {
             backgroundColor: "rgba(248, 113, 113, 0.1)",
             border: "1px solid #f87171",
             borderRadius: "8px",
-            color: "#f87171",
+            color: theme.colors.danger,
             marginBottom: "1.5rem",
           }}
         >
@@ -194,11 +196,11 @@ export default function EditProfile() {
       <form onSubmit={handleSubmit}>
         <div
           style={{
-            backgroundColor: "#2d1b69",
+            backgroundColor: theme.bg.tertiary,
             padding: "2rem",
             borderRadius: "16px",
-            boxShadow: "0 4px 16px rgba(124, 58, 237, 0.3)",
-            border: "1px solid #4c1d95",
+            boxShadow: theme.shadow.lg,
+            border: `1px solid ${theme.border.light}`,
           }}
         >
           {/* Description */}
@@ -208,8 +210,8 @@ export default function EditProfile() {
               style={{
                 display: "block",
                 marginBottom: "0.5rem",
-                color: "#c4b5fd",
-                fontWeight: "500",
+                color: theme.colors.secondary,
+                fontWeight: "600",
               }}
             >
               Description
@@ -222,17 +224,17 @@ export default function EditProfile() {
               style={{
                 width: "100%",
                 padding: "0.75rem",
-                backgroundColor: "#1a0f3d",
-                border: "1px solid #4c1d95",
+                backgroundColor: theme.bg.secondary,
+                border: `1px solid ${theme.border.medium}`,
                 borderRadius: "8px",
-                color: "#fff",
+                color: theme.text.primary,
                 fontSize: "1rem",
                 fontFamily: "inherit",
                 resize: "vertical",
               }}
               placeholder="Décrivez-vous en quelques mots..."
             />
-            <div style={{ fontSize: "0.85rem", color: "#a78bfa", marginTop: "0.5rem" }}>
+            <div style={{ fontSize: "0.85rem", color: theme.text.tertiary, marginTop: "0.5rem" }}>
               Cette description sera visible sur votre profil public
             </div>
           </div>
@@ -271,7 +273,7 @@ export default function EditProfile() {
                   </option>
                 ))}
               </select>
-              <div style={{ fontSize: "0.85rem", color: "#f59e0b", marginTop: "0.5rem" }}>
+              <div style={{ fontSize: "0.85rem", color: theme.colors.warning, marginTop: "0.5rem" }}>
                 🔒 Seuls les administrateurs peuvent modifier ce champ
               </div>
             </div>
@@ -285,8 +287,8 @@ export default function EditProfile() {
               style={{
                 flex: 1,
                 padding: "0.75rem 1.5rem",
-                backgroundColor: saving ? "#6d32d1" : "#7c3aed",
-                color: "#fff",
+                backgroundColor: saving ? theme.colors.accent : theme.colors.secondary,
+                color: theme.text.inverse,
                 border: "none",
                 borderRadius: "8px",
                 fontSize: "1rem",
@@ -296,14 +298,14 @@ export default function EditProfile() {
               }}
               onMouseEnter={(e) => {
                 if (!saving) {
-                  e.target.style.backgroundColor = "#6d28d9";
+                  e.target.style.backgroundColor = theme.colors.orangeLight;
                   e.target.style.transform = "translateY(-2px)";
-                  e.target.style.boxShadow = "0 4px 16px rgba(124, 58, 237, 0.4)";
+                  e.target.style.boxShadow = theme.shadow.md;
                 }
               }}
               onMouseLeave={(e) => {
                 if (!saving) {
-                  e.target.style.backgroundColor = "#7c3aed";
+                  e.target.style.backgroundColor = theme.colors.secondary;
                   e.target.style.transform = "translateY(0)";
                   e.target.style.boxShadow = "none";
                 }
@@ -316,8 +318,8 @@ export default function EditProfile() {
               style={{
                 flex: 1,
                 padding: "0.75rem 1.5rem",
-                backgroundColor: "#4c1d95",
-                color: "#fff",
+                backgroundColor: theme.bg.tertiary,
+                color: theme.text.primary,
                 border: "none",
                 borderRadius: "8px",
                 fontSize: "1rem",
@@ -330,10 +332,10 @@ export default function EditProfile() {
                 justifyContent: "center",
               }}
               onMouseEnter={(e) => {
-                e.target.style.backgroundColor = "#5b21b6";
+                e.target.style.backgroundColor = theme.bg.hover;
               }}
               onMouseLeave={(e) => {
-                e.target.style.backgroundColor = "#4c1d95";
+                e.target.style.backgroundColor = theme.bg.tertiary;
               }}
             >
               Annuler
