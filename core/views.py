@@ -52,6 +52,8 @@ class MeView(APIView):
             "full_name": user.get_full_name(),
             "role": profile.role if profile else None,
             "pole": profile.pole.name if profile and profile.pole else None,
+            "membre_specialite": profile.membre_specialite if profile else None,
+            "description": profile.description if profile else None,
             "client_type": profile.client_type if profile else None,
             "photo_url": photo_url,
         })
@@ -194,6 +196,11 @@ class UserProfileDetailView(APIView):
 
         # Informations de base
         profile = getattr(user, 'profile', None)
+
+        photo_url = None
+        if profile and profile.photo:
+            photo_url = request.build_absolute_uri(profile.photo.url)
+
         user_data = {
             "id": user.id,
             "username": user.username,
@@ -203,7 +210,10 @@ class UserProfileDetailView(APIView):
             "role": profile.role if profile else None,
             "pole": profile.pole.name if profile and profile.pole else None,
             "pole_id": profile.pole.id if profile and profile.pole else None,
+            "membre_specialite": profile.membre_specialite if profile else None,
+            "description": profile.description if profile else None,
             "client_type": profile.client_type if profile else None,
+            "photo_url": photo_url,
             "date_joined": user.date_joined,
         }
 
