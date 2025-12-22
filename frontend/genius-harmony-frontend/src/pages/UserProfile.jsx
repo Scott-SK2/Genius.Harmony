@@ -356,6 +356,24 @@ export default function UserProfile() {
             </div>
           </div>
         </div>
+
+        {/* Description */}
+        {userProfile.description && (
+          <div
+            style={{
+              marginTop: "1.5rem",
+              paddingTop: "1.5rem",
+              borderTop: "1px solid #4c1d95",
+            }}
+          >
+            <div style={{ fontSize: "0.85rem", color: "#a78bfa", marginBottom: "0.5rem" }}>
+              Description
+            </div>
+            <div style={{ color: "#fff", fontSize: "1rem", lineHeight: "1.6" }}>
+              {userProfile.description}
+            </div>
+          </div>
+        )}
       </div>
 
       {/* Statistiques */}
