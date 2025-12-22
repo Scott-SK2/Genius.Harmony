@@ -71,6 +71,28 @@ class IsAdminUserProfile(permissions.BasePermission):
         return is_admin_or_super(profile)
 
 
+class CanEditOwnProfile(permissions.BasePermission):
+    """
+    Permet à un utilisateur de modifier son propre profil,
+    ou aux admins de modifier n'importe quel profil
+    """
+
+    def has_permission(self, request, view):
+        return request.user and request.user.is_authenticated
+
+    def has_object_permission(self, request, view, obj):
+        # L'utilisateur peut modifier son propre profil
+        if request.user.id == obj.id:
+            return True
+
+        # Les admins peuvent modifier n'importe quel profil
+        profile = getattr(request.user, 'profile', None)
+        if profile and is_admin_or_super(profile):
+            return True
+
+        return False
+
+
 class CanViewUsers(permissions.BasePermission):
     """
     Permet aux membres de voir la liste des utilisateurs (lecture seule)
@@ -135,7 +157,7 @@ class UserListView(generics.ListAPIView):
 class UserUpdateView(generics.UpdateAPIView):
     queryset = User.objects.all().select_related('profile', 'profile__pole')
     serializer_class = UserProfileSerializer
-    permission_classes = [IsAdminUserProfile]
+    permission_classes = [CanEditOwnProfile]
 
 
 class UserDeleteView(generics.DestroyAPIView):
