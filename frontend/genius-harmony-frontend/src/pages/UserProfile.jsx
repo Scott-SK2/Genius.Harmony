@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { useParams, Link } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
+import { useTheme } from "../context/ThemeContext";
 
 const ROLE_LABELS = {
   super_admin: "Super Administrateur",
@@ -69,6 +70,7 @@ const PRIORITE_COLORS = {
 export default function UserProfile() {
   const { id } = useParams();
   const { token, user } = useAuth();
+  const { theme } = useTheme();
   const [userProfile, setUserProfile] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -201,7 +203,7 @@ export default function UserProfile() {
         <Link
           to="/admin/users"
           style={{
-            color: "#7c3aed",
+            color: theme.colors.primary,
             textDecoration: "none",
             fontSize: "1rem",
             fontWeight: "600",
@@ -221,8 +223,8 @@ export default function UserProfile() {
             to={`/users/${id}/edit`}
             style={{
               padding: "0.6rem 1.2rem",
-              backgroundColor: "#7c3aed",
-              color: "#fff",
+              backgroundColor: theme.colors.secondary,
+              color: theme.text.inverse,
               textDecoration: "none",
               borderRadius: "8px",
               fontSize: "0.95rem",
@@ -231,12 +233,12 @@ export default function UserProfile() {
               display: "inline-block",
             }}
             onMouseEnter={(e) => {
-              e.target.style.backgroundColor = "#6d28d9";
+              e.target.style.backgroundColor = theme.colors.accent;
               e.target.style.transform = "translateY(-2px)";
-              e.target.style.boxShadow = "0 4px 12px rgba(124, 58, 237, 0.4)";
+              e.target.style.boxShadow = theme.shadow.md;
             }}
             onMouseLeave={(e) => {
-              e.target.style.backgroundColor = "#7c3aed";
+              e.target.style.backgroundColor = theme.colors.secondary;
               e.target.style.transform = "translateY(0)";
               e.target.style.boxShadow = "none";
             }}
@@ -250,11 +252,11 @@ export default function UserProfile() {
       <div
         style={{
           marginBottom: "2.5rem",
-          backgroundColor: "#2d1b69",
+          backgroundColor: theme.bg.tertiary,
           padding: "2rem",
           borderRadius: "16px",
-          boxShadow: "0 4px 16px rgba(124, 58, 237, 0.3)",
-          border: "1px solid #4c1d95",
+          boxShadow: theme.shadow.lg,
+          border: `1px solid ${theme.border.light}`,
         }}
       >
         <div style={{ display: "flex", alignItems: "center", gap: "2rem", marginBottom: "1.5rem", flexWrap: "wrap" }}>
@@ -264,13 +266,13 @@ export default function UserProfile() {
                 width: "80px",
                 height: "80px",
                 borderRadius: "50%",
-                backgroundColor: "#7c3aed",
+                backgroundColor: theme.colors.primary,
                 display: "flex",
                 alignItems: "center",
                 justifyContent: "center",
                 fontSize: "2.5rem",
                 overflow: "hidden",
-                border: "3px solid #a78bfa",
+                border: `3px solid ${theme.colors.secondary}`,
               }}
             >
               {userProfile.photo_url ? (
@@ -297,8 +299,8 @@ export default function UserProfile() {
                   width: "30px",
                   height: "30px",
                   borderRadius: "50%",
-                  backgroundColor: "#7c3aed",
-                  border: "2px solid #2d1b69",
+                  backgroundColor: theme.colors.secondary,
+                  border: `2px solid ${theme.bg.tertiary}`,
                   display: "flex",
                   alignItems: "center",
                   justifyContent: "center",
@@ -309,13 +311,13 @@ export default function UserProfile() {
                 onMouseEnter={(e) => {
                   if (!uploadingPhoto) {
                     e.target.style.transform = "scale(1.1)";
-                    e.target.style.backgroundColor = "#6d32d1";
+                    e.target.style.backgroundColor = theme.colors.accent;
                   }
                 }}
                 onMouseLeave={(e) => {
                   if (!uploadingPhoto) {
                     e.target.style.transform = "scale(1)";
-                    e.target.style.backgroundColor = "#7c3aed";
+                    e.target.style.backgroundColor = theme.colors.secondary;
                   }
                 }}
               >
@@ -332,10 +334,10 @@ export default function UserProfile() {
             />
           </div>
           <div>
-            <h1 style={{ margin: 0, color: "#fff", fontSize: "2rem" }}>
+            <h1 style={{ margin: 0, color: theme.text.primary, fontSize: "2rem" }}>
               {userProfile.username}
             </h1>
-            <div style={{ color: "#c4b5fd", fontSize: "1.1rem", marginTop: "0.5rem" }}>
+            <div style={{ color: theme.text.secondary, fontSize: "1.1rem", marginTop: "0.5rem" }}>
               {ROLE_LABELS[userProfile.role] || userProfile.role}
               {(userProfile.role === 'membre' || userProfile.role === 'chef_pole') && userProfile.membre_specialite &&
                 ` (${SPECIALITE_LABELS[userProfile.membre_specialite] || userProfile.membre_specialite})`}
@@ -351,36 +353,36 @@ export default function UserProfile() {
             gap: "1.5rem",
             marginTop: "1.5rem",
             paddingTop: "1.5rem",
-            borderTop: "1px solid #4c1d95",
+            borderTop: `1px solid ${theme.border.medium}`,
           }}
         >
           <div>
-            <div style={{ fontSize: "0.85rem", color: "#a78bfa", marginBottom: "0.5rem" }}>
+            <div style={{ fontSize: "0.85rem", color: theme.text.tertiary, marginBottom: "0.5rem" }}>
               Email
             </div>
-            <div style={{ color: "#fff", fontSize: "1rem" }}>{userProfile.email}</div>
+            <div style={{ color: theme.text.primary, fontSize: "1rem" }}>{userProfile.email}</div>
           </div>
           {userProfile.first_name && (
             <div>
-              <div style={{ fontSize: "0.85rem", color: "#a78bfa", marginBottom: "0.5rem" }}>
+              <div style={{ fontSize: "0.85rem", color: theme.text.tertiary, marginBottom: "0.5rem" }}>
                 Prénom
               </div>
-              <div style={{ color: "#fff", fontSize: "1rem" }}>{userProfile.first_name}</div>
+              <div style={{ color: theme.text.primary, fontSize: "1rem" }}>{userProfile.first_name}</div>
             </div>
           )}
           {userProfile.last_name && (
             <div>
-              <div style={{ fontSize: "0.85rem", color: "#a78bfa", marginBottom: "0.5rem" }}>
+              <div style={{ fontSize: "0.85rem", color: theme.text.tertiary, marginBottom: "0.5rem" }}>
                 Nom
               </div>
-              <div style={{ color: "#fff", fontSize: "1rem" }}>{userProfile.last_name}</div>
+              <div style={{ color: theme.text.primary, fontSize: "1rem" }}>{userProfile.last_name}</div>
             </div>
           )}
           <div>
-            <div style={{ fontSize: "0.85rem", color: "#a78bfa", marginBottom: "0.5rem" }}>
+            <div style={{ fontSize: "0.85rem", color: theme.text.tertiary, marginBottom: "0.5rem" }}>
               Membre depuis
             </div>
-            <div style={{ color: "#fff", fontSize: "1rem" }}>
+            <div style={{ color: theme.text.primary, fontSize: "1rem" }}>
               {new Date(userProfile.date_joined).toLocaleDateString("fr-FR")}
             </div>
           </div>
@@ -392,13 +394,13 @@ export default function UserProfile() {
             style={{
               marginTop: "1.5rem",
               paddingTop: "1.5rem",
-              borderTop: "1px solid #4c1d95",
+              borderTop: `1px solid ${theme.border.medium}`,
             }}
           >
-            <div style={{ fontSize: "0.85rem", color: "#a78bfa", marginBottom: "0.5rem" }}>
+            <div style={{ fontSize: "0.85rem", color: theme.colors.secondary, marginBottom: "0.5rem", fontWeight: "600" }}>
               Description
             </div>
-            <div style={{ color: "#fff", fontSize: "1rem", lineHeight: "1.6" }}>
+            <div style={{ color: theme.text.primary, fontSize: "1rem", lineHeight: "1.6" }}>
               {userProfile.description}
             </div>
           </div>
