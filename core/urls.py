@@ -4,8 +4,8 @@ from rest_framework_simplejwt.views import TokenObtainPairView, TokenRefreshView
 from .views import (
     RegisterView, MeView,
     PoleListCreateView, PoleDetailView,
-    UserListView, UserUpdateView,
-    ProjetListCreateView, ProjetDetailView,
+    UserListView, UserUpdateView, UserDeleteView, UserUploadPhotoView, UserProfileDetailView,
+    ProjetListCreateView, ProjetDetailView, ProjetUpdateStatutView, ProjetAcceptChefView, ProjetDeclineChefView,
     TacheListCreateView, TacheDetailView,
     DocumentListCreateView, DocumentDetailView,
 )
@@ -24,10 +24,16 @@ urlpatterns = [
     # Utilisateurs
     path('users/', UserListView.as_view(), name='users-list'),
     path('users/<int:pk>/', UserUpdateView.as_view(), name='users-update'),
+    path('users/<int:pk>/delete/', UserDeleteView.as_view(), name='users-delete'),
+    path('users/<int:pk>/upload-photo/', UserUploadPhotoView.as_view(), name='users-upload-photo'),
+    path('users/<int:pk>/profile/', UserProfileDetailView.as_view(), name='users-profile-detail'),
 
     # Projets
     path('projets/', ProjetListCreateView.as_view(), name='projets-list-create'),
     path('projets/<int:pk>/', ProjetDetailView.as_view(), name='projets-detail'),
+    path('projets/<int:pk>/update-statut/', ProjetUpdateStatutView.as_view(), name='projets-update-statut'),
+    path('projets/<int:pk>/accept-chef/', ProjetAcceptChefView.as_view(), name='projets-accept-chef'),
+    path('projets/<int:pk>/decline-chef/', ProjetDeclineChefView.as_view(), name='projets-decline-chef'),
 
     # Tâches
     path('taches/', TacheListCreateView.as_view(), name='taches-list-create'),

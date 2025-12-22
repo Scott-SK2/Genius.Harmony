@@ -6,9 +6,10 @@ import { useTheme } from "../context/ThemeContext";
 const ROLE_OPTIONS = [
   { value: "membre", label: "Membre", description: "Membre de l'équipe" },
   { value: "stagiaire", label: "Stagiaire", description: "Stagiaire ou apprenti" },
-  { value: "client", label: "Client / Artiste", description: "Client ou artiste" },
+  { value: "collaborateur", label: "Collaborateur", description: "Collaborateur externe" },
+  { value: "artiste", label: "Artiste", description: "Artiste collaborateur" },
+  { value: "client", label: "Client", description: "Client" },
   { value: "partenaire", label: "Partenaire", description: "Partenaire externe" },
-  { value: "chef_pole", label: "Chef de pôle", description: "Responsable d'un pôle" },
 ];
 
 export default function Register() {

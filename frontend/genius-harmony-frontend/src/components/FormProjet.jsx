@@ -25,7 +25,7 @@ const STATUT_OPTIONS = [
 ];
 
 export default function FormProjet({ isOpen, onClose, projet, onSuccess }) {
-  const { token } = useAuth();
+  const { token, user } = useAuth();
   const [poles, setPoles] = useState([]);
   const [users, setUsers] = useState([]);
   const [loading, setLoading] = useState(false);
@@ -40,6 +40,18 @@ export default function FormProjet({ isOpen, onClose, projet, onSuccess }) {
     date_debut: "",
     date_fin_prevue: "",
   });
+
+  // Obtenir les options de statut selon le rôle
+  const getStatutOptions = () => {
+    // Admin et Super Admin peuvent utiliser tous les statuts
+    if (user && (user.role === 'admin' || user.role === 'super_admin')) {
+      return STATUT_OPTIONS;
+    }
+    // Autres (créateurs non-admin) ne peuvent utiliser que brouillon et en_attente
+    return STATUT_OPTIONS.filter(option =>
+      option.value === 'brouillon' || option.value === 'en_attente'
+    );
+  };
 
   // Charger les pôles et utilisateurs
   useEffect(() => {
@@ -195,7 +207,7 @@ export default function FormProjet({ isOpen, onClose, projet, onSuccess }) {
                 border: "1px solid #ccc",
               }}
             >
-              {STATUT_OPTIONS.map((opt) => (
+              {getStatutOptions().map((opt) => (
                 <option key={opt.value} value={opt.value}>
                   {opt.label}
                 </option>

@@ -25,7 +25,7 @@ export default function Login() {
       const user = await login(username, password);
 
       // Redirection selon le rôle
-      if (user.role === "admin") navigate("/admin/dashboard");
+      if (user.role === "admin" || user.role === "super_admin") navigate("/admin/dashboard");
       else navigate("/dashboard");
     } catch (err) {
       console.error("Erreur login:", err.response?.data || err.message);

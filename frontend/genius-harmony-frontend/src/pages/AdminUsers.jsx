@@ -1,51 +1,77 @@
 import { useEffect, useState } from "react";
+import { Link } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
-import { useTheme } from "../context/ThemeContext";
-import { fetchUsers, updateUser } from "../api/users";
-import { fetchPoles } from "../api/poles";
+import { fetchUsers, updateUser, deleteUser } from "../api/users";
 
 const ROLE_LABELS = {
+  super_admin: "Super Administrateur",
   admin: "Administrateur",
   chef_pole: "Chef de pôle",
   membre: "Membre",
   stagiaire: "Stagiaire",
-  technicien: "Technicien",
+  collaborateur: "Collaborateur",
   artiste: "Artiste",
   client: "Client",
   partenaire: "Partenaire",
 };
 
 const ROLE_OPTIONS = [
+  "super_admin",
   "admin",
   "chef_pole",
   "membre",
   "stagiaire",
-  "technicien",
+  "collaborateur",
   "artiste",
   "client",
   "partenaire",
 ];
 
+const SPECIALITE_LABELS = {
+  "": "Non spécifié",
+  musicien: "Musicien",
+  manager: "Manager",
+  model: "Modèle",
+  photographe: "Photographe",
+  videaste: "Vidéaste",
+  graphiste: "Graphiste",
+  developpeur: "Développeur",
+  commercial: "Commercial",
+  assistant: "Assistant",
+  autre: "Autre",
+};
+
+const SPECIALITE_OPTIONS = [
+  "",
+  "musicien",
+  "manager",
+  "model",
+  "photographe",
+  "videaste",
+  "graphiste",
+  "developpeur",
+  "commercial",
+  "assistant",
+  "autre",
+];
+
 export default function AdminUsers() {
-  const { token } = useAuth();
-  const { theme } = useTheme();
+  const { token, user } = useAuth();
   const [users, setUsers] = useState([]);
-  const [poles, setPoles] = useState([]);
   const [savingId, setSavingId] = useState(null);
+
+  // Vérifier si l'utilisateur peut modifier
+  const canEdit = user && (user.role === 'admin' || user.role === 'super_admin');
 
   useEffect(() => {
     if (!token) return;
 
     (async () => {
       try {
-        const [u, p] = await Promise.all([
-          fetchUsers(token),
-          fetchPoles(token),
-        ]);
+        const u = await fetchUsers(token);
         setUsers(u);
-        setPoles(p);
       } catch (err) {
-        console.error("Erreur fetch users/poles:", err);
+        console.error("Erreur fetch users:", err);
       }
     })();
   }, [token]);
@@ -65,68 +91,66 @@ export default function AdminUsers() {
     }
   }
 
-  async function handleChangePole(userId, newPoleId) {
+  async function handleChangeSpecialite(userId, newSpecialite) {
     try {
       setSavingId(userId);
-      const payload =
-        newPoleId === "" ? { pole: null } : { pole: parseInt(newPoleId, 10) };
-      const updated = await updateUser(token, userId, payload);
+      const updated = await updateUser(token, userId, { membre_specialite: newSpecialite });
       setUsers((prev) =>
         prev.map((u) =>
-          u.id === userId
-            ? { ...u, pole: updated.pole, pole_name: updated.pole_name }
-            : u
+          u.id === userId ? { ...u, membre_specialite: updated.membre_specialite } : u
         )
       );
     } catch (err) {
-      console.error("Erreur update pole:", err);
-      alert("Impossible de changer le pôle");
+      console.error("Erreur update spécialité:", err);
+      alert("Impossible de changer la spécialité");
+    } finally {
+      setSavingId(null);
+    }
+  }
+
+  async function handleDeleteUser(userId, username) {
+    const confirmation = window.confirm(
+      `Êtes-vous sûr de vouloir supprimer l'utilisateur "${username}" ?\n\nCette action est irréversible et supprimera également toutes les données associées à cet utilisateur.`
+    );
+
+    if (!confirmation) return;
+
+    try {
+      setSavingId(userId);
+      await deleteUser(token, userId);
+      setUsers((prev) => prev.filter((u) => u.id !== userId));
+    } catch (err) {
+      console.error("Erreur suppression utilisateur:", err);
+      alert("Impossible de supprimer l'utilisateur");
     } finally {
       setSavingId(null);
     }
   }
 
   return (
-    <div>
-      <div style={{ marginBottom: "2rem" }}>
-        <h1
-          style={{
-            margin: 0,
-            marginBottom: "0.5rem",
-            color: theme.text.primary,
-            fontSize: "2rem",
-          }}
-        >
-          👥 Gestion des utilisateurs
-        </h1>
-        <p style={{ margin: 0, color: theme.text.secondary, fontSize: "1.05rem" }}>
-          Attribuez les rôles et les pôles aux utilisateurs
-        </p>
-      </div>
-
+    <>
       {users.length === 0 ? (
         <div
           style={{
             textAlign: "center",
             padding: "4rem 2rem",
-            backgroundColor: theme.bg.card,
+            backgroundColor: "#2d1b69",
             borderRadius: "12px",
-            border: `1px dashed ${theme.border.medium}`,
+            border: "1px solid #4c1d95",
           }}
         >
           <div style={{ fontSize: "4rem", marginBottom: "1rem" }}>👤</div>
-          <p style={{ margin: 0, color: theme.text.secondary, fontSize: "1.1rem" }}>
+          <p style={{ margin: 0, color: "#c4b5fd", fontSize: "1.1rem" }}>
             Aucun utilisateur trouvé.
           </p>
         </div>
       ) : (
         <div
           style={{
-            backgroundColor: theme.bg.card,
+            backgroundColor: "#2d1b69",
             borderRadius: "12px",
-            border: `1px solid ${theme.border.light}`,
+            border: "1px solid #4c1d95",
             overflow: "hidden",
-            boxShadow: theme.shadow.md,
           }}
         >
           <table
@@ -136,61 +160,72 @@ export default function AdminUsers() {
             }}
           >
             <thead>
-              <tr style={{ backgroundColor: theme.bg.secondary }}>
+              <tr>
                 <th
                   style={{
-                    borderBottom: `2px solid ${theme.border.medium}`,
+                    borderBottom: "1px solid #4c1d95",
                     textAlign: "left",
                     padding: "1rem",
-                    color: theme.text.primary,
-                    fontWeight: "600",
+                    color: "#c4b5fd",
+                    fontWeight: "500",
                   }}
                 >
                   ID
                 </th>
                 <th
                   style={{
-                    borderBottom: `2px solid ${theme.border.medium}`,
+                    borderBottom: "1px solid #4c1d95",
                     textAlign: "left",
                     padding: "1rem",
-                    color: theme.text.primary,
-                    fontWeight: "600",
+                    color: "#c4b5fd",
+                    fontWeight: "500",
                   }}
                 >
                   Username
                 </th>
                 <th
                   style={{
-                    borderBottom: `2px solid ${theme.border.medium}`,
+                    borderBottom: "1px solid #4c1d95",
                     textAlign: "left",
                     padding: "1rem",
-                    color: theme.text.primary,
-                    fontWeight: "600",
+                    color: "#c4b5fd",
+                    fontWeight: "500",
                   }}
                 >
                   Email
                 </th>
                 <th
                   style={{
-                    borderBottom: `2px solid ${theme.border.medium}`,
+                    borderBottom: "1px solid #4c1d95",
                     textAlign: "left",
                     padding: "1rem",
-                    color: theme.text.primary,
-                    fontWeight: "600",
+                    color: "#c4b5fd",
+                    fontWeight: "500",
                   }}
                 >
                   Rôle
                 </th>
                 <th
                   style={{
-                    borderBottom: `2px solid ${theme.border.medium}`,
+                    borderBottom: "1px solid #4c1d95",
                     textAlign: "left",
                     padding: "1rem",
-                    color: theme.text.primary,
-                    fontWeight: "600",
+                    color: "#c4b5fd",
+                    fontWeight: "500",
                   }}
                 >
-                  Pôle
+                  Spécialité
+                </th>
+                <th
+                  style={{
+                    borderBottom: "1px solid #4c1d95",
+                    textAlign: "left",
+                    padding: "1rem",
+                    color: "#c4b5fd",
+                    fontWeight: "500",
+                  }}
+                >
+                  Actions
                 </th>
               </tr>
             </thead>
@@ -199,78 +234,144 @@ export default function AdminUsers() {
                 <tr
                   key={u.id}
                   style={{
-                    borderBottom: `1px solid ${theme.border.light}`,
-                    backgroundColor: index % 2 === 0 ? theme.bg.card : theme.bg.tertiary,
+                    borderBottom: "1px solid #4c1d95",
                     transition: "background-color 0.2s",
                   }}
                   onMouseEnter={(e) => {
-                    e.currentTarget.style.backgroundColor = theme.bg.hover;
+                    e.currentTarget.style.backgroundColor = "#4c1d95";
                   }}
                   onMouseLeave={(e) => {
-                    e.currentTarget.style.backgroundColor = index % 2 === 0 ? theme.bg.card : theme.bg.tertiary;
+                    e.currentTarget.style.backgroundColor = "transparent";
                   }}
                 >
-                  <td style={{ padding: "1rem", color: theme.text.secondary }}>
+                  <td style={{ padding: "1rem", color: "#a78bfa" }}>
                     #{u.id}
                   </td>
-                  <td style={{ padding: "1rem", color: theme.text.primary, fontWeight: "600" }}>
+                  <td style={{ padding: "1rem", color: "#fff", fontWeight: "500" }}>
                     {u.username}
                   </td>
-                  <td style={{ padding: "1rem", color: theme.text.secondary }}>
+                  <td style={{ padding: "1rem", color: "#c4b5fd" }}>
                     {u.email}
                   </td>
                   <td style={{ padding: "1rem" }}>
-                    <select
-                      value={u.role || ""}
-                      onChange={(e) => handleChangeRole(u.id, e.target.value)}
-                      disabled={savingId === u.id}
-                      style={{
-                        padding: "0.5rem 0.75rem",
-                        borderRadius: "8px",
-                        border: `1px solid ${theme.border.medium}`,
-                        backgroundColor: theme.bg.primary,
-                        color: theme.text.primary,
-                        fontSize: "0.95rem",
-                        cursor: "pointer",
-                        minWidth: "160px",
-                      }}
-                    >
-                      <option value="">—</option>
-                      {ROLE_OPTIONS.map((r) => (
-                        <option key={r} value={r}>
-                          {ROLE_LABELS[r]}
-                        </option>
-                      ))}
-                    </select>
-                  </td>
-                  <td style={{ padding: "1rem" }}>
-                    <div style={{ display: "flex", alignItems: "center", gap: "0.75rem" }}>
+                    {canEdit ? (
                       <select
-                        value={u.pole || ""}
-                        onChange={(e) => handleChangePole(u.id, e.target.value)}
+                        value={u.role || ""}
+                        onChange={(e) => handleChangeRole(u.id, e.target.value)}
                         disabled={savingId === u.id}
                         style={{
                           padding: "0.5rem 0.75rem",
                           borderRadius: "8px",
-                          border: `1px solid ${theme.border.medium}`,
-                          backgroundColor: theme.bg.primary,
-                          color: theme.text.primary,
+                          border: "1px solid #4c1d95",
+                          backgroundColor: "#1e1b4b",
+                          color: "#fff",
                           fontSize: "0.95rem",
                           cursor: "pointer",
                           minWidth: "160px",
                         }}
                       >
-                        <option value="">Aucun</option>
-                        {poles.map((p) => (
-                          <option key={p.id} value={p.id}>
-                            {p.name}
+                        <option value="">—</option>
+                        {ROLE_OPTIONS.map((r) => (
+                          <option key={r} value={r}>
+                            {ROLE_LABELS[r]}
                           </option>
                         ))}
                       </select>
-                      {u.pole_name && (
-                        <span style={{ color: theme.text.tertiary, fontSize: "0.9rem" }}>
-                          ({u.pole_name})
+                    ) : (
+                      <span style={{ color: "#c4b5fd", fontSize: "0.95rem" }}>
+                        {ROLE_LABELS[u.role] || "—"}
+                      </span>
+                    )}
+                  </td>
+                  <td style={{ padding: "1rem" }}>
+                    {(u.role === 'membre' || u.role === 'chef_pole') ? (
+                      canEdit ? (
+                        <select
+                          value={u.membre_specialite || ""}
+                          onChange={(e) => handleChangeSpecialite(u.id, e.target.value)}
+                          disabled={savingId === u.id}
+                          style={{
+                            padding: "0.5rem 0.75rem",
+                            borderRadius: "8px",
+                            border: "1px solid #4c1d95",
+                            backgroundColor: "#1e1b4b",
+                            color: "#fff",
+                            fontSize: "0.95rem",
+                            cursor: "pointer",
+                            minWidth: "160px",
+                          }}
+                        >
+                          {SPECIALITE_OPTIONS.map((s) => (
+                            <option key={s} value={s}>
+                              {SPECIALITE_LABELS[s]}
+                            </option>
+                          ))}
+                        </select>
+                      ) : (
+                        <span style={{ color: "#c4b5fd", fontSize: "0.95rem" }}>
+                          {SPECIALITE_LABELS[u.membre_specialite] || SPECIALITE_LABELS[""]}
                         </span>
+                      )
+                    ) : (
+                      <span style={{ color: "#666", fontSize: "0.9rem" }}>—</span>
+                    )}
+                  </td>
+                  <td style={{ padding: "1rem" }}>
+                    <div style={{ display: "flex", gap: "0.5rem" }}>
+                      <Link
+                        to={`/users/${u.id}/profile`}
+                        style={{
+                          padding: "0.5rem 1rem",
+                          backgroundColor: "#7c3aed",
+                          color: "#fff",
+                          borderRadius: "8px",
+                          textDecoration: "none",
+                          fontSize: "0.9rem",
+                          fontWeight: "600",
+                          display: "inline-block",
+                          transition: "all 0.2s",
+                        }}
+                        onMouseEnter={(e) => {
+                          e.target.style.backgroundColor = "#6d32d1";
+                          e.target.style.transform = "translateY(-2px)";
+                        }}
+                        onMouseLeave={(e) => {
+                          e.target.style.backgroundColor = "#7c3aed";
+                          e.target.style.transform = "translateY(0)";
+                        }}
+                      >
+                        👁️ Voir
+                      </Link>
+                      {canEdit && (
+                        <button
+                          onClick={() => handleDeleteUser(u.id, u.username)}
+                          disabled={savingId === u.id}
+                          style={{
+                            padding: "0.5rem 1rem",
+                            backgroundColor: "#f87171",
+                            color: "#fff",
+                            borderRadius: "8px",
+                            border: "none",
+                            fontSize: "0.9rem",
+                            fontWeight: "600",
+                            cursor: savingId === u.id ? "wait" : "pointer",
+                            transition: "all 0.2s",
+                          }}
+                          onMouseEnter={(e) => {
+                            if (savingId !== u.id) {
+                              e.target.style.backgroundColor = "#ef4444";
+                              e.target.style.transform = "translateY(-2px)";
+                            }
+                          }}
+                          onMouseLeave={(e) => {
+                            if (savingId !== u.id) {
+                              e.target.style.backgroundColor = "#f87171";
+                              e.target.style.transform = "translateY(0)";
+                            }
+                          }}
+                        >
+                          🗑️ Supprimer
+                        </button>
                       )}
                     </div>
                   </td>
@@ -280,6 +381,6 @@ export default function AdminUsers() {
           </table>
         </div>
       )}
-    </div>
+    </>
   );
 }

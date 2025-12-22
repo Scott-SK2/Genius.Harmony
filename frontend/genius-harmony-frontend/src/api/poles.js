@@ -11,6 +11,15 @@ export async function fetchPoles(token) {
   return res.data;
 }
 
+export async function fetchPoleDetails(token, id) {
+  const res = await axios.get(`${API_URL}/poles/${id}/`, {
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+  });
+  return res.data;
+}
+
 export async function createPole(token, payload) {
   const res = await axios.post(`${API_URL}/poles/`, payload, {
     headers: {

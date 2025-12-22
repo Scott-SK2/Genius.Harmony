@@ -1,6 +1,6 @@
 from django.db import models
 from django.contrib.auth import get_user_model
-from django.db.models.signals import post_save
+from django.db.models.signals import post_save, m2m_changed
 from django.dispatch import receiver
 
 User = get_user_model()
@@ -17,11 +17,12 @@ class Pole(models.Model):
 
 class Profile(models.Model):
     ROLE_CHOICES = [
+        ('super_admin', 'Super Administrateur'),
         ('admin', 'Administrateur'),
         ('chef_pole', 'Chef de pôle'),
         ('membre', 'Membre'),
         ('stagiaire', 'Stagiaire'),
-        ('technicien', 'Technicien'),
+        ('collaborateur', 'Collaborateur'),
         ('artiste', 'Artiste'),
         ('client', 'Client'),
         ('partenaire', 'Partenaire'),
@@ -41,14 +42,57 @@ class Profile(models.Model):
         help_text="Ex: Artiste, Sponsor, Institution, Marque..."
     )
 
+    # Spécialité pour les membres et chefs de pôle (attribué par admin uniquement)
+    MEMBRE_SPECIALITE_CHOICES = [
+        ('', 'Non spécifié'),
+        ('musicien', 'Musicien'),
+        ('manager', 'Manager'),
+        ('model', 'Modèle'),
+        ('photographe', 'Photographe'),
+        ('videaste', 'Vidéaste'),
+        ('graphiste', 'Graphiste'),
+        ('developpeur', 'Développeur'),
+        ('commercial', 'Commercial'),
+        ('assistant', 'Assistant'),
+        ('autre', 'Autre'),
+    ]
+    membre_specialite = models.CharField(
+        max_length=50,
+        choices=MEMBRE_SPECIALITE_CHOICES,
+        blank=True,
+        help_text="Spécialité pour les membres et chefs de pôle"
+    )
+
+    # Description personnelle de l'utilisateur
+    description = models.TextField(
+        blank=True,
+        help_text="Description personnelle visible par les autres utilisateurs"
+    )
+
     phone = models.CharField(max_length=50, blank=True)
     website = models.URLField(blank=True)
     instagram = models.URLField(blank=True)
     twitter = models.URLField(blank=True)
     tiktok = models.URLField(blank=True)
 
+    # Photo de profil
+    photo = models.ImageField(upload_to='profile_photos/', null=True, blank=True)
+
     def __str__(self):
         return self.user.get_full_name() or self.user.username
+
+
+# Signal pour créer automatiquement un profil lors de la création d'un utilisateur
+@receiver(post_save, sender=User)
+def create_user_profile(sender, instance, created, **kwargs):
+    if created:
+        Profile.objects.create(user=instance, role='membre')
+
+
+@receiver(post_save, sender=User)
+def save_user_profile(sender, instance, **kwargs):
+    if hasattr(instance, 'profile'):
+        instance.profile.save()
 
 
 class Projet(models.Model):
@@ -71,6 +115,12 @@ class Projet(models.Model):
         ('annule', 'Annulé'),
     ]
 
+    CHEF_PROJET_STATUS_CHOICES = [
+        ('pending', 'En attente'),
+        ('accepted', 'Accepté'),
+        ('declined', 'Refusé'),
+    ]
+
     titre = models.CharField(max_length=200)
     description = models.TextField(blank=True)
     type = models.CharField(max_length=30, choices=TYPE_CHOICES)
@@ -80,7 +130,9 @@ class Projet(models.Model):
     pole = models.ForeignKey(Pole, on_delete=models.SET_NULL, null=True, blank=True, related_name='projets')
     client = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True, related_name='projets_client')
     chef_projet = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True, related_name='projets_geres')
+    chef_projet_status = models.CharField(max_length=20, choices=CHEF_PROJET_STATUS_CHOICES, null=True, blank=True, help_text="Statut d'acceptation du chef de projet")
     membres = models.ManyToManyField(User, blank=True, related_name='projets_membre')
+    created_by = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True, related_name='projets_crees', help_text="Utilisateur qui a créé le projet")
 
     # Liens Odoo (pour plus tard)
     odoo_project_id = models.IntegerField(null=True, blank=True)
@@ -124,8 +176,8 @@ class Tache(models.Model):
     statut = models.CharField(max_length=20, choices=STATUT_CHOICES, default='a_faire')
     priorite = models.CharField(max_length=20, choices=PRIORITE_CHOICES, default='normale')
 
-    # Assignation
-    assigne_a = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True, related_name='taches_assignees')
+    # Assignation (plusieurs personnes possibles)
+    assigne_a = models.ManyToManyField(User, blank=True, related_name='taches_assignees')
 
     # Dates
     deadline = models.DateField(null=True, blank=True)
@@ -178,7 +230,29 @@ class Document(models.Model):
 def create_or_update_user_profile(sender, instance, created, **kwargs):
     if created:
         # Par défaut, on met un rôle générique 'membre'
-        Profile.objects.create(user=instance, role='membre')
+        # Utiliser get_or_create pour éviter les erreurs de duplication
+        Profile.objects.get_or_create(user=instance, defaults={'role': 'membre'})
     else:
         if hasattr(instance, 'profile'):
             instance.profile.save()
+
+
+# Signal pour ajouter automatiquement les utilisateurs assignés à une tâche comme membres du projet
+@receiver(m2m_changed, sender=Tache.assigne_a.through)
+def auto_add_task_assignees_to_project(sender, instance, action, pk_set, **kwargs):
+    """
+    Lorsqu'on assigne une personne à une tâche, si la personne n'était pas assignée au projet,
+    elle le devient automatiquement.
+    """
+    if action == 'post_add' and pk_set:
+        # instance est la tâche
+        # pk_set contient les IDs des utilisateurs qui viennent d'être ajoutés
+        projet = instance.projet
+
+        # Récupérer les utilisateurs assignés à la tâche
+        users_to_add = User.objects.filter(pk__in=pk_set)
+
+        # Ajouter chaque utilisateur au projet s'il n'est pas déjà membre
+        for user in users_to_add:
+            if not projet.membres.filter(pk=user.pk).exists():
+                projet.membres.add(user)

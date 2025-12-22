@@ -1,7 +1,6 @@
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
-import { useTheme } from "../context/ThemeContext";
 import { fetchProjets } from "../api/projets";
 import FormProjet from "../components/FormProjet";
 
@@ -26,7 +25,6 @@ const STATUT_LABELS = {
 
 export default function ProjetsList() {
   const { token, user } = useAuth();
-  const { theme } = useTheme();
   const [projets, setProjets] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -51,12 +49,12 @@ export default function ProjetsList() {
   }, [token]);
 
   const STATUT_COLORS = {
-    brouillon: theme.text.secondary,
-    en_attente: theme.colors.warning,
-    en_cours: theme.colors.primary,
-    en_revision: theme.colors.purple,
-    termine: theme.colors.success,
-    annule: theme.colors.danger,
+    brouillon: "#a78bfa",
+    en_attente: "#f59e0b",
+    en_cours: "#7c3aed",
+    en_revision: "#a78bfa",
+    termine: "#10b981",
+    annule: "#f87171",
   };
 
   if (loading) {
@@ -67,7 +65,7 @@ export default function ProjetsList() {
           justifyContent: "center",
           alignItems: "center",
           minHeight: "60vh",
-          color: theme.text.secondary,
+          color: "#c4b5fd",
           fontSize: "1.1rem",
         }}
       >
@@ -84,10 +82,10 @@ export default function ProjetsList() {
       <div
         style={{
           padding: "2rem",
-          backgroundColor: `${theme.colors.danger}10`,
-          border: `1px solid ${theme.colors.danger}`,
+          backgroundColor: "rgba(248, 113, 113, 0.1)",
+          border: "1px solid #f87171",
           borderRadius: "12px",
-          color: theme.colors.danger,
+          color: "#f87171",
         }}
       >
         <strong>Erreur :</strong> {error}
@@ -95,10 +93,10 @@ export default function ProjetsList() {
     );
   }
 
-  const canCreateProjet = user?.role === "admin" || user?.role === "chef_pole";
+  const canCreateProjet = user?.role === "admin" || user?.role === "super_admin" || user?.role === "chef_pole";
 
   return (
-    <div>
+    <div style={{ width: "100%" }}>
       <div
         style={{
           display: "flex",
@@ -108,17 +106,7 @@ export default function ProjetsList() {
         }}
       >
         <div>
-          <h1
-            style={{
-              margin: 0,
-              marginBottom: "0.5rem",
-              color: theme.text.primary,
-              fontSize: "2rem",
-            }}
-          >
-            Mes Projets
-          </h1>
-          <p style={{ margin: 0, color: theme.text.secondary, fontSize: "1.05rem" }}>
+          <p style={{ margin: 0, color: "#c4b5fd", fontSize: "1.05rem" }}>
             Liste des projets auxquels vous avez accès
           </p>
         </div>
@@ -127,23 +115,23 @@ export default function ProjetsList() {
             onClick={() => setShowFormProjet(true)}
             style={{
               padding: "0.75rem 1.5rem",
-              backgroundColor: theme.colors.success,
-              color: theme.text.inverse,
+              backgroundColor: "#10b981",
+              color: "#fff",
               border: "none",
               borderRadius: "8px",
               cursor: "pointer",
               fontWeight: "600",
               fontSize: "1rem",
               transition: "all 0.2s",
-              boxShadow: theme.shadow.sm,
+              boxShadow: "0 2px 8px rgba(124, 58, 237, 0.3)",
             }}
             onMouseEnter={(e) => {
               e.target.style.transform = "translateY(-2px)";
-              e.target.style.boxShadow = theme.shadow.md;
+              e.target.style.boxShadow = "0 4px 12px rgba(124, 58, 237, 0.5)";
             }}
             onMouseLeave={(e) => {
               e.target.style.transform = "translateY(0)";
-              e.target.style.boxShadow = theme.shadow.sm;
+              e.target.style.boxShadow = "0 2px 8px rgba(124, 58, 237, 0.3)";
             }}
           >
             + Nouveau projet
@@ -156,24 +144,24 @@ export default function ProjetsList() {
           style={{
             textAlign: "center",
             padding: "4rem 2rem",
-            backgroundColor: theme.bg.card,
+            backgroundColor: "#2d1b69",
             borderRadius: "12px",
-            border: `1px dashed ${theme.border.medium}`,
+            border: "1px dashed #4c1d95",
           }}
         >
           <div style={{ fontSize: "4rem", marginBottom: "1rem" }}>📂</div>
-          <p style={{ margin: 0, color: theme.text.secondary, fontSize: "1.1rem" }}>
+          <p style={{ margin: 0, color: "#c4b5fd", fontSize: "1.1rem" }}>
             Aucun projet trouvé. Vous n'avez accès à aucun projet pour le moment.
           </p>
         </div>
       ) : (
         <div
           style={{
-            backgroundColor: theme.bg.card,
+            backgroundColor: "#2d1b69",
             borderRadius: "12px",
-            border: `1px solid ${theme.border.light}`,
+            border: "1px solid #4c1d95",
             overflow: "hidden",
-            boxShadow: theme.shadow.md,
+            boxShadow: "0 2px 8px rgba(124, 58, 237, 0.1)",
           }}
         >
           <table
@@ -183,91 +171,91 @@ export default function ProjetsList() {
             }}
           >
             <thead>
-              <tr style={{ backgroundColor: theme.bg.secondary }}>
+              <tr style={{ borderBottom: "1px solid #4c1d95" }}>
                 <th
                   style={{
-                    borderBottom: `2px solid ${theme.border.medium}`,
+                    borderBottom: "1px solid #4c1d95",
                     textAlign: "left",
                     padding: "1rem",
-                    color: theme.text.primary,
-                    fontWeight: "600",
+                    color: "#c4b5fd",
+                    fontWeight: "500",
                   }}
                 >
                   Titre
                 </th>
                 <th
                   style={{
-                    borderBottom: `2px solid ${theme.border.medium}`,
+                    borderBottom: "1px solid #4c1d95",
                     textAlign: "left",
                     padding: "1rem",
-                    color: theme.text.primary,
-                    fontWeight: "600",
+                    color: "#c4b5fd",
+                    fontWeight: "500",
                   }}
                 >
                   Type
                 </th>
                 <th
                   style={{
-                    borderBottom: `2px solid ${theme.border.medium}`,
+                    borderBottom: "1px solid #4c1d95",
                     textAlign: "left",
                     padding: "1rem",
-                    color: theme.text.primary,
-                    fontWeight: "600",
+                    color: "#c4b5fd",
+                    fontWeight: "500",
                   }}
                 >
                   Statut
                 </th>
                 <th
                   style={{
-                    borderBottom: `2px solid ${theme.border.medium}`,
+                    borderBottom: "1px solid #4c1d95",
                     textAlign: "left",
                     padding: "1rem",
-                    color: theme.text.primary,
-                    fontWeight: "600",
+                    color: "#c4b5fd",
+                    fontWeight: "500",
                   }}
                 >
                   Pôle
                 </th>
                 <th
                   style={{
-                    borderBottom: `2px solid ${theme.border.medium}`,
+                    borderBottom: "1px solid #4c1d95",
                     textAlign: "left",
                     padding: "1rem",
-                    color: theme.text.primary,
-                    fontWeight: "600",
+                    color: "#c4b5fd",
+                    fontWeight: "500",
                   }}
                 >
                   Client
                 </th>
                 <th
                   style={{
-                    borderBottom: `2px solid ${theme.border.medium}`,
+                    borderBottom: "1px solid #4c1d95",
                     textAlign: "left",
                     padding: "1rem",
-                    color: theme.text.primary,
-                    fontWeight: "600",
+                    color: "#c4b5fd",
+                    fontWeight: "500",
                   }}
                 >
                   Chef de projet
                 </th>
                 <th
                   style={{
-                    borderBottom: `2px solid ${theme.border.medium}`,
+                    borderBottom: "1px solid #4c1d95",
                     textAlign: "center",
                     padding: "1rem",
-                    color: theme.text.primary,
-                    fontWeight: "600",
+                    color: "#c4b5fd",
+                    fontWeight: "500",
                   }}
                 >
                   Tâches
                 </th>
                 <th
                   style={{
-                    borderBottom: `2px solid ${theme.border.medium}`,
+                    borderBottom: "1px solid #4c1d95",
                     textAlign: "center",
                     padding: "1rem",
-                    color: theme.text.primary,
-                    fontWeight: "600",
+                    color: "#c4b5fd",
+                    fontWeight: "500",
                   }}
                 >
                   Membres
@@ -279,22 +267,21 @@ export default function ProjetsList() {
                 <tr
                   key={projet.id}
                   style={{
-                    borderBottom: `1px solid ${theme.border.light}`,
-                    backgroundColor: index % 2 === 0 ? theme.bg.card : theme.bg.tertiary,
+                    borderBottom: "1px solid #4c1d95",
                     transition: "background-color 0.2s",
                   }}
                   onMouseEnter={(e) => {
-                    e.currentTarget.style.backgroundColor = theme.bg.hover;
+                    e.currentTarget.style.backgroundColor = "#4c1d95";
                   }}
                   onMouseLeave={(e) => {
-                    e.currentTarget.style.backgroundColor = index % 2 === 0 ? theme.bg.card : theme.bg.tertiary;
+                    e.currentTarget.style.backgroundColor = "transparent";
                   }}
                 >
                   <td style={{ padding: "1rem" }}>
                     <Link
                       to={`/projets/${projet.id}`}
                       style={{
-                        color: theme.colors.primary,
+                        color: "#7c3aed",
                         textDecoration: "none",
                         fontWeight: "600",
                       }}
@@ -309,7 +296,7 @@ export default function ProjetsList() {
                     </Link>
                   </td>
                   <td style={{ padding: "1rem" }}>
-                    <span style={{ fontSize: "0.9rem", color: theme.text.secondary }}>
+                    <span style={{ fontSize: "0.9rem", color: "#c4b5fd" }}>
                       {TYPE_LABELS[projet.type] || projet.type}
                     </span>
                   </td>
@@ -321,21 +308,21 @@ export default function ProjetsList() {
                         borderRadius: "6px",
                         fontSize: "0.85rem",
                         fontWeight: "600",
-                        backgroundColor: `${STATUT_COLORS[projet.statut] || theme.text.secondary}20`,
-                        color: STATUT_COLORS[projet.statut] || theme.text.secondary,
-                        border: `1px solid ${STATUT_COLORS[projet.statut] || theme.text.secondary}40`,
+                        backgroundColor: `${STATUT_COLORS[projet.statut] || "#a78bfa"}20`,
+                        color: STATUT_COLORS[projet.statut] || "#a78bfa",
+                        border: `1px solid ${STATUT_COLORS[projet.statut] || "#a78bfa"}40`,
                       }}
                     >
                       {STATUT_LABELS[projet.statut] || projet.statut}
                     </span>
                   </td>
-                  <td style={{ padding: "1rem", fontSize: "0.9rem", color: theme.text.secondary }}>
+                  <td style={{ padding: "1rem", fontSize: "0.9rem", color: "#c4b5fd" }}>
                     {projet.pole_name || "—"}
                   </td>
-                  <td style={{ padding: "1rem", fontSize: "0.9rem", color: theme.text.secondary }}>
+                  <td style={{ padding: "1rem", fontSize: "0.9rem", color: "#c4b5fd" }}>
                     {projet.client_username || "—"}
                   </td>
-                  <td style={{ padding: "1rem", fontSize: "0.9rem", color: theme.text.secondary }}>
+                  <td style={{ padding: "1rem", fontSize: "0.9rem", color: "#c4b5fd" }}>
                     {projet.chef_projet_username || "—"}
                   </td>
                   <td style={{ padding: "1rem", textAlign: "center" }}>
@@ -343,11 +330,11 @@ export default function ProjetsList() {
                       style={{
                         display: "inline-block",
                         padding: "0.4rem 0.75rem",
-                        backgroundColor: theme.bg.secondary,
+                        backgroundColor: "#4c1d95",
                         borderRadius: "6px",
                         fontSize: "0.85rem",
                         fontWeight: "600",
-                        color: theme.text.primary,
+                        color: "#fff",
                       }}
                     >
                       {projet.nombre_taches || 0}
@@ -358,11 +345,11 @@ export default function ProjetsList() {
                       style={{
                         display: "inline-block",
                         padding: "0.4rem 0.75rem",
-                        backgroundColor: theme.bg.secondary,
+                        backgroundColor: "#4c1d95",
                         borderRadius: "6px",
                         fontSize: "0.85rem",
                         fontWeight: "600",
-                        color: theme.text.primary,
+                        color: "#fff",
                       }}
                     >
                       {projet.nombre_membres || 0}

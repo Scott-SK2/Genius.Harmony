@@ -45,3 +45,12 @@ export async function deleteProjet(token, id) {
     },
   });
 }
+
+export async function updateProjetStatut(token, id, statut) {
+  const res = await axios.patch(`${API_URL}/projets/${id}/update-statut/`, { statut }, {
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+  });
+  return res.data;
+}

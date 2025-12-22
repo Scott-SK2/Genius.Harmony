@@ -8,10 +8,12 @@ import GenericDashboard from "./pages/GenericDashboard";
 import ProtectedRoute from "./components/ProtectedRoute";
 import AdminUsers from "./pages/AdminUsers";
 import AdminPoles from "./pages/AdminPoles";
+import PoleDetails from "./pages/PoleDetails";
 import ProjetsList from "./pages/ProjetsList";
 import ProjetDetails from "./pages/ProjetDetails";
-import KanbanTaches from "./pages/KanbanTaches";
+import UserProfile from "./pages/UserProfile";
 import Layout from "./components/Layout";
+import AdminLayout from "./components/AdminLayout";
 
 function App() {
   return (
@@ -28,45 +30,69 @@ function App() {
               path="/dashboard"
               element={
                 <ProtectedRoute>
-                  <Layout>
+                  <AdminLayout pageTitle="Mon Dashboard">
                     <GenericDashboard />
-                  </Layout>
+                  </AdminLayout>
                 </ProtectedRoute>
               }
             />
 
-            {/* Dashboard admin – réservé aux rôles "admin" */}
+            {/* Dashboard admin – réservé aux rôles "admin" et "super_admin" */}
             <Route
               path="/admin/dashboard"
               element={
-                <ProtectedRoute allowedRoles={["admin"]}>
-                  <Layout>
+                <ProtectedRoute allowedRoles={["admin", "super_admin"]}>
+                  <AdminLayout pageTitle="Dashboard Administrateur">
                     <AdminDashboard />
-                  </Layout>
+                  </AdminLayout>
                 </ProtectedRoute>
               }
             />
 
-            {/* gestion utilisateurs admin */}
+            {/* gestion utilisateurs - accessible en lecture pour membres, artistes, chefs de pôle */}
             <Route
               path="/admin/users"
               element={
-                <ProtectedRoute allowedRoles={["admin"]}>
-                  <Layout>
+                <ProtectedRoute allowedRoles={["admin", "super_admin", "chef_pole", "membre", "artiste"]}>
+                  <AdminLayout pageTitle="Liste des Utilisateurs">
                     <AdminUsers />
-                  </Layout>
+                  </AdminLayout>
                 </ProtectedRoute>
               }
             />
 
-            {/* gestion pôles admin */}
+            {/* Profil utilisateur */}
+            <Route
+              path="/users/:id/profile"
+              element={
+                <ProtectedRoute>
+                  <AdminLayout pageTitle="Profil Utilisateur">
+                    <UserProfile />
+                  </AdminLayout>
+                </ProtectedRoute>
+              }
+            />
+
+            {/* gestion pôles - accessible en lecture pour membres et chefs de pôle */}
             <Route
               path="/admin/poles"
               element={
-                <ProtectedRoute allowedRoles={["admin"]}>
-                  <Layout>
+                <ProtectedRoute allowedRoles={["admin", "super_admin", "chef_pole", "membre"]}>
+                  <AdminLayout pageTitle="Liste des Pôles">
                     <AdminPoles />
-                  </Layout>
+                  </AdminLayout>
+                </ProtectedRoute>
+              }
+            />
+
+            {/* Détails d'un pôle */}
+            <Route
+              path="/admin/poles/:id"
+              element={
+                <ProtectedRoute allowedRoles={["admin", "super_admin", "chef_pole", "membre"]}>
+                  <AdminLayout pageTitle="Détails du Pôle">
+                    <PoleDetails />
+                  </AdminLayout>
                 </ProtectedRoute>
               }
             />
@@ -76,9 +102,9 @@ function App() {
               path="/projets"
               element={
                 <ProtectedRoute>
-                  <Layout>
+                  <AdminLayout pageTitle="Mes Projets">
                     <ProjetsList />
-                  </Layout>
+                  </AdminLayout>
                 </ProtectedRoute>
               }
             />
@@ -86,21 +112,9 @@ function App() {
               path="/projets/:id"
               element={
                 <ProtectedRoute>
-                  <Layout>
+                  <AdminLayout pageTitle="Détails du Projet">
                     <ProjetDetails />
-                  </Layout>
-                </ProtectedRoute>
-              }
-            />
-
-            {/* Kanban des tâches - accessible à tous les utilisateurs connectés */}
-            <Route
-              path="/kanban"
-              element={
-                <ProtectedRoute>
-                  <Layout>
-                    <KanbanTaches />
-                  </Layout>
+                  </AdminLayout>
                 </ProtectedRoute>
               }
             />
