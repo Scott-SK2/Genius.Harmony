@@ -205,8 +205,9 @@ export default function MembreDashboard() {
             const config = priorityConfig[tache.priorite] || priorityConfig.basse;
 
             return (
-              <div
+              <Link
                 key={tache.id}
+                to={`/projets/${tache.projet}`}
                 style={{
                   padding: "1.5rem",
                   backgroundColor: theme.bg.card,
@@ -215,16 +216,20 @@ export default function MembreDashboard() {
                   display: "flex",
                   justifyContent: "space-between",
                   alignItems: "center",
+                  textDecoration: "none",
+                  color: "inherit",
                   transition: "all 0.2s",
                   boxShadow: theme.shadow.sm,
                 }}
                 onMouseEnter={(e) => {
                   e.currentTarget.style.boxShadow = theme.shadow.md;
                   e.currentTarget.style.borderColor = theme.border.medium;
+                  e.currentTarget.style.transform = "translateX(4px)";
                 }}
                 onMouseLeave={(e) => {
                   e.currentTarget.style.boxShadow = theme.shadow.sm;
                   e.currentTarget.style.borderColor = theme.border.light;
+                  e.currentTarget.style.transform = "translateX(0)";
                 }}
               >
                 <div style={{ flex: 1 }}>
@@ -260,7 +265,7 @@ export default function MembreDashboard() {
                 >
                   {config.icon} {config.label}
                 </div>
-              </div>
+              </Link>
             );
           })}
         </div>
@@ -295,23 +300,29 @@ export default function MembreDashboard() {
       ) : (
         <div style={{ display: "grid", gap: "1rem", marginBottom: "2.5rem" }}>
           {mesTachesEnCours.map((tache) => (
-            <div
+            <Link
               key={tache.id}
+              to={`/projets/${tache.projet}`}
               style={{
                 padding: "1.5rem",
                 backgroundColor: `${theme.colors.primary}08`,
                 border: `2px solid ${theme.colors.primary}40`,
                 borderRadius: "12px",
+                textDecoration: "none",
+                color: "inherit",
+                display: "block",
                 transition: "all 0.2s",
                 boxShadow: theme.shadow.sm,
               }}
               onMouseEnter={(e) => {
                 e.currentTarget.style.boxShadow = theme.shadow.md;
                 e.currentTarget.style.borderColor = theme.colors.primary;
+                e.currentTarget.style.transform = "translateX(4px)";
               }}
               onMouseLeave={(e) => {
                 e.currentTarget.style.boxShadow = theme.shadow.sm;
                 e.currentTarget.style.borderColor = `${theme.colors.primary}40`;
+                e.currentTarget.style.transform = "translateX(0)";
               }}
             >
               <div
@@ -330,7 +341,7 @@ export default function MembreDashboard() {
                   <span> · Deadline: {new Date(tache.deadline).toLocaleDateString("fr-FR")}</span>
                 )}
               </div>
-            </div>
+            </Link>
           ))}
         </div>
       )}

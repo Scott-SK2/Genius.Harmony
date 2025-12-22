@@ -315,6 +315,23 @@ export default function UserProfile() {
           </div>
         </div>
 
+        {userProfile.description && (
+          <div
+            style={{
+              marginTop: "1.5rem",
+              paddingTop: "1.5rem",
+              borderTop: "1px solid #4c1d95",
+            }}
+          >
+            <div style={{ fontSize: "0.85rem", color: "#a78bfa", marginBottom: "0.5rem" }}>
+              Description
+            </div>
+            <div style={{ color: "#fff", fontSize: "1rem", lineHeight: "1.6" }}>
+              {userProfile.description}
+            </div>
+          </div>
+        )}
+
         <div
           style={{
             display: "grid",
@@ -479,21 +496,26 @@ export default function UserProfile() {
             {/* Liste des tâches */}
             <div style={{ display: "grid", gap: "1rem" }}>
               {userProfile.taches_assignees.map((tache) => (
-                <div
+                <Link
                   key={tache.id}
+                  to={`/projets/${tache.projet}`}
                   style={{
                     backgroundColor: "#2d1b69",
                     borderRadius: "12px",
                     padding: "1.5rem",
                     border: "1px solid #4c1d95",
+                    textDecoration: "none",
+                    display: "block",
                     transition: "all 0.2s",
                     boxShadow: "0 2px 8px rgba(124, 58, 237, 0.1)",
                   }}
                   onMouseEnter={(e) => {
                     e.currentTarget.style.boxShadow = "0 4px 16px rgba(124, 58, 237, 0.3)";
+                    e.currentTarget.style.transform = "translateX(4px)";
                   }}
                   onMouseLeave={(e) => {
                     e.currentTarget.style.boxShadow = "0 2px 8px rgba(124, 58, 237, 0.1)";
+                    e.currentTarget.style.transform = "translateX(0)";
                   }}
                 >
                   <div style={{ display: "flex", justifyContent: "space-between", alignItems: "start", marginBottom: "1rem" }}>
@@ -501,23 +523,10 @@ export default function UserProfile() {
                       <h3 style={{ margin: 0, color: "#fff", fontSize: "1.1rem", marginBottom: "0.5rem" }}>
                         {tache.titre}
                       </h3>
-                      {tache.projet_details && (
-                        <Link
-                          to={`/projets/${tache.projet}`}
-                          style={{
-                            color: "#a78bfa",
-                            textDecoration: "none",
-                            fontSize: "0.9rem",
-                          }}
-                          onMouseEnter={(e) => {
-                            e.target.style.textDecoration = "underline";
-                          }}
-                          onMouseLeave={(e) => {
-                            e.target.style.textDecoration = "none";
-                          }}
-                        >
-                          📁 {tache.projet_details.titre}
-                        </Link>
+                      {tache.projet_titre && (
+                        <div style={{ color: "#a78bfa", fontSize: "0.9rem" }}>
+                          📁 {tache.projet_titre}
+                        </div>
                       )}
                     </div>
                     <div style={{ display: "flex", gap: "0.5rem", alignItems: "center" }}>
@@ -552,7 +561,7 @@ export default function UserProfile() {
                       📅 Deadline: {new Date(tache.deadline).toLocaleDateString("fr-FR")}
                     </div>
                   )}
-                </div>
+                </Link>
               ))}
             </div>
           </>
