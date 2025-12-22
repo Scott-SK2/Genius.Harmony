@@ -63,6 +63,12 @@ class Profile(models.Model):
         help_text="Spécialité pour les membres et chefs de pôle"
     )
 
+    # Description personnelle de l'utilisateur
+    description = models.TextField(
+        blank=True,
+        help_text="Description personnelle visible par les autres utilisateurs"
+    )
+
     phone = models.CharField(max_length=50, blank=True)
     website = models.URLField(blank=True)
     instagram = models.URLField(blank=True)

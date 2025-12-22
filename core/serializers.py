@@ -69,12 +69,13 @@ class UserProfileSerializer(serializers.ModelSerializer):
         source='profile.pole.name', read_only=True
     )
     membre_specialite = serializers.CharField(source='profile.membre_specialite', required=False, allow_blank=True)
+    description = serializers.CharField(source='profile.description', required=False, allow_blank=True)
     photo = serializers.ImageField(source='profile.photo', read_only=True)
     photo_url = serializers.SerializerMethodField()
 
     class Meta:
         model = User
-        fields = ['id', 'username', 'email', 'role', 'pole', 'pole_name', 'membre_specialite', 'photo', 'photo_url']
+        fields = ['id', 'username', 'email', 'role', 'pole', 'pole_name', 'membre_specialite', 'description', 'photo', 'photo_url']
 
     def get_photo_url(self, obj):
         if hasattr(obj, 'profile') and obj.profile.photo:
@@ -88,6 +89,7 @@ class UserProfileSerializer(serializers.ModelSerializer):
         role = profile_data.get('role')
         pole = profile_data.get('pole')
         membre_specialite = profile_data.get('membre_specialite')
+        description = profile_data.get('description')
 
         if role is not None:
             instance.profile.role = role
@@ -95,6 +97,8 @@ class UserProfileSerializer(serializers.ModelSerializer):
             instance.profile.pole = pole
         if membre_specialite is not None:
             instance.profile.membre_specialite = membre_specialite
+        if description is not None:
+            instance.profile.description = description
 
         instance.profile.save()
         instance.save()
