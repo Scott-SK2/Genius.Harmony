@@ -6,83 +6,89 @@ export const themes = {
   light: {
     // Backgrounds
     bg: {
-      primary: "#f5f7fa",
+      primary: "#faf8ff", // Violet très très clair
       secondary: "#ffffff",
-      tertiary: "#f8f9fa",
+      tertiary: "#f8f5ff", // Légèrement violet
       card: "#ffffff",
-      hover: "#f1f3f5",
+      hover: "#f3edff", // Violet clair au survol
     },
     // Text
     text: {
-      primary: "#2c3e50",
-      secondary: "#7f8c8d",
-      tertiary: "#95a5a6",
+      primary: "#2d1b69", // Violet très foncé
+      secondary: "#6b46c1", // Violet moyen
+      tertiary: "#9f7aea", // Violet clair
       inverse: "#ffffff",
     },
     // Borders
     border: {
-      light: "#e9ecef",
-      medium: "#dee2e6",
-      dark: "#ced4da",
+      light: "#e9d8fd", // Violet très clair
+      medium: "#d6bcfa", // Violet clair
+      dark: "#b794f4", // Violet moyen clair
     },
     // Colors
     colors: {
-      primary: "#3498db",
-      success: "#27ae60",
-      warning: "#f39c12",
-      danger: "#e74c3c",
-      info: "#1abc9c",
-      purple: "#9b59b6",
-      indigo: "#6366f1",
-      pink: "#ec4899",
+      primary: "#7c3aed", // Violet principal
+      secondary: "#f97316", // Orange principal
+      accent: "#fb923c", // Orange clair
+      success: "#10b981", // Vert
+      warning: "#f59e0b", // Orange warning
+      danger: "#ef4444", // Rouge
+      info: "#3b82f6", // Bleu
+      purple: "#7c3aed",
+      violet: "#a78bfa",
+      orange: "#f97316",
+      orangeLight: "#fb923c",
     },
     // Shadows
     shadow: {
-      sm: "0 1px 3px rgba(0, 0, 0, 0.1)",
-      md: "0 4px 6px rgba(0, 0, 0, 0.1)",
-      lg: "0 10px 15px rgba(0, 0, 0, 0.1)",
-      xl: "0 20px 25px rgba(0, 0, 0, 0.15)",
+      sm: "0 1px 3px rgba(124, 58, 237, 0.1)",
+      md: "0 4px 6px rgba(124, 58, 237, 0.15)",
+      lg: "0 10px 15px rgba(124, 58, 237, 0.2)",
+      xl: "0 20px 25px rgba(124, 58, 237, 0.25)",
     },
   },
   dark: {
     // Backgrounds
     bg: {
-      primary: "#0f172a",
-      secondary: "#1e293b",
-      tertiary: "#334155",
-      card: "#1e293b",
-      hover: "#334155",
+      primary: "#0f0a1e", // Violet très très foncé
+      secondary: "#1a0f3d", // Violet ultra foncé
+      tertiary: "#2d1b69", // Violet très foncé
+      card: "#1e1347", // Violet foncé
+      hover: "#3d2578", // Violet moyen foncé
     },
     // Text
     text: {
-      primary: "#f1f5f9",
-      secondary: "#cbd5e1",
-      tertiary: "#94a3b8",
-      inverse: "#0f172a",
+      primary: "#f3edff", // Blanc légèrement violet
+      secondary: "#c4b5fd", // Violet clair
+      tertiary: "#a78bfa", // Violet moyen clair
+      inverse: "#0f0a1e",
     },
     // Borders
     border: {
-      light: "#334155",
-      medium: "#475569",
-      dark: "#64748b",
+      light: "#4c1d95", // Violet foncé
+      medium: "#6b46c1", // Violet moyen
+      dark: "#7c3aed", // Violet principal
     },
     // Colors
     colors: {
-      primary: "#3b82f6",
-      success: "#10b981",
-      warning: "#f59e0b",
-      danger: "#ef4444",
-      info: "#06b6d4",
-      purple: "#a855f7",
-      indigo: "#6366f1",
-      pink: "#ec4899",
+      primary: "#8b5cf6", // Violet principal (plus clair en mode sombre)
+      secondary: "#fb923c", // Orange principal
+      accent: "#fdba74", // Orange clair
+      success: "#10b981", // Vert
+      warning: "#fbbf24", // Orange/jaune warning
+      danger: "#f87171", // Rouge
+      info: "#60a5fa", // Bleu
+      purple: "#8b5cf6",
+      violet: "#a78bfa",
+      orange: "#fb923c",
+      orangeLight: "#fdba74",
     },
     // Shadows
     shadow: {
-      sm: "0 1px 3px rgba(0, 0, 0, 0.3)",
-      md: "0 4px 6px rgba(0, 0, 0, 0.3)",
-      lg: "0 10px 15px rgba(0, 0, 0, 0.4)",
-      xl: "0 20px 25px rgba(0, 0, 0, 0.5)",
+      sm: "0 1px 3px rgba(139, 92, 246, 0.3)",
+      md: "0 4px 6px rgba(139, 92, 246, 0.4)",
+      lg: "0 10px 15px rgba(139, 92, 246, 0.5)",
+      xl: "0 20px 25px rgba(139, 92, 246, 0.6)",
     },
   },
 };
