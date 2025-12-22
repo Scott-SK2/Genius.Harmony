@@ -197,7 +197,7 @@ export default function UserProfile() {
   return (
     <div style={{ width: "100%" }}>
       {/* Navigation */}
-      <div style={{ marginBottom: "2rem" }}>
+      <div style={{ marginBottom: "2rem", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
         <Link
           to="/admin/users"
           style={{
@@ -215,6 +215,35 @@ export default function UserProfile() {
         >
           ← Retour à la liste des utilisateurs
         </Link>
+
+        {canUploadPhoto() && (
+          <Link
+            to={`/users/${id}/edit`}
+            style={{
+              padding: "0.6rem 1.2rem",
+              backgroundColor: "#7c3aed",
+              color: "#fff",
+              textDecoration: "none",
+              borderRadius: "8px",
+              fontSize: "0.95rem",
+              fontWeight: "600",
+              transition: "all 0.2s",
+              display: "inline-block",
+            }}
+            onMouseEnter={(e) => {
+              e.target.style.backgroundColor = "#6d28d9";
+              e.target.style.transform = "translateY(-2px)";
+              e.target.style.boxShadow = "0 4px 12px rgba(124, 58, 237, 0.4)";
+            }}
+            onMouseLeave={(e) => {
+              e.target.style.backgroundColor = "#7c3aed";
+              e.target.style.transform = "translateY(0)";
+              e.target.style.boxShadow = "none";
+            }}
+          >
+            ✏️ Modifier le profil
+          </Link>
+        )}
       </div>
 
       {/* En-tête du profil */}

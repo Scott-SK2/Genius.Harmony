@@ -148,21 +148,65 @@ export default function Navbar() {
         </button>
 
         {/* User info */}
-        <div
+        <Link
+          to={`/users/${user.id}`}
           style={{
             padding: "0.5rem 1rem",
             backgroundColor: theme.bg.tertiary,
             borderRadius: "8px",
             border: `1px solid ${theme.border.light}`,
+            textDecoration: "none",
+            display: "flex",
+            alignItems: "center",
+            gap: "0.75rem",
+            transition: "all 0.2s",
+          }}
+          onMouseEnter={(e) => {
+            e.currentTarget.style.backgroundColor = theme.bg.hover;
+            e.currentTarget.style.transform = "translateY(-2px)";
+          }}
+          onMouseLeave={(e) => {
+            e.currentTarget.style.backgroundColor = theme.bg.tertiary;
+            e.currentTarget.style.transform = "translateY(0)";
           }}
         >
-          <div style={{ fontSize: "0.85rem", color: theme.text.secondary }}>
-            {user.role}
+          <div
+            style={{
+              width: "40px",
+              height: "40px",
+              borderRadius: "50%",
+              backgroundColor: theme.colors.primary,
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              fontSize: "1.5rem",
+              overflow: "hidden",
+              flexShrink: 0,
+            }}
+          >
+            {user.photo_url ? (
+              <img
+                src={user.photo_url}
+                alt={user.username}
+                style={{
+                  width: "100%",
+                  height: "100%",
+                  objectFit: "cover",
+                }}
+              />
+            ) : (
+              "👤"
+            )}
           </div>
-          <div style={{ fontWeight: "500", color: theme.text.primary }}>
-            {user.username}
+          <div>
+            <div style={{ fontSize: "0.85rem", color: theme.text.secondary }}>
+              {user.role}
+            </div>
+            <div style={{ fontWeight: "500", color: theme.text.primary }}>
+              {user.username}
+            </div>
           </div>
-        </div>
+        </Link>
 
         {/* Logout button */}
         <button

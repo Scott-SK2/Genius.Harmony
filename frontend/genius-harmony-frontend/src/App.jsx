@@ -12,6 +12,7 @@ import PoleDetails from "./pages/PoleDetails";
 import ProjetsList from "./pages/ProjetsList";
 import ProjetDetails from "./pages/ProjetDetails";
 import UserProfile from "./pages/UserProfile";
+import EditProfile from "./pages/EditProfile";
 import Layout from "./components/Layout";
 import AdminLayout from "./components/AdminLayout";
 
@@ -68,6 +69,30 @@ function App() {
                 <ProtectedRoute>
                   <AdminLayout pageTitle="Profil Utilisateur">
                     <UserProfile />
+                  </AdminLayout>
+                </ProtectedRoute>
+              }
+            />
+
+            {/* Profil utilisateur (version courte) */}
+            <Route
+              path="/users/:id"
+              element={
+                <ProtectedRoute>
+                  <AdminLayout pageTitle="Profil Utilisateur">
+                    <UserProfile />
+                  </AdminLayout>
+                </ProtectedRoute>
+              }
+            />
+
+            {/* Édition de profil */}
+            <Route
+              path="/users/:id/edit"
+              element={
+                <ProtectedRoute>
+                  <AdminLayout pageTitle="Modifier le Profil">
+                    <EditProfile />
                   </AdminLayout>
                 </ProtectedRoute>
               }
