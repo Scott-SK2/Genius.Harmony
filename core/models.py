@@ -1,6 +1,6 @@
 from django.db import models
 from django.contrib.auth import get_user_model
-from django.db.models.signals import post_save
+from django.db.models.signals import post_save, m2m_changed
 from django.dispatch import receiver
 
 User = get_user_model()
@@ -229,3 +229,24 @@ def create_or_update_user_profile(sender, instance, created, **kwargs):
     else:
         if hasattr(instance, 'profile'):
             instance.profile.save()
+
+
+# Signal pour ajouter automatiquement les utilisateurs assignés à une tâche comme membres du projet
+@receiver(m2m_changed, sender=Tache.assigne_a.through)
+def auto_add_task_assignees_to_project(sender, instance, action, pk_set, **kwargs):
+    """
+    Lorsqu'on assigne une personne à une tâche, si la personne n'était pas assignée au projet,
+    elle le devient automatiquement.
+    """
+    if action == 'post_add' and pk_set:
+        # instance est la tâche
+        # pk_set contient les IDs des utilisateurs qui viennent d'être ajoutés
+        projet = instance.projet
+
+        # Récupérer les utilisateurs assignés à la tâche
+        users_to_add = User.objects.filter(pk__in=pk_set)
+
+        # Ajouter chaque utilisateur au projet s'il n'est pas déjà membre
+        for user in users_to_add:
+            if not projet.membres.filter(pk=user.pk).exists():
+                projet.membres.add(user)
