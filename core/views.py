@@ -1,5 +1,8 @@
 from django.shortcuts import render
 from django.db.models import Q
+from django.http import FileResponse, Http404
+import os
+import mimetypes
 
 from rest_framework import generics, permissions, status
 from rest_framework.views import APIView
@@ -944,3 +947,46 @@ class DocumentDetailView(generics.RetrieveUpdateDestroyAPIView):
     serializer_class = DocumentSerializer
     permission_classes = [permissions.IsAuthenticated]
     parser_classes = [MultiPartParser, FormParser]
+
+
+class DocumentDownloadView(APIView):
+    """
+    GET: Télécharge un document avec les headers appropriés pour forcer le téléchargement
+    """
+    permission_classes = [permissions.IsAuthenticated]
+
+    def get(self, request, pk):
+        try:
+            document = Document.objects.get(pk=pk)
+        except Document.DoesNotExist:
+            raise Http404("Document non trouvé")
+
+        # Vérifier que le fichier existe
+        if not document.fichier:
+            return Response(
+                {"detail": "Aucun fichier associé à ce document"},
+                status=status.HTTP_404_NOT_FOUND
+            )
+
+        # Obtenir le chemin du fichier
+        file_path = document.fichier.path
+
+        if not os.path.exists(file_path):
+            return Response(
+                {"detail": "Fichier introuvable sur le serveur"},
+                status=status.HTTP_404_NOT_FOUND
+            )
+
+        # Déterminer le type MIME
+        content_type, _ = mimetypes.guess_type(file_path)
+        if content_type is None:
+            content_type = 'application/octet-stream'
+
+        # Obtenir le nom du fichier original
+        filename = os.path.basename(file_path)
+
+        # Créer la réponse avec le fichier
+        response = FileResponse(open(file_path, 'rb'), content_type=content_type)
+        response['Content-Disposition'] = f'attachment; filename="{filename}"'
+
+        return response

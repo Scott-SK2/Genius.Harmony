@@ -1296,8 +1296,7 @@ export default function ProjetDetails() {
 
                     {/* Bouton Télécharger */}
                     <a
-                      href={doc.fichier_url}
-                      download
+                      href={`http://127.0.0.1:8000/api/documents/${doc.id}/download/`}
                       style={{
                         padding: "0.75rem 1.5rem",
                         backgroundColor: theme.colors.secondary,
