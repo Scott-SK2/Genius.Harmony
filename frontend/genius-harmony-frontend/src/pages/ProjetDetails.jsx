@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { useParams, Link, useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
+import { useTheme } from "../context/ThemeContext";
 
 import { fetchProjetDetails, updateProjetStatut, deleteProjet } from "../api/projets";
 import { updateTache } from "../api/taches";
@@ -42,6 +43,7 @@ const TACHE_PRIORITE_LABELS = {
 export default function ProjetDetails() {
   const { id } = useParams();
   const { token, user } = useAuth();
+  const { theme } = useTheme();
   const navigate = useNavigate();
 
   const [projet, setProjet] = useState(null);
@@ -458,7 +460,7 @@ export default function ProjetDetails() {
         <Link
           to="/projets"
           style={{
-            color: "#7c3aed",
+            color: theme.colors.secondary,
             textDecoration: "none",
             fontSize: "1rem",
             fontWeight: "600",
@@ -645,22 +647,24 @@ export default function ProjetDetails() {
               }}
               style={{
                 padding: "0.75rem 1.5rem",
-                backgroundColor: "#7c3aed",
-                color: "#fff",
+                backgroundColor: theme.colors.secondary,
+                color: theme.text.inverse,
                 border: "none",
                 borderRadius: "8px",
                 cursor: "pointer",
                 fontWeight: "600",
                 transition: "all 0.2s",
-                boxShadow: "0 2px 8px rgba(124, 58, 237, 0.1)",
+                boxShadow: theme.shadow.md,
               }}
               onMouseEnter={(e) => {
+                e.target.style.backgroundColor = theme.colors.orangeLight;
                 e.target.style.transform = "translateY(-2px)";
-                e.target.style.boxShadow = "0 4px 16px rgba(124, 58, 237, 0.3)";
+                e.target.style.boxShadow = theme.shadow.lg;
               }}
               onMouseLeave={(e) => {
+                e.target.style.backgroundColor = theme.colors.secondary;
                 e.target.style.transform = "translateY(0)";
-                e.target.style.boxShadow = "0 2px 8px rgba(124, 58, 237, 0.1)";
+                e.target.style.boxShadow = theme.shadow.md;
               }}
             >
               ⚙️ Gérer les membres
@@ -832,22 +836,24 @@ export default function ProjetDetails() {
               onClick={() => setShowFormTache(true)}
               style={{
                 padding: "0.75rem 1.5rem",
-                backgroundColor: "#7c3aed",
-                color: "#fff",
+                backgroundColor: theme.colors.secondary,
+                color: theme.text.inverse,
                 border: "none",
                 borderRadius: "8px",
                 cursor: "pointer",
                 fontWeight: "600",
                 transition: "all 0.2s",
-                boxShadow: "0 2px 8px rgba(124, 58, 237, 0.1)",
+                boxShadow: theme.shadow.md,
               }}
               onMouseEnter={(e) => {
+                e.target.style.backgroundColor = theme.colors.orangeLight;
                 e.target.style.transform = "translateY(-2px)";
-                e.target.style.boxShadow = "0 4px 16px rgba(124, 58, 237, 0.3)";
+                e.target.style.boxShadow = theme.shadow.lg;
               }}
               onMouseLeave={(e) => {
+                e.target.style.backgroundColor = theme.colors.secondary;
                 e.target.style.transform = "translateY(0)";
-                e.target.style.boxShadow = "0 2px 8px rgba(124, 58, 237, 0.1)";
+                e.target.style.boxShadow = theme.shadow.md;
               }}
             >
               + Nouvelle tâche
@@ -1164,22 +1170,24 @@ export default function ProjetDetails() {
             onClick={() => setShowUploadDoc(true)}
             style={{
               padding: "0.75rem 1.5rem",
-              backgroundColor: "#7c3aed",
-              color: "#fff",
+              backgroundColor: theme.colors.secondary,
+              color: theme.text.inverse,
               border: "none",
               borderRadius: "8px",
               cursor: "pointer",
               fontWeight: "600",
               transition: "all 0.2s",
-              boxShadow: "0 2px 8px rgba(124, 58, 237, 0.1)",
+              boxShadow: theme.shadow.md,
             }}
             onMouseEnter={(e) => {
+              e.target.style.backgroundColor = theme.colors.orangeLight;
               e.target.style.transform = "translateY(-2px)";
-              e.target.style.boxShadow = "0 4px 16px rgba(124, 58, 237, 0.3)";
+              e.target.style.boxShadow = theme.shadow.lg;
             }}
             onMouseLeave={(e) => {
+              e.target.style.backgroundColor = theme.colors.secondary;
               e.target.style.transform = "translateY(0)";
-              e.target.style.boxShadow = "0 2px 8px rgba(124, 58, 237, 0.1)";
+              e.target.style.boxShadow = theme.shadow.md;
             }}
           >
             + Uploader un document
@@ -1260,24 +1268,26 @@ export default function ProjetDetails() {
                     rel="noopener noreferrer"
                     style={{
                       padding: "0.75rem 1.5rem",
-                      backgroundColor: "#7c3aed",
-                      color: "#fff",
+                      backgroundColor: theme.colors.secondary,
+                      color: theme.text.inverse,
                       borderRadius: "8px",
                       textDecoration: "none",
                       fontSize: "0.9rem",
                       fontWeight: "600",
                       marginLeft: "1.5rem",
                       transition: "all 0.2s",
-                      boxShadow: "0 2px 8px rgba(124, 58, 237, 0.1)",
+                      boxShadow: theme.shadow.md,
                       whiteSpace: "nowrap",
                     }}
                     onMouseEnter={(e) => {
+                      e.target.style.backgroundColor = theme.colors.orangeLight;
                       e.target.style.transform = "translateY(-2px)";
-                      e.target.style.boxShadow = "0 4px 16px rgba(124, 58, 237, 0.3)";
+                      e.target.style.boxShadow = theme.shadow.lg;
                     }}
                     onMouseLeave={(e) => {
+                      e.target.style.backgroundColor = theme.colors.secondary;
                       e.target.style.transform = "translateY(0)";
-                      e.target.style.boxShadow = "0 2px 8px rgba(124, 58, 237, 0.1)";
+                      e.target.style.boxShadow = theme.shadow.md;
                     }}
                   >
                     ⬇ Télécharger
@@ -1416,8 +1426,8 @@ export default function ProjetDetails() {
                 onClick={() => setShowManageMembres(false)}
                 style={{
                   padding: "0.75rem 1.5rem",
-                  backgroundColor: "#7c3aed",
-                  color: "#fff",
+                  backgroundColor: theme.colors.secondary,
+                  color: theme.text.inverse,
                   border: "none",
                   borderRadius: "8px",
                   cursor: "pointer",
@@ -1425,10 +1435,10 @@ export default function ProjetDetails() {
                   transition: "all 0.2s",
                 }}
                 onMouseEnter={(e) => {
-                  e.target.style.backgroundColor = "#6d32d1";
+                  e.target.style.backgroundColor = theme.colors.orangeLight;
                 }}
                 onMouseLeave={(e) => {
-                  e.target.style.backgroundColor = "#7c3aed";
+                  e.target.style.backgroundColor = theme.colors.secondary;
                 }}
               >
                 Fermer

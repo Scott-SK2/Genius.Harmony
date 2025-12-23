@@ -1,11 +1,13 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
+import { useTheme } from "../context/ThemeContext";
 import { fetchPoles, createPole, updatePole, deletePole } from "../api/poles";
 import { fetchUsers } from "../api/users";
 
 export default function AdminPoles() {
   const { token, user } = useAuth();
+  const { theme } = useTheme();
   const navigate = useNavigate();
   const [poles, setPoles] = useState([]);
   const [users, setUsers] = useState([]);
@@ -125,8 +127,8 @@ export default function AdminPoles() {
             onClick={() => handleOpenModal()}
             style={{
               padding: "0.75rem 1.5rem",
-              backgroundColor: "#7c3aed",
-              color: "#fff",
+              backgroundColor: theme.colors.secondary,
+              color: theme.text.inverse,
               border: "none",
               borderRadius: "8px",
               fontSize: "1rem",
@@ -135,10 +137,12 @@ export default function AdminPoles() {
               transition: "all 0.2s",
             }}
             onMouseEnter={(e) => {
-              e.target.style.backgroundColor = "#6d28d9";
+              e.target.style.backgroundColor = theme.colors.orangeLight;
+              e.target.style.transform = "translateY(-2px)";
             }}
             onMouseLeave={(e) => {
-              e.target.style.backgroundColor = "#7c3aed";
+              e.target.style.backgroundColor = theme.colors.secondary;
+              e.target.style.transform = "translateY(0)";
             }}
           >
             ➕ Créer un pôle
@@ -453,14 +457,17 @@ export default function AdminPoles() {
                   style={{
                     flex: 1,
                     padding: "0.75rem",
-                    backgroundColor: "#4c1d95",
-                    color: "#fff",
-                    border: "none",
+                    backgroundColor: theme.bg.tertiary,
+                    color: theme.text.primary,
+                    border: `1px solid ${theme.border.medium}`,
                     borderRadius: "8px",
                     fontSize: "1rem",
                     fontWeight: "500",
                     cursor: "pointer",
+                    transition: "all 0.2s",
                   }}
+                  onMouseEnter={(e) => (e.target.style.backgroundColor = theme.bg.hover)}
+                  onMouseLeave={(e) => (e.target.style.backgroundColor = theme.bg.tertiary)}
                 >
                   Annuler
                 </button>
@@ -469,14 +476,17 @@ export default function AdminPoles() {
                   style={{
                     flex: 1,
                     padding: "0.75rem",
-                    backgroundColor: "#7c3aed",
-                    color: "#fff",
+                    backgroundColor: theme.colors.secondary,
+                    color: theme.text.inverse,
                     border: "none",
                     borderRadius: "8px",
                     fontSize: "1rem",
                     fontWeight: "500",
                     cursor: "pointer",
+                    transition: "all 0.2s",
                   }}
+                  onMouseEnter={(e) => (e.target.style.backgroundColor = theme.colors.orangeLight)}
+                  onMouseLeave={(e) => (e.target.style.backgroundColor = theme.colors.secondary)}
                 >
                   {editingPole ? "Mettre à jour" : "Créer"}
                 </button>
