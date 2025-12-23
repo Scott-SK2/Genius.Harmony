@@ -1262,36 +1262,68 @@ export default function ProjetDetails() {
                   )}
                 </div>
                 {doc.fichier_url && (
-                  <a
-                    href={doc.fichier_url}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    style={{
-                      padding: "0.75rem 1.5rem",
-                      backgroundColor: theme.colors.secondary,
-                      color: theme.text.inverse,
-                      borderRadius: "8px",
-                      textDecoration: "none",
-                      fontSize: "0.9rem",
-                      fontWeight: "600",
-                      marginLeft: "1.5rem",
-                      transition: "all 0.2s",
-                      boxShadow: theme.shadow.md,
-                      whiteSpace: "nowrap",
-                    }}
-                    onMouseEnter={(e) => {
-                      e.target.style.backgroundColor = theme.colors.orangeLight;
-                      e.target.style.transform = "translateY(-2px)";
-                      e.target.style.boxShadow = theme.shadow.lg;
-                    }}
-                    onMouseLeave={(e) => {
-                      e.target.style.backgroundColor = theme.colors.secondary;
-                      e.target.style.transform = "translateY(0)";
-                      e.target.style.boxShadow = theme.shadow.md;
-                    }}
-                  >
-                    ⬇ Télécharger
-                  </a>
+                  <div style={{ display: "flex", gap: "0.75rem", marginLeft: "1.5rem" }}>
+                    {/* Bouton Prévisualiser */}
+                    <a
+                      href={doc.fichier_url}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      style={{
+                        padding: "0.75rem 1.5rem",
+                        backgroundColor: theme.colors.primary,
+                        color: theme.text.inverse,
+                        borderRadius: "8px",
+                        textDecoration: "none",
+                        fontSize: "0.9rem",
+                        fontWeight: "600",
+                        transition: "all 0.2s",
+                        boxShadow: theme.shadow.md,
+                        whiteSpace: "nowrap",
+                      }}
+                      onMouseEnter={(e) => {
+                        e.target.style.backgroundColor = theme.colors.purpleLight;
+                        e.target.style.transform = "translateY(-2px)";
+                        e.target.style.boxShadow = theme.shadow.lg;
+                      }}
+                      onMouseLeave={(e) => {
+                        e.target.style.backgroundColor = theme.colors.primary;
+                        e.target.style.transform = "translateY(0)";
+                        e.target.style.boxShadow = theme.shadow.md;
+                      }}
+                    >
+                      👁 Prévisualiser
+                    </a>
+
+                    {/* Bouton Télécharger */}
+                    <a
+                      href={doc.fichier_url}
+                      download
+                      style={{
+                        padding: "0.75rem 1.5rem",
+                        backgroundColor: theme.colors.secondary,
+                        color: theme.text.inverse,
+                        borderRadius: "8px",
+                        textDecoration: "none",
+                        fontSize: "0.9rem",
+                        fontWeight: "600",
+                        transition: "all 0.2s",
+                        boxShadow: theme.shadow.md,
+                        whiteSpace: "nowrap",
+                      }}
+                      onMouseEnter={(e) => {
+                        e.target.style.backgroundColor = theme.colors.orangeLight;
+                        e.target.style.transform = "translateY(-2px)";
+                        e.target.style.boxShadow = theme.shadow.lg;
+                      }}
+                      onMouseLeave={(e) => {
+                        e.target.style.backgroundColor = theme.colors.secondary;
+                        e.target.style.transform = "translateY(0)";
+                        e.target.style.boxShadow = theme.shadow.md;
+                      }}
+                    >
+                      ⬇ Télécharger
+                    </a>
+                  </div>
                 )}
               </div>
             ))}
