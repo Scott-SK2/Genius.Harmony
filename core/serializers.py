@@ -73,9 +73,16 @@ class UserProfileSerializer(serializers.ModelSerializer):
     photo = serializers.ImageField(source='profile.photo', read_only=True)
     photo_url = serializers.SerializerMethodField()
 
+    # Champs de contact
+    phone = serializers.CharField(source='profile.phone', required=False, allow_blank=True)
+    website = serializers.URLField(source='profile.website', required=False, allow_blank=True)
+    instagram = serializers.URLField(source='profile.instagram', required=False, allow_blank=True)
+    twitter = serializers.URLField(source='profile.twitter', required=False, allow_blank=True)
+    tiktok = serializers.URLField(source='profile.tiktok', required=False, allow_blank=True)
+
     class Meta:
         model = User
-        fields = ['id', 'username', 'email', 'role', 'pole', 'pole_name', 'membre_specialite', 'description', 'photo', 'photo_url']
+        fields = ['id', 'username', 'email', 'role', 'pole', 'pole_name', 'membre_specialite', 'description', 'photo', 'photo_url', 'phone', 'website', 'instagram', 'twitter', 'tiktok']
 
     def get_photo_url(self, obj):
         if hasattr(obj, 'profile') and obj.profile.photo:
@@ -90,6 +97,11 @@ class UserProfileSerializer(serializers.ModelSerializer):
         pole = profile_data.get('pole')
         membre_specialite = profile_data.get('membre_specialite')
         description = profile_data.get('description')
+        phone = profile_data.get('phone')
+        website = profile_data.get('website')
+        instagram = profile_data.get('instagram')
+        twitter = profile_data.get('twitter')
+        tiktok = profile_data.get('tiktok')
 
         if role is not None:
             instance.profile.role = role
@@ -99,6 +111,16 @@ class UserProfileSerializer(serializers.ModelSerializer):
             instance.profile.membre_specialite = membre_specialite
         if description is not None:
             instance.profile.description = description
+        if phone is not None:
+            instance.profile.phone = phone
+        if website is not None:
+            instance.profile.website = website
+        if instagram is not None:
+            instance.profile.instagram = instagram
+        if twitter is not None:
+            instance.profile.twitter = twitter
+        if tiktok is not None:
+            instance.profile.tiktok = tiktok
 
         instance.profile.save()
         instance.save()

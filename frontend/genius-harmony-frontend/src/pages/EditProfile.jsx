@@ -28,6 +28,11 @@ export default function EditProfile() {
   const [formData, setFormData] = useState({
     description: "",
     membre_specialite: "",
+    phone: "",
+    website: "",
+    instagram: "",
+    twitter: "",
+    tiktok: "",
   });
 
   const isAdmin = user && (user.role === 'admin' || user.role === 'super_admin');
@@ -57,6 +62,11 @@ export default function EditProfile() {
         setFormData({
           description: data.description || "",
           membre_specialite: data.membre_specialite || "",
+          phone: data.phone || "",
+          website: data.website || "",
+          instagram: data.instagram || "",
+          twitter: data.twitter || "",
+          tiktok: data.tiktok || "",
         });
       } catch (err) {
         console.error("Erreur fetch profil:", err);
@@ -236,6 +246,172 @@ export default function EditProfile() {
             />
             <div style={{ fontSize: "0.85rem", color: theme.text.tertiary, marginTop: "0.5rem" }}>
               Cette description sera visible sur votre profil public
+            </div>
+          </div>
+
+          {/* Section Informations de contact */}
+          <div style={{ marginBottom: "1.5rem", paddingTop: "1.5rem", borderTop: `1px solid ${theme.border.light}` }}>
+            <h3 style={{ margin: 0, marginBottom: "1rem", color: theme.text.primary, fontSize: "1.25rem" }}>
+              📞 Informations de contact
+            </h3>
+
+            {/* Téléphone */}
+            <div style={{ marginBottom: "1rem" }}>
+              <label
+                htmlFor="phone"
+                style={{
+                  display: "block",
+                  marginBottom: "0.5rem",
+                  color: theme.colors.secondary,
+                  fontWeight: "600",
+                }}
+              >
+                Téléphone
+              </label>
+              <input
+                type="tel"
+                id="phone"
+                value={formData.phone}
+                onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
+                style={{
+                  width: "100%",
+                  padding: "0.75rem",
+                  backgroundColor: theme.bg.secondary,
+                  border: `1px solid ${theme.border.medium}`,
+                  borderRadius: "8px",
+                  color: theme.text.primary,
+                  fontSize: "1rem",
+                }}
+                placeholder="+33 6 12 34 56 78"
+              />
+            </div>
+
+            {/* Website */}
+            <div style={{ marginBottom: "1rem" }}>
+              <label
+                htmlFor="website"
+                style={{
+                  display: "block",
+                  marginBottom: "0.5rem",
+                  color: theme.colors.secondary,
+                  fontWeight: "600",
+                }}
+              >
+                Site web
+              </label>
+              <input
+                type="url"
+                id="website"
+                value={formData.website}
+                onChange={(e) => setFormData({ ...formData, website: e.target.value })}
+                style={{
+                  width: "100%",
+                  padding: "0.75rem",
+                  backgroundColor: theme.bg.secondary,
+                  border: `1px solid ${theme.border.medium}`,
+                  borderRadius: "8px",
+                  color: theme.text.primary,
+                  fontSize: "1rem",
+                }}
+                placeholder="https://votre-site.com"
+              />
+            </div>
+
+            {/* Instagram */}
+            <div style={{ marginBottom: "1rem" }}>
+              <label
+                htmlFor="instagram"
+                style={{
+                  display: "block",
+                  marginBottom: "0.5rem",
+                  color: theme.colors.secondary,
+                  fontWeight: "600",
+                }}
+              >
+                Instagram
+              </label>
+              <input
+                type="url"
+                id="instagram"
+                value={formData.instagram}
+                onChange={(e) => setFormData({ ...formData, instagram: e.target.value })}
+                style={{
+                  width: "100%",
+                  padding: "0.75rem",
+                  backgroundColor: theme.bg.secondary,
+                  border: `1px solid ${theme.border.medium}`,
+                  borderRadius: "8px",
+                  color: theme.text.primary,
+                  fontSize: "1rem",
+                }}
+                placeholder="https://instagram.com/votre-username"
+              />
+            </div>
+
+            {/* Twitter */}
+            <div style={{ marginBottom: "1rem" }}>
+              <label
+                htmlFor="twitter"
+                style={{
+                  display: "block",
+                  marginBottom: "0.5rem",
+                  color: theme.colors.secondary,
+                  fontWeight: "600",
+                }}
+              >
+                Twitter / X
+              </label>
+              <input
+                type="url"
+                id="twitter"
+                value={formData.twitter}
+                onChange={(e) => setFormData({ ...formData, twitter: e.target.value })}
+                style={{
+                  width: "100%",
+                  padding: "0.75rem",
+                  backgroundColor: theme.bg.secondary,
+                  border: `1px solid ${theme.border.medium}`,
+                  borderRadius: "8px",
+                  color: theme.text.primary,
+                  fontSize: "1rem",
+                }}
+                placeholder="https://twitter.com/votre-username"
+              />
+            </div>
+
+            {/* TikTok */}
+            <div style={{ marginBottom: "1rem" }}>
+              <label
+                htmlFor="tiktok"
+                style={{
+                  display: "block",
+                  marginBottom: "0.5rem",
+                  color: theme.colors.secondary,
+                  fontWeight: "600",
+                }}
+              >
+                TikTok
+              </label>
+              <input
+                type="url"
+                id="tiktok"
+                value={formData.tiktok}
+                onChange={(e) => setFormData({ ...formData, tiktok: e.target.value })}
+                style={{
+                  width: "100%",
+                  padding: "0.75rem",
+                  backgroundColor: theme.bg.secondary,
+                  border: `1px solid ${theme.border.medium}`,
+                  borderRadius: "8px",
+                  color: theme.text.primary,
+                  fontSize: "1rem",
+                }}
+                placeholder="https://tiktok.com/@votre-username"
+              />
+            </div>
+
+            <div style={{ fontSize: "0.85rem", color: theme.text.tertiary, marginTop: "0.5rem" }}>
+              Ces informations seront visibles sur votre profil public
             </div>
           </div>
 

@@ -405,6 +405,197 @@ export default function UserProfile() {
             </div>
           </div>
         )}
+
+        {/* Informations de contact */}
+        {(userProfile.phone || userProfile.website || userProfile.instagram || userProfile.twitter || userProfile.tiktok) && (
+          <div
+            style={{
+              marginTop: "1.5rem",
+              paddingTop: "1.5rem",
+              borderTop: `1px solid ${theme.border.medium}`,
+            }}
+          >
+            <div style={{ fontSize: "0.85rem", color: theme.colors.secondary, marginBottom: "1rem", fontWeight: "600" }}>
+              📞 Informations de contact
+            </div>
+            <div
+              style={{
+                display: "grid",
+                gridTemplateColumns: "repeat(auto-fit, minmax(250px, 1fr))",
+                gap: "1rem",
+              }}
+            >
+              {userProfile.phone && (
+                <div
+                  style={{
+                    display: "flex",
+                    alignItems: "center",
+                    gap: "0.75rem",
+                    padding: "0.75rem",
+                    backgroundColor: theme.bg.secondary,
+                    borderRadius: "8px",
+                    border: `1px solid ${theme.border.light}`,
+                  }}
+                >
+                  <div style={{ fontSize: "1.5rem" }}>📱</div>
+                  <div>
+                    <div style={{ fontSize: "0.75rem", color: theme.text.tertiary, marginBottom: "0.25rem" }}>
+                      Téléphone
+                    </div>
+                    <a
+                      href={`tel:${userProfile.phone}`}
+                      style={{
+                        color: theme.colors.secondary,
+                        textDecoration: "none",
+                        fontWeight: "500",
+                      }}
+                      onMouseEnter={(e) => e.target.style.textDecoration = "underline"}
+                      onMouseLeave={(e) => e.target.style.textDecoration = "none"}
+                    >
+                      {userProfile.phone}
+                    </a>
+                  </div>
+                </div>
+              )}
+              {userProfile.website && (
+                <div
+                  style={{
+                    display: "flex",
+                    alignItems: "center",
+                    gap: "0.75rem",
+                    padding: "0.75rem",
+                    backgroundColor: theme.bg.secondary,
+                    borderRadius: "8px",
+                    border: `1px solid ${theme.border.light}`,
+                  }}
+                >
+                  <div style={{ fontSize: "1.5rem" }}>🌐</div>
+                  <div>
+                    <div style={{ fontSize: "0.75rem", color: theme.text.tertiary, marginBottom: "0.25rem" }}>
+                      Site web
+                    </div>
+                    <a
+                      href={userProfile.website}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      style={{
+                        color: theme.colors.secondary,
+                        textDecoration: "none",
+                        fontWeight: "500",
+                      }}
+                      onMouseEnter={(e) => e.target.style.textDecoration = "underline"}
+                      onMouseLeave={(e) => e.target.style.textDecoration = "none"}
+                    >
+                      Visiter
+                    </a>
+                  </div>
+                </div>
+              )}
+              {userProfile.instagram && (
+                <div
+                  style={{
+                    display: "flex",
+                    alignItems: "center",
+                    gap: "0.75rem",
+                    padding: "0.75rem",
+                    backgroundColor: theme.bg.secondary,
+                    borderRadius: "8px",
+                    border: `1px solid ${theme.border.light}`,
+                  }}
+                >
+                  <div style={{ fontSize: "1.5rem" }}>📸</div>
+                  <div>
+                    <div style={{ fontSize: "0.75rem", color: theme.text.tertiary, marginBottom: "0.25rem" }}>
+                      Instagram
+                    </div>
+                    <a
+                      href={userProfile.instagram}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      style={{
+                        color: theme.colors.secondary,
+                        textDecoration: "none",
+                        fontWeight: "500",
+                      }}
+                      onMouseEnter={(e) => e.target.style.textDecoration = "underline"}
+                      onMouseLeave={(e) => e.target.style.textDecoration = "none"}
+                    >
+                      Suivre
+                    </a>
+                  </div>
+                </div>
+              )}
+              {userProfile.twitter && (
+                <div
+                  style={{
+                    display: "flex",
+                    alignItems: "center",
+                    gap: "0.75rem",
+                    padding: "0.75rem",
+                    backgroundColor: theme.bg.secondary,
+                    borderRadius: "8px",
+                    border: `1px solid ${theme.border.light}`,
+                  }}
+                >
+                  <div style={{ fontSize: "1.5rem" }}>🐦</div>
+                  <div>
+                    <div style={{ fontSize: "0.75rem", color: theme.text.tertiary, marginBottom: "0.25rem" }}>
+                      Twitter / X
+                    </div>
+                    <a
+                      href={userProfile.twitter}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      style={{
+                        color: theme.colors.secondary,
+                        textDecoration: "none",
+                        fontWeight: "500",
+                      }}
+                      onMouseEnter={(e) => e.target.style.textDecoration = "underline"}
+                      onMouseLeave={(e) => e.target.style.textDecoration = "none"}
+                    >
+                      Suivre
+                    </a>
+                  </div>
+                </div>
+              )}
+              {userProfile.tiktok && (
+                <div
+                  style={{
+                    display: "flex",
+                    alignItems: "center",
+                    gap: "0.75rem",
+                    padding: "0.75rem",
+                    backgroundColor: theme.bg.secondary,
+                    borderRadius: "8px",
+                    border: `1px solid ${theme.border.light}`,
+                  }}
+                >
+                  <div style={{ fontSize: "1.5rem" }}>🎵</div>
+                  <div>
+                    <div style={{ fontSize: "0.75rem", color: theme.text.tertiary, marginBottom: "0.25rem" }}>
+                      TikTok
+                    </div>
+                    <a
+                      href={userProfile.tiktok}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      style={{
+                        color: theme.colors.secondary,
+                        textDecoration: "none",
+                        fontWeight: "500",
+                      }}
+                      onMouseEnter={(e) => e.target.style.textDecoration = "underline"}
+                      onMouseLeave={(e) => e.target.style.textDecoration = "none"}
+                    >
+                      Suivre
+                    </a>
+                  </div>
+                </div>
+              )}
+            </div>
+          </div>
+        )}
       </div>
 
       {/* Statistiques */}
