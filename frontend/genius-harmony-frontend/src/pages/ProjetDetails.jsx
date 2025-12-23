@@ -238,6 +238,39 @@ export default function ProjetDetails() {
     }
   };
 
+  // Fonction pour télécharger un document avec authentification
+  const handleDownloadDocument = async (documentId, titre) => {
+    try {
+      const response = await fetch(`http://127.0.0.1:8000/api/documents/${documentId}/download/`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+
+      if (!response.ok) {
+        throw new Error("Erreur lors du téléchargement");
+      }
+
+      // Récupérer le fichier en tant que blob
+      const blob = await response.blob();
+
+      // Créer un lien temporaire pour télécharger
+      const url = window.URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = titre || 'document'; // Nom du fichier
+      document.body.appendChild(a);
+      a.click();
+
+      // Nettoyer
+      window.URL.revokeObjectURL(url);
+      document.body.removeChild(a);
+    } catch (err) {
+      console.error("Erreur téléchargement document:", err);
+      alert("Impossible de télécharger le document");
+    }
+  };
+
   // Fonction pour vérifier si l'utilisateur peut créer des tâches
   const canCreateTask = () => {
     if (!user || !projet) return false;
@@ -1295,14 +1328,15 @@ export default function ProjetDetails() {
                     </a>
 
                     {/* Bouton Télécharger */}
-                    <a
-                      href={`http://127.0.0.1:8000/api/documents/${doc.id}/download/`}
+                    <button
+                      onClick={() => handleDownloadDocument(doc.id, doc.titre)}
                       style={{
                         padding: "0.75rem 1.5rem",
                         backgroundColor: theme.colors.secondary,
                         color: theme.text.inverse,
                         borderRadius: "8px",
-                        textDecoration: "none",
+                        border: "none",
+                        cursor: "pointer",
                         fontSize: "0.9rem",
                         fontWeight: "600",
                         transition: "all 0.2s",
@@ -1321,7 +1355,7 @@ export default function ProjetDetails() {
                       }}
                     >
                       ⬇ Télécharger
-                    </a>
+                    </button>
                   </div>
                 )}
               </div>
