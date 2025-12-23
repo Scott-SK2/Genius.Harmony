@@ -237,6 +237,12 @@ class UserProfileDetailView(APIView):
             "client_type": profile.client_type if profile else None,
             "photo_url": photo_url,
             "date_joined": user.date_joined,
+            # Champs de contact
+            "phone": profile.phone if profile else None,
+            "website": profile.website if profile else None,
+            "instagram": profile.instagram if profile else None,
+            "twitter": profile.twitter if profile else None,
+            "tiktok": profile.tiktok if profile else None,
         }
 
         # Projets où l'utilisateur est client
