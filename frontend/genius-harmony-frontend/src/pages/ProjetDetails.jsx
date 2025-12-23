@@ -271,6 +271,46 @@ export default function ProjetDetails() {
     }
   };
 
+  // Fonction pour supprimer un document
+  const handleDeleteDocument = async (documentId, titre) => {
+    if (!window.confirm(`Voulez-vous vraiment supprimer le document "${titre}" ?\n\nCette action est irréversible.`)) {
+      return;
+    }
+
+    try {
+      const response = await fetch(`http://127.0.0.1:8000/api/documents/${documentId}/`, {
+        method: 'DELETE',
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+
+      if (!response.ok) {
+        throw new Error("Erreur lors de la suppression");
+      }
+
+      alert("✓ Document supprimé avec succès");
+      // Recharger les détails du projet pour mettre à jour la liste des documents
+      loadProjet();
+    } catch (err) {
+      console.error("Erreur suppression document:", err);
+      alert("Impossible de supprimer le document. Vérifiez vos permissions.");
+    }
+  };
+
+  // Fonction pour vérifier si l'utilisateur peut supprimer un document
+  const canDeleteDocument = (document) => {
+    if (!user || !document) return false;
+
+    // Admin et Super Admin peuvent tout supprimer
+    if (user.role === 'admin' || user.role === 'super_admin') return true;
+
+    // Le propriétaire du document peut le supprimer
+    if (document.uploade_par === user.id) return true;
+
+    return false;
+  };
+
   // Fonction pour vérifier si l'utilisateur peut créer des tâches
   const canCreateTask = () => {
     if (!user || !projet) return false;
@@ -1356,6 +1396,38 @@ export default function ProjetDetails() {
                     >
                       ⬇ Télécharger
                     </button>
+
+                    {/* Bouton Supprimer (seulement pour admin, super_admin ou propriétaire) */}
+                    {canDeleteDocument(doc) && (
+                      <button
+                        onClick={() => handleDeleteDocument(doc.id, doc.titre)}
+                        style={{
+                          padding: "0.75rem 1.5rem",
+                          backgroundColor: "#dc2626",
+                          color: "#fff",
+                          borderRadius: "8px",
+                          border: "none",
+                          cursor: "pointer",
+                          fontSize: "0.9rem",
+                          fontWeight: "600",
+                          transition: "all 0.2s",
+                          boxShadow: theme.shadow.md,
+                          whiteSpace: "nowrap",
+                        }}
+                        onMouseEnter={(e) => {
+                          e.target.style.backgroundColor = "#b91c1c";
+                          e.target.style.transform = "translateY(-2px)";
+                          e.target.style.boxShadow = theme.shadow.lg;
+                        }}
+                        onMouseLeave={(e) => {
+                          e.target.style.backgroundColor = "#dc2626";
+                          e.target.style.transform = "translateY(0)";
+                          e.target.style.boxShadow = theme.shadow.md;
+                        }}
+                      >
+                        🗑️ Supprimer
+                      </button>
+                    )}
                   </div>
                 )}
               </div>
