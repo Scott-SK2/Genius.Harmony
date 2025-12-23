@@ -74,11 +74,11 @@ class UserProfileSerializer(serializers.ModelSerializer):
     photo_url = serializers.SerializerMethodField()
 
     # Champs de contact
-    phone = serializers.CharField(source='profile.phone', required=False, allow_blank=True)
-    website = serializers.URLField(source='profile.website', required=False, allow_blank=True)
-    instagram = serializers.URLField(source='profile.instagram', required=False, allow_blank=True)
-    twitter = serializers.URLField(source='profile.twitter', required=False, allow_blank=True)
-    tiktok = serializers.URLField(source='profile.tiktok', required=False, allow_blank=True)
+    phone = serializers.CharField(source='profile.phone', required=False, allow_blank=True, allow_null=True)
+    website = serializers.URLField(source='profile.website', required=False, allow_blank=True, allow_null=True)
+    instagram = serializers.URLField(source='profile.instagram', required=False, allow_blank=True, allow_null=True)
+    twitter = serializers.URLField(source='profile.twitter', required=False, allow_blank=True, allow_null=True)
+    tiktok = serializers.URLField(source='profile.tiktok', required=False, allow_blank=True, allow_null=True)
 
     class Meta:
         model = User
