@@ -11,29 +11,29 @@ export default function ConfirmModal({ isOpen, onClose, onConfirm, title, messag
         return {
           icon: "🗑️",
           color: "#dc2626",
-          bgColor: "rgba(220, 38, 38, 0.1)",
-          borderColor: "rgba(220, 38, 38, 0.3)",
+          bgColor: "rgba(220, 38, 38, 0.25)",
+          borderColor: "rgba(220, 38, 38, 0.5)",
         };
       case "warning":
         return {
           icon: "⚠️",
           color: "#f59e0b",
-          bgColor: "rgba(245, 158, 11, 0.1)",
-          borderColor: "rgba(245, 158, 11, 0.3)",
+          bgColor: "rgba(245, 158, 11, 0.25)",
+          borderColor: "rgba(245, 158, 11, 0.5)",
         };
       case "info":
         return {
           icon: "ℹ️",
           color: theme.colors.primary,
-          bgColor: "rgba(124, 58, 237, 0.1)",
-          borderColor: "rgba(124, 58, 237, 0.3)",
+          bgColor: "rgba(124, 58, 237, 0.25)",
+          borderColor: "rgba(124, 58, 237, 0.5)",
         };
       default:
         return {
           icon: "❓",
           color: theme.colors.primary,
-          bgColor: "rgba(124, 58, 237, 0.1)",
-          borderColor: "rgba(124, 58, 237, 0.3)",
+          bgColor: "rgba(124, 58, 237, 0.25)",
+          borderColor: "rgba(124, 58, 237, 0.5)",
         };
     }
   };
@@ -94,6 +94,7 @@ export default function ConfirmModal({ isOpen, onClose, onConfirm, title, messag
               color: "#ffffff",
               fontSize: "1.5rem",
               fontWeight: "700",
+              textShadow: "0 2px 8px rgba(0, 0, 0, 0.5)",
             }}
           >
             {title}
@@ -122,7 +123,8 @@ export default function ConfirmModal({ isOpen, onClose, onConfirm, title, messag
                 fontSize: "1rem",
                 lineHeight: "1.6",
                 whiteSpace: "pre-line",
-                fontWeight: "500",
+                fontWeight: "600",
+                textShadow: "0 1px 4px rgba(0, 0, 0, 0.6)",
               }}
             >
               {message}
@@ -141,9 +143,9 @@ export default function ConfirmModal({ isOpen, onClose, onConfirm, title, messag
               onClick={onClose}
               style={{
                 padding: "0.75rem 1.5rem",
-                backgroundColor: "rgba(156, 163, 175, 0.2)",
-                color: "#d1d5db",
-                border: "2px solid rgba(156, 163, 175, 0.3)",
+                backgroundColor: "rgba(156, 163, 175, 0.3)",
+                color: "#ffffff",
+                border: "2px solid rgba(156, 163, 175, 0.5)",
                 borderRadius: "10px",
                 fontSize: "1rem",
                 fontWeight: "600",
@@ -151,11 +153,11 @@ export default function ConfirmModal({ isOpen, onClose, onConfirm, title, messag
                 transition: "all 0.2s",
               }}
               onMouseEnter={(e) => {
-                e.target.style.backgroundColor = "rgba(156, 163, 175, 0.3)";
+                e.target.style.backgroundColor = "rgba(156, 163, 175, 0.5)";
                 e.target.style.transform = "translateY(-2px)";
               }}
               onMouseLeave={(e) => {
-                e.target.style.backgroundColor = "rgba(156, 163, 175, 0.2)";
+                e.target.style.backgroundColor = "rgba(156, 163, 175, 0.3)";
                 e.target.style.transform = "translateY(0)";
               }}
             >
