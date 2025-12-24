@@ -8,6 +8,7 @@ import { updateTache } from "../api/taches";
 import FormTache from "../components/FormTache";
 import UploadDocument from "../components/UploadDocument";
 import ConfirmModal from "../components/ConfirmModal";
+import SuccessModal from "../components/SuccessModal";
 
 const TYPE_LABELS = {
   film: "Film",
@@ -61,6 +62,7 @@ export default function ProjetDetails() {
   const [showDeleteProjetModal, setShowDeleteProjetModal] = useState(false);
   const [showDeleteDocModal, setShowDeleteDocModal] = useState(false);
   const [documentToDelete, setDocumentToDelete] = useState(null);
+  const [successModal, setSuccessModal] = useState({ isOpen: false, title: "", message: "", type: "success" });
 
   const loadProjet = async () => {
     if (!token || !id) return;
@@ -242,7 +244,12 @@ export default function ProjetDetails() {
   // Fonction pour ouvrir la modale de suppression du projet
   const handleDeleteProjet = () => {
     if (!user || user.role !== 'super_admin') {
-      alert("Seul le Super Administrateur peut supprimer des projets");
+      setSuccessModal({
+        isOpen: true,
+        title: "Accès refusé",
+        message: "Seul le Super Administrateur peut supprimer des projets",
+        type: "warning"
+      });
       return;
     }
     setShowDeleteProjetModal(true);
@@ -252,11 +259,23 @@ export default function ProjetDetails() {
   const confirmDeleteProjet = async () => {
     try {
       await deleteProjet(token, id);
-      alert("✓ Projet supprimé avec succès");
-      navigate("/projets");
+      setSuccessModal({
+        isOpen: true,
+        title: "Succès",
+        message: "Projet supprimé avec succès",
+        type: "success"
+      });
+      setTimeout(() => {
+        navigate("/projets");
+      }, 1500);
     } catch (err) {
       console.error("Erreur suppression projet:", err);
-      alert("Erreur lors de la suppression du projet");
+      setSuccessModal({
+        isOpen: true,
+        title: "Erreur",
+        message: "Erreur lors de la suppression du projet",
+        type: "warning"
+      });
     }
   };
 
@@ -289,7 +308,12 @@ export default function ProjetDetails() {
       document.body.removeChild(a);
     } catch (err) {
       console.error("Erreur téléchargement document:", err);
-      alert("Impossible de télécharger le document");
+      setSuccessModal({
+        isOpen: true,
+        title: "Erreur",
+        message: "Impossible de télécharger le document",
+        type: "warning"
+      });
     }
   };
 
@@ -315,13 +339,23 @@ export default function ProjetDetails() {
         throw new Error("Erreur lors de la suppression");
       }
 
-      alert("✓ Document supprimé avec succès");
+      setSuccessModal({
+        isOpen: true,
+        title: "Succès",
+        message: "Document supprimé avec succès",
+        type: "success"
+      });
       // Recharger les détails du projet pour mettre à jour la liste des documents
       loadProjet();
       setDocumentToDelete(null);
     } catch (err) {
       console.error("Erreur suppression document:", err);
-      alert("Impossible de supprimer le document. Vérifiez vos permissions.");
+      setSuccessModal({
+        isOpen: true,
+        title: "Erreur",
+        message: "Impossible de supprimer le document. Vérifiez vos permissions.",
+        type: "warning"
+      });
     }
   };
 
@@ -1768,6 +1802,17 @@ Cette action est irréversible.`}
         confirmText="Supprimer"
         cancelText="Annuler"
         type="danger"
+      />
+
+      {/* Modale de succès/notification */}
+      <SuccessModal
+        isOpen={successModal.isOpen}
+        onClose={() => setSuccessModal({ ...successModal, isOpen: false })}
+        title={successModal.title}
+        message={successModal.message}
+        type={successModal.type}
+        autoDismiss={successModal.type === "success"}
+        dismissDelay={3000}
       />
     </div>
   );

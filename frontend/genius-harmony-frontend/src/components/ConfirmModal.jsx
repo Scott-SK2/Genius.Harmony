@@ -91,7 +91,7 @@ export default function ConfirmModal({ isOpen, onClose, onConfirm, title, messag
           <h2
             style={{
               margin: 0,
-              color: "#fff",
+              color: "#ffffff",
               fontSize: "1.5rem",
               fontWeight: "700",
             }}
@@ -118,10 +118,11 @@ export default function ConfirmModal({ isOpen, onClose, onConfirm, title, messag
             <p
               style={{
                 margin: 0,
-                color: "#e5e7eb",
+                color: "#ffffff",
                 fontSize: "1rem",
                 lineHeight: "1.6",
                 whiteSpace: "pre-line",
+                fontWeight: "500",
               }}
             >
               {message}
