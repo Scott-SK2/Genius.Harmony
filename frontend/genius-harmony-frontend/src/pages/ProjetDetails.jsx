@@ -62,11 +62,31 @@ export default function ProjetDetails() {
     if (!token || !id) return;
     try {
       setLoading(true);
+      setError(null);
       const data = await fetchProjetDetails(token, id);
       setProjet(data);
     } catch (err) {
       console.error("Erreur fetch projet details:", err);
-      setError("Impossible de charger les détails du projet");
+
+      // Déterminer le message d'erreur selon le code HTTP
+      let errorMessage = "Impossible de charger les détails du projet";
+
+      if (err.response) {
+        const status = err.response.status;
+        if (status === 403) {
+          errorMessage = "Accès refusé : Vous n'avez pas la permission de voir ce projet";
+        } else if (status === 404) {
+          errorMessage = "Projet introuvable : Ce projet n'existe pas ou a été supprimé";
+        } else if (status === 401) {
+          errorMessage = "Non authentifié : Veuillez vous reconnecter";
+        } else if (status >= 500) {
+          errorMessage = "Erreur serveur : Impossible de charger le projet pour le moment";
+        }
+      } else if (err.message === "Network Error") {
+        errorMessage = "Erreur de connexion : Vérifiez votre connexion internet";
+      }
+
+      setError(errorMessage);
     } finally {
       setLoading(false);
     }
@@ -453,36 +473,142 @@ export default function ProjetDetails() {
 
   if (error) {
     return (
-      <div>
+      <div
+        style={{
+          display: "flex",
+          justifyContent: "center",
+          alignItems: "center",
+          minHeight: "60vh",
+          padding: "2rem",
+        }}
+      >
         <div
           style={{
-            padding: "2rem",
-            backgroundColor: `${"#f87171"}10`,
-            border: `1px solid ${"#f87171"}`,
-            borderRadius: "12px",
-            color: "#f87171",
-            marginBottom: "1.5rem",
+            maxWidth: "600px",
+            width: "100%",
+            textAlign: "center",
           }}
         >
-          <strong>Erreur :</strong> {error}
+          {/* Icône d'erreur */}
+          <div
+            style={{
+              fontSize: "5rem",
+              marginBottom: "1.5rem",
+              filter: "drop-shadow(0 4px 8px rgba(248, 113, 113, 0.3))",
+            }}
+          >
+            {error.includes("Accès refusé") ? "🔒" :
+             error.includes("introuvable") ? "🔍" :
+             error.includes("authentifié") ? "🔑" :
+             error.includes("connexion") ? "📡" : "⚠️"}
+          </div>
+
+          {/* Titre */}
+          <h2
+            style={{
+              color: "#fff",
+              fontSize: "1.8rem",
+              marginBottom: "1rem",
+              fontWeight: "700",
+            }}
+          >
+            {error.includes("Accès refusé") ? "Accès Refusé" :
+             error.includes("introuvable") ? "Projet Introuvable" :
+             error.includes("authentifié") ? "Session Expirée" :
+             error.includes("connexion") ? "Problème de Connexion" : "Erreur"}
+          </h2>
+
+          {/* Message d'erreur */}
+          <div
+            style={{
+              padding: "2rem",
+              backgroundColor: "rgba(248, 113, 113, 0.1)",
+              border: "2px solid rgba(248, 113, 113, 0.3)",
+              borderRadius: "16px",
+              marginBottom: "2rem",
+              backdropFilter: "blur(10px)",
+            }}
+          >
+            <p
+              style={{
+                color: "#fca5a5",
+                fontSize: "1.1rem",
+                lineHeight: "1.6",
+                margin: 0,
+              }}
+            >
+              {error}
+            </p>
+          </div>
+
+          {/* Boutons d'action */}
+          <div
+            style={{
+              display: "flex",
+              gap: "1rem",
+              justifyContent: "center",
+              flexWrap: "wrap",
+            }}
+          >
+            <Link
+              to="/projets"
+              style={{
+                padding: "1rem 2rem",
+                backgroundColor: theme.colors.secondary,
+                color: "#fff",
+                textDecoration: "none",
+                borderRadius: "12px",
+                fontSize: "1rem",
+                fontWeight: "600",
+                transition: "all 0.3s",
+                boxShadow: "0 4px 12px rgba(249, 115, 22, 0.3)",
+                display: "inline-block",
+              }}
+              onMouseEnter={(e) => {
+                e.target.style.backgroundColor = theme.colors.orangeLight;
+                e.target.style.transform = "translateY(-2px)";
+                e.target.style.boxShadow = "0 6px 20px rgba(249, 115, 22, 0.4)";
+              }}
+              onMouseLeave={(e) => {
+                e.target.style.backgroundColor = theme.colors.secondary;
+                e.target.style.transform = "translateY(0)";
+                e.target.style.boxShadow = "0 4px 12px rgba(249, 115, 22, 0.3)";
+              }}
+            >
+              ← Retour aux projets
+            </Link>
+
+            <button
+              onClick={() => {
+                setError(null);
+                loadProjet();
+              }}
+              style={{
+                padding: "1rem 2rem",
+                backgroundColor: "rgba(124, 58, 237, 0.2)",
+                color: theme.colors.primary,
+                border: `2px solid ${theme.colors.primary}`,
+                borderRadius: "12px",
+                fontSize: "1rem",
+                fontWeight: "600",
+                cursor: "pointer",
+                transition: "all 0.3s",
+              }}
+              onMouseEnter={(e) => {
+                e.target.style.backgroundColor = theme.colors.primary;
+                e.target.style.color = "#fff";
+                e.target.style.transform = "translateY(-2px)";
+              }}
+              onMouseLeave={(e) => {
+                e.target.style.backgroundColor = "rgba(124, 58, 237, 0.2)";
+                e.target.style.color = theme.colors.primary;
+                e.target.style.transform = "translateY(0)";
+              }}
+            >
+              🔄 Réessayer
+            </button>
+          </div>
         </div>
-        <Link
-          to="/projets"
-          style={{
-            color: "#7c3aed",
-            textDecoration: "none",
-            fontSize: "1rem",
-            fontWeight: "500",
-          }}
-          onMouseEnter={(e) => {
-            e.target.style.textDecoration = "underline";
-          }}
-          onMouseLeave={(e) => {
-            e.target.style.textDecoration = "none";
-          }}
-        >
-          ← Retour à la liste des projets
-        </Link>
       </div>
     );
   }
