@@ -7,6 +7,7 @@ import { fetchProjetDetails, updateProjetStatut, deleteProjet } from "../api/pro
 import { updateTache } from "../api/taches";
 import FormTache from "../components/FormTache";
 import UploadDocument from "../components/UploadDocument";
+import ConfirmModal from "../components/ConfirmModal";
 
 const TYPE_LABELS = {
   film: "Film",
@@ -57,6 +58,9 @@ export default function ProjetDetails() {
   const [availableUsers, setAvailableUsers] = useState([]);
   const [loadingUsers, setLoadingUsers] = useState(false);
   const [draggedTask, setDraggedTask] = useState(null);
+  const [showDeleteProjetModal, setShowDeleteProjetModal] = useState(false);
+  const [showDeleteDocModal, setShowDeleteDocModal] = useState(false);
+  const [documentToDelete, setDocumentToDelete] = useState(null);
 
   const loadProjet = async () => {
     if (!token || !id) return;
@@ -235,19 +239,17 @@ export default function ProjetDetails() {
     }
   };
 
-  // Fonction pour supprimer le projet (réservée au super_admin)
-  const handleDeleteProjet = async () => {
+  // Fonction pour ouvrir la modale de suppression du projet
+  const handleDeleteProjet = () => {
     if (!user || user.role !== 'super_admin') {
       alert("Seul le Super Administrateur peut supprimer des projets");
       return;
     }
+    setShowDeleteProjetModal(true);
+  };
 
-    const confirmation = window.confirm(
-      `⚠️ ATTENTION ⚠️\n\nVoulez-vous vraiment supprimer le projet "${projet.titre}" ?\n\nCette action est IRRÉVERSIBLE et supprimera :\n- Le projet\n- Toutes ses tâches\n- Tous ses documents\n\nTapez OK pour confirmer la suppression.`
-    );
-
-    if (!confirmation) return;
-
+  // Fonction de confirmation de suppression du projet
+  const confirmDeleteProjet = async () => {
     try {
       await deleteProjet(token, id);
       alert("✓ Projet supprimé avec succès");
@@ -291,14 +293,18 @@ export default function ProjetDetails() {
     }
   };
 
-  // Fonction pour supprimer un document
-  const handleDeleteDocument = async (documentId, titre) => {
-    if (!window.confirm(`Voulez-vous vraiment supprimer le document "${titre}" ?\n\nCette action est irréversible.`)) {
-      return;
-    }
+  // Fonction pour ouvrir la modale de suppression de document
+  const handleDeleteDocument = (documentId, titre) => {
+    setDocumentToDelete({ id: documentId, titre });
+    setShowDeleteDocModal(true);
+  };
+
+  // Fonction de confirmation de suppression de document
+  const confirmDeleteDocument = async () => {
+    if (!documentToDelete) return;
 
     try {
-      const response = await fetch(`http://127.0.0.1:8000/api/documents/${documentId}/`, {
+      const response = await fetch(`http://127.0.0.1:8000/api/documents/${documentToDelete.id}/`, {
         method: 'DELETE',
         headers: {
           Authorization: `Bearer ${token}`,
@@ -312,6 +318,7 @@ export default function ProjetDetails() {
       alert("✓ Document supprimé avec succès");
       // Recharger les détails du projet pour mettre à jour la liste des documents
       loadProjet();
+      setDocumentToDelete(null);
     } catch (err) {
       console.error("Erreur suppression document:", err);
       alert("Impossible de supprimer le document. Vérifiez vos permissions.");
@@ -1725,6 +1732,42 @@ export default function ProjetDetails() {
         onClose={() => setShowUploadDoc(false)}
         projetId={parseInt(id)}
         onSuccess={loadProjet}
+      />
+
+      {/* Modale de confirmation de suppression de projet */}
+      <ConfirmModal
+        isOpen={showDeleteProjetModal}
+        onClose={() => setShowDeleteProjetModal(false)}
+        onConfirm={confirmDeleteProjet}
+        title="Supprimer le projet"
+        message={`Voulez-vous vraiment supprimer le projet "${projet?.titre}" ?
+
+Cette action est IRRÉVERSIBLE et supprimera :
+• Le projet
+• Toutes ses tâches
+• Tous ses documents
+
+Êtes-vous absolument sûr de vouloir continuer ?`}
+        confirmText="Oui, supprimer définitivement"
+        cancelText="Non, annuler"
+        type="danger"
+      />
+
+      {/* Modale de confirmation de suppression de document */}
+      <ConfirmModal
+        isOpen={showDeleteDocModal}
+        onClose={() => {
+          setShowDeleteDocModal(false);
+          setDocumentToDelete(null);
+        }}
+        onConfirm={confirmDeleteDocument}
+        title="Supprimer le document"
+        message={`Voulez-vous vraiment supprimer le document "${documentToDelete?.titre}" ?
+
+Cette action est irréversible.`}
+        confirmText="Supprimer"
+        cancelText="Annuler"
+        type="danger"
       />
     </div>
   );
