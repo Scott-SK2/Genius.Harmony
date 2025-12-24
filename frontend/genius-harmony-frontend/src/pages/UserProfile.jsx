@@ -608,14 +608,15 @@ export default function UserProfile() {
         }}
       >
         {[
-          { label: "Projets (Client)", value: userProfile.stats.total_projets_client, icon: "👤", color: "#7c3aed" },
-          { label: "Projets (Chef)", value: userProfile.stats.total_projets_chef, icon: "🎯", color: "#a78bfa" },
-          { label: "Projets (Membre)", value: userProfile.stats.total_projets_membre, icon: "👥", color: "#c4b5fd" },
-          { label: "Projets créés", value: userProfile.stats.total_projets_crees, icon: "✨", color: "#10b981" },
-          { label: "Tâches assignées", value: userProfile.stats.total_taches_assignees, icon: "📋", color: "#f59e0b" },
+          { label: "Projets (Client)", value: userProfile.stats.total_projets_client, icon: "👤", color: "#7c3aed", link: "/projets" },
+          { label: "Projets (Chef)", value: userProfile.stats.total_projets_chef, icon: "🎯", color: "#a78bfa", link: "/projets" },
+          { label: "Projets (Membre)", value: userProfile.stats.total_projets_membre, icon: "👥", color: "#c4b5fd", link: "/projets" },
+          { label: "Projets créés", value: userProfile.stats.total_projets_crees, icon: "✨", color: "#10b981", link: "/projets" },
+          { label: "Tâches assignées", value: userProfile.stats.total_taches_assignees, icon: "📋", color: "#f59e0b", link: "/taches/kanban" },
         ].map((stat, index) => (
-          <div
+          <Link
             key={index}
+            to={stat.link}
             style={{
               backgroundColor: "#2d1b69",
               borderRadius: "12px",
@@ -623,14 +624,19 @@ export default function UserProfile() {
               border: "1px solid #4c1d95",
               transition: "all 0.2s",
               boxShadow: "0 2px 8px rgba(124, 58, 237, 0.1)",
+              textDecoration: "none",
+              display: "block",
+              cursor: "pointer",
             }}
             onMouseEnter={(e) => {
               e.currentTarget.style.transform = "translateY(-2px)";
               e.currentTarget.style.boxShadow = "0 4px 16px rgba(124, 58, 237, 0.3)";
+              e.currentTarget.style.borderColor = stat.color;
             }}
             onMouseLeave={(e) => {
               e.currentTarget.style.transform = "translateY(0)";
               e.currentTarget.style.boxShadow = "0 2px 8px rgba(124, 58, 237, 0.1)";
+              e.currentTarget.style.borderColor = "#4c1d95";
             }}
           >
             <div style={{ display: "flex", alignItems: "center", gap: "1rem" }}>
@@ -657,7 +663,7 @@ export default function UserProfile() {
                 </div>
               </div>
             </div>
-          </div>
+          </Link>
         ))}
       </div>
 
