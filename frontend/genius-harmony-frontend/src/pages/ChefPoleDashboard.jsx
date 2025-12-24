@@ -64,20 +64,20 @@ export default function ChefPoleDashboard() {
           style={{
             margin: 0,
             marginBottom: "0.75rem",
-            color: theme.text.primary,
+            color: "#fff",
             fontSize: "2.2rem",
           }}
         >
           Dashboard Chef de Pôle
         </h1>
-        <p style={{ margin: 0, color: theme.text.secondary, fontSize: "1.1rem" }}>
-          Bienvenue, <strong style={{ color: theme.text.primary }}>{user?.username}</strong>
+        <p style={{ margin: 0, color: "#c4b5fd", fontSize: "1.1rem" }}>
+          Bienvenue, <strong style={{ color: "#fff" }}>{user?.username}</strong>
         </p>
         {user?.pole_name && (
           <p
             style={{
               margin: 0,
-              color: theme.colors.primary,
+              color: theme.colors.secondary,
               fontWeight: "600",
               marginTop: "0.75rem",
               fontSize: "1.1rem",
@@ -91,7 +91,7 @@ export default function ChefPoleDashboard() {
       {/* Statistiques */}
       <h2
         style={{
-          color: theme.text.primary,
+          color: "#fff",
           marginBottom: "1.5rem",
           fontSize: "1.5rem",
         }}
@@ -204,7 +204,7 @@ export default function ChefPoleDashboard() {
       {/* Projets en cours */}
       <h2
         style={{
-          color: theme.text.primary,
+          color: "#fff",
           marginBottom: "1.5rem",
           fontSize: "1.5rem",
         }}
@@ -293,7 +293,7 @@ export default function ChefPoleDashboard() {
       {/* Tâches urgentes */}
       <h2
         style={{
-          color: theme.text.primary,
+          color: "#fff",
           marginBottom: "1.5rem",
           fontSize: "1.5rem",
         }}

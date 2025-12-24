@@ -64,21 +64,21 @@ export default function MembreDashboard() {
           style={{
             margin: 0,
             marginBottom: "0.75rem",
-            color: theme.text.primary,
+            color: "#fff",
             fontSize: "2.2rem",
           }}
         >
           Mon Espace
         </h1>
-        <p style={{ margin: 0, color: theme.text.secondary, fontSize: "1.1rem" }}>
-          Bienvenue, <strong style={{ color: theme.text.primary }}>{user?.username}</strong>
+        <p style={{ margin: 0, color: "#c4b5fd", fontSize: "1.1rem" }}>
+          Bienvenue, <strong style={{ color: "#fff" }}>{user?.username}</strong>
         </p>
       </div>
 
       {/* Statistiques */}
       <h2
         style={{
-          color: theme.text.primary,
+          color: "#fff",
           marginBottom: "1.5rem",
           fontSize: "1.5rem",
         }}
@@ -170,7 +170,7 @@ export default function MembreDashboard() {
       {/* Mes tâches à faire */}
       <h2
         style={{
-          color: theme.text.primary,
+          color: "#fff",
           marginBottom: "1.5rem",
           fontSize: "1.5rem",
         }}
@@ -269,7 +269,7 @@ export default function MembreDashboard() {
       {/* Mes tâches en cours */}
       <h2
         style={{
-          color: theme.text.primary,
+          color: "#fff",
           marginBottom: "1.5rem",
           fontSize: "1.5rem",
         }}
@@ -338,7 +338,7 @@ export default function MembreDashboard() {
       {/* Mes projets */}
       <h2
         style={{
-          color: theme.text.primary,
+          color: "#fff",
           marginBottom: "1.5rem",
           fontSize: "1.5rem",
         }}
