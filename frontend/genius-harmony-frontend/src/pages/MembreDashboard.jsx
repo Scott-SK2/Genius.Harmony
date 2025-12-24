@@ -94,13 +94,14 @@ export default function MembreDashboard() {
         }}
       >
         {[
-          { icon: "📋", label: "À faire", value: mesTachesAFaire.length, color: theme.text.secondary },
-          { icon: "⚡", label: "En cours", value: mesTachesEnCours.length, color: theme.colors.primary },
-          { icon: "✓", label: "Terminées", value: mesTachesTerminees.length, color: theme.colors.success },
-          { icon: "📁", label: "Projets", value: projets.length, color: theme.colors.purple },
+          { icon: "📋", label: "À faire", value: mesTachesAFaire.length, color: theme.text.secondary, link: "/taches/kanban" },
+          { icon: "⚡", label: "En cours", value: mesTachesEnCours.length, color: theme.colors.primary, link: "/taches/kanban" },
+          { icon: "✓", label: "Terminées", value: mesTachesTerminees.length, color: theme.colors.success, link: "/taches/kanban" },
+          { icon: "📁", label: "Projets", value: projets.length, color: theme.colors.purple, link: "/projets" },
         ].map((stat, index) => (
-          <div
+          <Link
             key={index}
+            to={stat.link}
             style={{
               backgroundColor: theme.bg.card,
               borderRadius: "16px",
@@ -108,15 +109,19 @@ export default function MembreDashboard() {
               boxShadow: theme.shadow.md,
               border: `1px solid ${theme.border.light}`,
               transition: "all 0.3s",
-              cursor: "default",
+              cursor: "pointer",
+              textDecoration: "none",
+              display: "block",
             }}
             onMouseEnter={(e) => {
               e.currentTarget.style.transform = "translateY(-4px)";
               e.currentTarget.style.boxShadow = theme.shadow.xl;
+              e.currentTarget.style.borderColor = stat.color;
             }}
             onMouseLeave={(e) => {
               e.currentTarget.style.transform = "translateY(0)";
               e.currentTarget.style.boxShadow = theme.shadow.md;
+              e.currentTarget.style.borderColor = theme.border.light;
             }}
           >
             <div
@@ -163,7 +168,7 @@ export default function MembreDashboard() {
                 </div>
               </div>
             </div>
-          </div>
+          </Link>
         ))}
       </div>
 

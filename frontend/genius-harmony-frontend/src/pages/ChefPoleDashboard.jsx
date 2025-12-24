@@ -113,6 +113,7 @@ export default function ChefPoleDashboard() {
             value: projets.length,
             subtitle: `${projetsEnCours.length} en cours`,
             color: theme.colors.primary,
+            link: "/projets",
           },
           {
             icon: "✓",
@@ -120,10 +121,12 @@ export default function ChefPoleDashboard() {
             value: taches.length,
             subtitle: `${tachesAFaire.length} à faire, ${tachesEnCours.length} en cours`,
             color: theme.colors.info,
+            link: "/taches/kanban",
           },
         ].map((stat, index) => (
-          <div
+          <Link
             key={index}
+            to={stat.link}
             style={{
               backgroundColor: theme.bg.card,
               borderRadius: "16px",
@@ -131,15 +134,19 @@ export default function ChefPoleDashboard() {
               boxShadow: theme.shadow.md,
               border: `1px solid ${theme.border.light}`,
               transition: "all 0.3s",
-              cursor: "default",
+              cursor: "pointer",
+              textDecoration: "none",
+              display: "block",
             }}
             onMouseEnter={(e) => {
               e.currentTarget.style.transform = "translateY(-4px)";
               e.currentTarget.style.boxShadow = theme.shadow.xl;
+              e.currentTarget.style.borderColor = stat.color;
             }}
             onMouseLeave={(e) => {
               e.currentTarget.style.transform = "translateY(0)";
               e.currentTarget.style.boxShadow = theme.shadow.md;
+              e.currentTarget.style.borderColor = theme.border.light;
             }}
           >
             <div
@@ -197,7 +204,7 @@ export default function ChefPoleDashboard() {
             >
               {stat.subtitle}
             </div>
-          </div>
+          </Link>
         ))}
       </div>
 
