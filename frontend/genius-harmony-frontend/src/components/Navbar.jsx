@@ -1,6 +1,7 @@
 import { Link } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 import { useTheme } from "../context/ThemeContext";
+import logo from "../assets/GH long.png";
 
 export default function Navbar() {
   const { user, logout } = useAuth();
@@ -33,11 +34,17 @@ export default function Navbar() {
           color: theme.colors.primary,
           display: "flex",
           alignItems: "center",
-          gap: "0.5rem",
+          gap: "0.75rem",
         }}
       >
-        <span>🎭</span>
-        <span>Genius.Harmony</span>
+        <img
+          src={logo}
+          alt="Genius Harmony Logo"
+          style={{
+            height: "40px",
+            objectFit: "contain"
+          }}
+        />
       </Link>
 
       {/* Navigation principale */}
