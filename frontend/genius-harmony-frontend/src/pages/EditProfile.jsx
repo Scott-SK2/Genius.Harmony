@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { useParams, useNavigate, Link } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 import { useTheme } from "../context/ThemeContext";
+import { API_BASE_URL } from "../config";
 
 const SPECIALITE_OPTIONS = [
   { value: "", label: "Non spécifié" },
@@ -48,7 +49,7 @@ export default function EditProfile() {
     const fetchProfile = async () => {
       try {
         setLoading(true);
-        const response = await fetch(`http://127.0.0.1:8000/api/users/${id}/profile/`, {
+        const response = await fetch(`${API_BASE_URL}/api/users/${id}/profile/`, {
           headers: {
             Authorization: `Bearer ${token}`,
           },
@@ -86,7 +87,7 @@ export default function EditProfile() {
       setSaving(true);
       setError(null);
 
-      const response = await fetch(`http://127.0.0.1:8000/api/users/${id}/`, {
+      const response = await fetch(`${API_BASE_URL}/api/users/${id}/`, {
         method: "PATCH",
         headers: {
           "Content-Type": "application/json",

@@ -1,0 +1,26 @@
+services:
+  - type: web
+    name: genius-harmony-backend
+    env: python
+    buildCommand: "./build.sh"
+    startCommand: "gunicorn genius_harmony.wsgi:application"
+    envVars:
+      - key: PYTHON_VERSION
+        value: 3.11.0
+      - key: SECRET_KEY
+        generateValue: true
+      - key: DEBUG
+        value: False
+      - key: DATABASE_URL
+        fromDatabase:
+          name: genius-harmony-db
+          property: connectionString
+      - key: ALLOWED_HOSTS
+        sync: false
+      - key: CORS_ALLOWED_ORIGINS
+        sync: false
+
+databases:
+  - name: genius-harmony-db
+    databaseName: genius_harmony
+    user: genius_harmony_user

@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { useParams, Link, useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 import { useTheme } from "../context/ThemeContext";
+import { API_BASE_URL } from "../config";
 
 import { fetchProjetDetails, updateProjetStatut, deleteProjet } from "../api/projets";
 import { updateTache } from "../api/taches";
@@ -197,7 +198,7 @@ export default function ProjetDetails() {
 
     setLoadingUsers(true);
     try {
-      const response = await fetch('http://127.0.0.1:8000/api/users/', {
+      const response = await fetch(`${API_BASE_URL}/api/users/`, {
         headers: {
           Authorization: `Bearer ${token}`,
         },
@@ -282,7 +283,7 @@ export default function ProjetDetails() {
   // Fonction pour télécharger un document avec authentification
   const handleDownloadDocument = async (documentId, titre) => {
     try {
-      const response = await fetch(`http://127.0.0.1:8000/api/documents/${documentId}/download/`, {
+      const response = await fetch(`${API_BASE_URL}/api/documents/${documentId}/download/`, {
         headers: {
           Authorization: `Bearer ${token}`,
         },
@@ -328,7 +329,7 @@ export default function ProjetDetails() {
     if (!documentToDelete) return;
 
     try {
-      const response = await fetch(`http://127.0.0.1:8000/api/documents/${documentToDelete.id}/`, {
+      const response = await fetch(`${API_BASE_URL}/api/documents/${documentToDelete.id}/`, {
         method: 'DELETE',
         headers: {
           Authorization: `Bearer ${token}`,
