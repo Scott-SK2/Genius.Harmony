@@ -140,7 +140,7 @@ export default function FormTache({ isOpen, onClose, tache, projetId, onSuccess 
       <form onSubmit={handleSubmit}>
         {/* Projet */}
         <div style={{ marginBottom: "1rem" }}>
-          <label style={{ display: "block", marginBottom: "0.5rem", fontWeight: "500" }}>
+          <label style={{ display: "block", marginBottom: "0.5rem", fontWeight: "500", color: "#1a1a1a" }}>
             Projet *
           </label>
           <select
@@ -168,7 +168,7 @@ export default function FormTache({ isOpen, onClose, tache, projetId, onSuccess 
 
         {/* Titre */}
         <div style={{ marginBottom: "1rem" }}>
-          <label style={{ display: "block", marginBottom: "0.5rem", fontWeight: "500" }}>
+          <label style={{ display: "block", marginBottom: "0.5rem", fontWeight: "500", color: "#1a1a1a" }}>
             Titre de la tâche *
           </label>
           <input
@@ -188,7 +188,7 @@ export default function FormTache({ isOpen, onClose, tache, projetId, onSuccess 
 
         {/* Description */}
         <div style={{ marginBottom: "1rem" }}>
-          <label style={{ display: "block", marginBottom: "0.5rem", fontWeight: "500" }}>
+          <label style={{ display: "block", marginBottom: "0.5rem", fontWeight: "500", color: "#1a1a1a" }}>
             Description
           </label>
           <textarea
@@ -208,7 +208,7 @@ export default function FormTache({ isOpen, onClose, tache, projetId, onSuccess 
         {/* Statut et Priorité */}
         <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "1rem", marginBottom: "1rem" }}>
           <div>
-            <label style={{ display: "block", marginBottom: "0.5rem", fontWeight: "500" }}>
+            <label style={{ display: "block", marginBottom: "0.5rem", fontWeight: "500", color: "#1a1a1a" }}>
               Statut
             </label>
             <select
@@ -231,7 +231,7 @@ export default function FormTache({ isOpen, onClose, tache, projetId, onSuccess 
           </div>
 
           <div>
-            <label style={{ display: "block", marginBottom: "0.5rem", fontWeight: "500" }}>
+            <label style={{ display: "block", marginBottom: "0.5rem", fontWeight: "500", color: "#1a1a1a" }}>
               Priorité
             </label>
             <select
@@ -256,7 +256,7 @@ export default function FormTache({ isOpen, onClose, tache, projetId, onSuccess 
 
         {/* Assigné à (sélection multiple) */}
         <div style={{ marginBottom: "1rem" }}>
-          <label style={{ display: "block", marginBottom: "0.5rem", fontWeight: "500" }}>
+          <label style={{ display: "block", marginBottom: "0.5rem", fontWeight: "500", color: "#1a1a1a" }}>
             Assigné à (plusieurs personnes possibles)
           </label>
           <div
@@ -278,12 +278,13 @@ export default function FormTache({ isOpen, onClose, tache, projetId, onSuccess 
                 <div
                   key={user.id}
                   style={{
-                    padding: "0.4rem",
+                    padding: "0.75rem", // Padding plus grand pour mobile
                     display: "flex",
                     alignItems: "center",
                     cursor: "pointer",
                     borderRadius: "4px",
                     transition: "background-color 0.2s",
+                    minHeight: "44px", // Taille minimale pour touch target
                   }}
                   onMouseEnter={(e) => e.currentTarget.style.backgroundColor = "#f0f0f0"}
                   onMouseLeave={(e) => e.currentTarget.style.backgroundColor = "transparent"}
@@ -293,9 +294,15 @@ export default function FormTache({ isOpen, onClose, tache, projetId, onSuccess 
                     type="checkbox"
                     checked={formData.assigne_a.includes(user.id)}
                     onChange={() => handleAssigneToggle(user.id)}
-                    style={{ marginRight: "0.5rem", cursor: "pointer" }}
+                    style={{
+                      marginRight: "0.75rem",
+                      cursor: "pointer",
+                      width: "20px", // Taille de checkbox pour mobile
+                      height: "20px",
+                      flexShrink: 0, // Empêche le rétrécissement
+                    }}
                   />
-                  <span style={{ fontSize: "0.95rem" }}>
+                  <span style={{ fontSize: "0.95rem", lineHeight: "1.4" }}>
                     {user.username} <span style={{ color: "#666" }}>({user.role})</span>
                   </span>
                 </div>
@@ -311,7 +318,7 @@ export default function FormTache({ isOpen, onClose, tache, projetId, onSuccess 
 
         {/* Deadline */}
         <div style={{ marginBottom: "1.5rem" }}>
-          <label style={{ display: "block", marginBottom: "0.5rem", fontWeight: "500" }}>
+          <label style={{ display: "block", marginBottom: "0.5rem", fontWeight: "500", color: "#1a1a1a" }}>
             Deadline
           </label>
           <input

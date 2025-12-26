@@ -197,11 +197,14 @@ class Document(models.Model):
     TYPE_CHOICES = [
         ('scenario', 'Scénario'),
         ('contrat', 'Contrat'),
+        ('budget', 'Budget'),
+        ('planning', 'Planning'),
         ('brief', 'Brief'),
         ('moodboard', 'Moodboard'),
         ('rush', 'Rush / Footage'),
         ('montage', 'Montage'),
         ('export_final', 'Export final'),
+        ('media', 'Media'),
         ('presskit', 'Presskit'),
         ('autre', 'Autre'),
     ]

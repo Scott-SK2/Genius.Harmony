@@ -2,6 +2,7 @@ import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { register } from "../api/auth";
 import { useTheme } from "../context/ThemeContext";
+import logo from "../assets/GH long.png";
 
 const ROLE_OPTIONS = [
   { value: "membre", label: "Membre", description: "Membre de l'équipe" },
@@ -123,7 +124,16 @@ export default function Register() {
       >
         {/* Logo */}
         <div style={{ textAlign: "center", marginBottom: "2rem" }}>
-          <div style={{ fontSize: "3rem", marginBottom: "0.5rem" }}>🎭</div>
+          <div style={{ marginBottom: "1rem", display: "flex", justifyContent: "center" }}>
+            <img
+              src={logo}
+              alt="Genius Harmony Logo"
+              style={{
+                height: "80px",
+                objectFit: "contain"
+              }}
+            />
+          </div>
           <h1
             style={{
               margin: 0,

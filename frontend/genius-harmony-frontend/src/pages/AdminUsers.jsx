@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
+import { useTheme } from "../context/ThemeContext";
 import { fetchUsers, updateUser, deleteUser } from "../api/users";
 
 const ROLE_LABELS = {
@@ -57,6 +58,7 @@ const SPECIALITE_OPTIONS = [
 
 export default function AdminUsers() {
   const { token, user } = useAuth();
+  const { theme } = useTheme();
   const [users, setUsers] = useState([]);
   const [savingId, setSavingId] = useState(null);
 
@@ -322,8 +324,8 @@ export default function AdminUsers() {
                         to={`/users/${u.id}/profile`}
                         style={{
                           padding: "0.5rem 1rem",
-                          backgroundColor: "#7c3aed",
-                          color: "#fff",
+                          backgroundColor: theme.colors.secondary,
+                          color: theme.text.inverse,
                           borderRadius: "8px",
                           textDecoration: "none",
                           fontSize: "0.9rem",
@@ -332,11 +334,11 @@ export default function AdminUsers() {
                           transition: "all 0.2s",
                         }}
                         onMouseEnter={(e) => {
-                          e.target.style.backgroundColor = "#6d32d1";
+                          e.target.style.backgroundColor = theme.colors.orangeLight;
                           e.target.style.transform = "translateY(-2px)";
                         }}
                         onMouseLeave={(e) => {
-                          e.target.style.backgroundColor = "#7c3aed";
+                          e.target.style.backgroundColor = theme.colors.secondary;
                           e.target.style.transform = "translateY(0)";
                         }}
                       >

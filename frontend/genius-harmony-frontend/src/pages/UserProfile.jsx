@@ -1,6 +1,8 @@
 import { useEffect, useState } from "react";
 import { useParams, Link } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
+import { useTheme } from "../context/ThemeContext";
+import { API_BASE_URL } from "../config";
 
 const ROLE_LABELS = {
   super_admin: "Super Administrateur",
@@ -69,6 +71,7 @@ const PRIORITE_COLORS = {
 export default function UserProfile() {
   const { id } = useParams();
   const { token, user } = useAuth();
+  const { theme } = useTheme();
   const [userProfile, setUserProfile] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -94,7 +97,7 @@ export default function UserProfile() {
 
     try {
       setUploadingPhoto(true);
-      const response = await fetch(`http://127.0.0.1:8000/api/users/${id}/upload-photo/`, {
+      const response = await fetch(`${API_BASE_URL}/api/users/${id}/upload-photo/`, {
         method: 'POST',
         headers: {
           Authorization: `Bearer ${token}`,
@@ -119,7 +122,7 @@ export default function UserProfile() {
   const fetchUserProfile = async () => {
     try {
       setLoading(true);
-      const response = await fetch(`http://127.0.0.1:8000/api/users/${id}/profile/`, {
+      const response = await fetch(`${API_BASE_URL}/api/users/${id}/profile/`, {
         headers: {
           Authorization: `Bearer ${token}`,
         },
@@ -197,11 +200,11 @@ export default function UserProfile() {
   return (
     <div style={{ width: "100%" }}>
       {/* Navigation */}
-      <div style={{ marginBottom: "2rem" }}>
+      <div style={{ marginBottom: "2rem", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
         <Link
           to="/admin/users"
           style={{
-            color: "#7c3aed",
+            color: theme.colors.primary,
             textDecoration: "none",
             fontSize: "1rem",
             fontWeight: "600",
@@ -215,17 +218,46 @@ export default function UserProfile() {
         >
           ← Retour à la liste des utilisateurs
         </Link>
+
+        {canUploadPhoto() && (
+          <Link
+            to={`/users/${id}/edit`}
+            style={{
+              padding: "0.6rem 1.2rem",
+              backgroundColor: theme.colors.secondary,
+              color: theme.text.inverse,
+              textDecoration: "none",
+              borderRadius: "8px",
+              fontSize: "0.95rem",
+              fontWeight: "600",
+              transition: "all 0.2s",
+              display: "inline-block",
+            }}
+            onMouseEnter={(e) => {
+              e.target.style.backgroundColor = theme.colors.accent;
+              e.target.style.transform = "translateY(-2px)";
+              e.target.style.boxShadow = theme.shadow.md;
+            }}
+            onMouseLeave={(e) => {
+              e.target.style.backgroundColor = theme.colors.secondary;
+              e.target.style.transform = "translateY(0)";
+              e.target.style.boxShadow = "none";
+            }}
+          >
+            ✏️ Modifier le profil
+          </Link>
+        )}
       </div>
 
       {/* En-tête du profil */}
       <div
         style={{
           marginBottom: "2.5rem",
-          backgroundColor: "#2d1b69",
+          backgroundColor: theme.bg.tertiary,
           padding: "2rem",
           borderRadius: "16px",
-          boxShadow: "0 4px 16px rgba(124, 58, 237, 0.3)",
-          border: "1px solid #4c1d95",
+          boxShadow: theme.shadow.lg,
+          border: `1px solid ${theme.border.light}`,
         }}
       >
         <div style={{ display: "flex", alignItems: "center", gap: "2rem", marginBottom: "1.5rem", flexWrap: "wrap" }}>
@@ -235,13 +267,13 @@ export default function UserProfile() {
                 width: "80px",
                 height: "80px",
                 borderRadius: "50%",
-                backgroundColor: "#7c3aed",
+                backgroundColor: theme.colors.primary,
                 display: "flex",
                 alignItems: "center",
                 justifyContent: "center",
                 fontSize: "2.5rem",
                 overflow: "hidden",
-                border: "3px solid #a78bfa",
+                border: `3px solid ${theme.colors.secondary}`,
               }}
             >
               {userProfile.photo_url ? (
@@ -268,8 +300,8 @@ export default function UserProfile() {
                   width: "30px",
                   height: "30px",
                   borderRadius: "50%",
-                  backgroundColor: "#7c3aed",
-                  border: "2px solid #2d1b69",
+                  backgroundColor: theme.colors.secondary,
+                  border: `2px solid ${theme.bg.tertiary}`,
                   display: "flex",
                   alignItems: "center",
                   justifyContent: "center",
@@ -280,13 +312,13 @@ export default function UserProfile() {
                 onMouseEnter={(e) => {
                   if (!uploadingPhoto) {
                     e.target.style.transform = "scale(1.1)";
-                    e.target.style.backgroundColor = "#6d32d1";
+                    e.target.style.backgroundColor = theme.colors.accent;
                   }
                 }}
                 onMouseLeave={(e) => {
                   if (!uploadingPhoto) {
                     e.target.style.transform = "scale(1)";
-                    e.target.style.backgroundColor = "#7c3aed";
+                    e.target.style.backgroundColor = theme.colors.secondary;
                   }
                 }}
               >
@@ -303,10 +335,10 @@ export default function UserProfile() {
             />
           </div>
           <div>
-            <h1 style={{ margin: 0, color: "#fff", fontSize: "2rem" }}>
+            <h1 style={{ margin: 0, color: theme.text.primary, fontSize: "2rem" }}>
               {userProfile.username}
             </h1>
-            <div style={{ color: "#c4b5fd", fontSize: "1.1rem", marginTop: "0.5rem" }}>
+            <div style={{ color: theme.text.secondary, fontSize: "1.1rem", marginTop: "0.5rem" }}>
               {ROLE_LABELS[userProfile.role] || userProfile.role}
               {(userProfile.role === 'membre' || userProfile.role === 'chef_pole') && userProfile.membre_specialite &&
                 ` (${SPECIALITE_LABELS[userProfile.membre_specialite] || userProfile.membre_specialite})`}
@@ -322,36 +354,36 @@ export default function UserProfile() {
             gap: "1.5rem",
             marginTop: "1.5rem",
             paddingTop: "1.5rem",
-            borderTop: "1px solid #4c1d95",
+            borderTop: `1px solid ${theme.border.medium}`,
           }}
         >
           <div>
-            <div style={{ fontSize: "0.85rem", color: "#a78bfa", marginBottom: "0.5rem" }}>
+            <div style={{ fontSize: "0.85rem", color: theme.text.tertiary, marginBottom: "0.5rem" }}>
               Email
             </div>
-            <div style={{ color: "#fff", fontSize: "1rem" }}>{userProfile.email}</div>
+            <div style={{ color: theme.text.primary, fontSize: "1rem" }}>{userProfile.email}</div>
           </div>
           {userProfile.first_name && (
             <div>
-              <div style={{ fontSize: "0.85rem", color: "#a78bfa", marginBottom: "0.5rem" }}>
+              <div style={{ fontSize: "0.85rem", color: theme.text.tertiary, marginBottom: "0.5rem" }}>
                 Prénom
               </div>
-              <div style={{ color: "#fff", fontSize: "1rem" }}>{userProfile.first_name}</div>
+              <div style={{ color: theme.text.primary, fontSize: "1rem" }}>{userProfile.first_name}</div>
             </div>
           )}
           {userProfile.last_name && (
             <div>
-              <div style={{ fontSize: "0.85rem", color: "#a78bfa", marginBottom: "0.5rem" }}>
+              <div style={{ fontSize: "0.85rem", color: theme.text.tertiary, marginBottom: "0.5rem" }}>
                 Nom
               </div>
-              <div style={{ color: "#fff", fontSize: "1rem" }}>{userProfile.last_name}</div>
+              <div style={{ color: theme.text.primary, fontSize: "1rem" }}>{userProfile.last_name}</div>
             </div>
           )}
           <div>
-            <div style={{ fontSize: "0.85rem", color: "#a78bfa", marginBottom: "0.5rem" }}>
+            <div style={{ fontSize: "0.85rem", color: theme.text.tertiary, marginBottom: "0.5rem" }}>
               Membre depuis
             </div>
-            <div style={{ color: "#fff", fontSize: "1rem" }}>
+            <div style={{ color: theme.text.primary, fontSize: "1rem" }}>
               {new Date(userProfile.date_joined).toLocaleDateString("fr-FR")}
             </div>
           </div>
@@ -363,14 +395,205 @@ export default function UserProfile() {
             style={{
               marginTop: "1.5rem",
               paddingTop: "1.5rem",
-              borderTop: "1px solid #4c1d95",
+              borderTop: `1px solid ${theme.border.medium}`,
             }}
           >
-            <div style={{ fontSize: "0.85rem", color: "#a78bfa", marginBottom: "0.5rem" }}>
+            <div style={{ fontSize: "0.85rem", color: theme.colors.secondary, marginBottom: "0.5rem", fontWeight: "600" }}>
               Description
             </div>
-            <div style={{ color: "#fff", fontSize: "1rem", lineHeight: "1.6" }}>
+            <div style={{ color: theme.text.primary, fontSize: "1rem", lineHeight: "1.6" }}>
               {userProfile.description}
+            </div>
+          </div>
+        )}
+
+        {/* Informations de contact */}
+        {(userProfile.phone || userProfile.website || userProfile.instagram || userProfile.twitter || userProfile.tiktok) && (
+          <div
+            style={{
+              marginTop: "1.5rem",
+              paddingTop: "1.5rem",
+              borderTop: `1px solid ${theme.border.medium}`,
+            }}
+          >
+            <div style={{ fontSize: "0.85rem", color: theme.colors.secondary, marginBottom: "1rem", fontWeight: "600" }}>
+              📞 Informations de contact
+            </div>
+            <div
+              style={{
+                display: "grid",
+                gridTemplateColumns: "repeat(auto-fit, minmax(250px, 1fr))",
+                gap: "1rem",
+              }}
+            >
+              {userProfile.phone && (
+                <div
+                  style={{
+                    display: "flex",
+                    alignItems: "center",
+                    gap: "0.75rem",
+                    padding: "0.75rem",
+                    backgroundColor: theme.bg.secondary,
+                    borderRadius: "8px",
+                    border: `1px solid ${theme.border.light}`,
+                  }}
+                >
+                  <div style={{ fontSize: "1.5rem" }}>📱</div>
+                  <div>
+                    <div style={{ fontSize: "0.75rem", color: theme.text.tertiary, marginBottom: "0.25rem" }}>
+                      Téléphone
+                    </div>
+                    <a
+                      href={`tel:${userProfile.phone}`}
+                      style={{
+                        color: theme.colors.secondary,
+                        textDecoration: "none",
+                        fontWeight: "500",
+                      }}
+                      onMouseEnter={(e) => e.target.style.textDecoration = "underline"}
+                      onMouseLeave={(e) => e.target.style.textDecoration = "none"}
+                    >
+                      {userProfile.phone}
+                    </a>
+                  </div>
+                </div>
+              )}
+              {userProfile.website && (
+                <div
+                  style={{
+                    display: "flex",
+                    alignItems: "center",
+                    gap: "0.75rem",
+                    padding: "0.75rem",
+                    backgroundColor: theme.bg.secondary,
+                    borderRadius: "8px",
+                    border: `1px solid ${theme.border.light}`,
+                  }}
+                >
+                  <div style={{ fontSize: "1.5rem" }}>🌐</div>
+                  <div>
+                    <div style={{ fontSize: "0.75rem", color: theme.text.tertiary, marginBottom: "0.25rem" }}>
+                      Site web
+                    </div>
+                    <a
+                      href={userProfile.website}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      style={{
+                        color: theme.colors.secondary,
+                        textDecoration: "none",
+                        fontWeight: "500",
+                      }}
+                      onMouseEnter={(e) => e.target.style.textDecoration = "underline"}
+                      onMouseLeave={(e) => e.target.style.textDecoration = "none"}
+                    >
+                      Visiter
+                    </a>
+                  </div>
+                </div>
+              )}
+              {userProfile.instagram && (
+                <div
+                  style={{
+                    display: "flex",
+                    alignItems: "center",
+                    gap: "0.75rem",
+                    padding: "0.75rem",
+                    backgroundColor: theme.bg.secondary,
+                    borderRadius: "8px",
+                    border: `1px solid ${theme.border.light}`,
+                  }}
+                >
+                  <div style={{ fontSize: "1.5rem" }}>📸</div>
+                  <div>
+                    <div style={{ fontSize: "0.75rem", color: theme.text.tertiary, marginBottom: "0.25rem" }}>
+                      Instagram
+                    </div>
+                    <a
+                      href={userProfile.instagram}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      style={{
+                        color: theme.colors.secondary,
+                        textDecoration: "none",
+                        fontWeight: "500",
+                      }}
+                      onMouseEnter={(e) => e.target.style.textDecoration = "underline"}
+                      onMouseLeave={(e) => e.target.style.textDecoration = "none"}
+                    >
+                      Suivre
+                    </a>
+                  </div>
+                </div>
+              )}
+              {userProfile.twitter && (
+                <div
+                  style={{
+                    display: "flex",
+                    alignItems: "center",
+                    gap: "0.75rem",
+                    padding: "0.75rem",
+                    backgroundColor: theme.bg.secondary,
+                    borderRadius: "8px",
+                    border: `1px solid ${theme.border.light}`,
+                  }}
+                >
+                  <div style={{ fontSize: "1.5rem" }}>🐦</div>
+                  <div>
+                    <div style={{ fontSize: "0.75rem", color: theme.text.tertiary, marginBottom: "0.25rem" }}>
+                      Twitter / X
+                    </div>
+                    <a
+                      href={userProfile.twitter}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      style={{
+                        color: theme.colors.secondary,
+                        textDecoration: "none",
+                        fontWeight: "500",
+                      }}
+                      onMouseEnter={(e) => e.target.style.textDecoration = "underline"}
+                      onMouseLeave={(e) => e.target.style.textDecoration = "none"}
+                    >
+                      Suivre
+                    </a>
+                  </div>
+                </div>
+              )}
+              {userProfile.tiktok && (
+                <div
+                  style={{
+                    display: "flex",
+                    alignItems: "center",
+                    gap: "0.75rem",
+                    padding: "0.75rem",
+                    backgroundColor: theme.bg.secondary,
+                    borderRadius: "8px",
+                    border: `1px solid ${theme.border.light}`,
+                  }}
+                >
+                  <div style={{ fontSize: "1.5rem" }}>🎵</div>
+                  <div>
+                    <div style={{ fontSize: "0.75rem", color: theme.text.tertiary, marginBottom: "0.25rem" }}>
+                      TikTok
+                    </div>
+                    <a
+                      href={userProfile.tiktok}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      style={{
+                        color: theme.colors.secondary,
+                        textDecoration: "none",
+                        fontWeight: "500",
+                      }}
+                      onMouseEnter={(e) => e.target.style.textDecoration = "underline"}
+                      onMouseLeave={(e) => e.target.style.textDecoration = "none"}
+                    >
+                      Suivre
+                    </a>
+                  </div>
+                </div>
+              )}
             </div>
           </div>
         )}
@@ -386,14 +609,15 @@ export default function UserProfile() {
         }}
       >
         {[
-          { label: "Projets (Client)", value: userProfile.stats.total_projets_client, icon: "👤", color: "#7c3aed" },
-          { label: "Projets (Chef)", value: userProfile.stats.total_projets_chef, icon: "🎯", color: "#a78bfa" },
-          { label: "Projets (Membre)", value: userProfile.stats.total_projets_membre, icon: "👥", color: "#c4b5fd" },
-          { label: "Projets créés", value: userProfile.stats.total_projets_crees, icon: "✨", color: "#10b981" },
-          { label: "Tâches assignées", value: userProfile.stats.total_taches_assignees, icon: "📋", color: "#f59e0b" },
+          { label: "Projets (Client)", value: userProfile.stats.total_projets_client, icon: "👤", color: "#7c3aed", link: "/projets" },
+          { label: "Projets (Chef)", value: userProfile.stats.total_projets_chef, icon: "🎯", color: "#a78bfa", link: "/projets" },
+          { label: "Projets (Membre)", value: userProfile.stats.total_projets_membre, icon: "👥", color: "#c4b5fd", link: "/projets" },
+          { label: "Projets créés", value: userProfile.stats.total_projets_crees, icon: "✨", color: "#10b981", link: "/projets" },
+          { label: "Tâches assignées", value: userProfile.stats.total_taches_assignees, icon: "📋", color: "#f59e0b", link: "/taches/kanban" },
         ].map((stat, index) => (
-          <div
+          <Link
             key={index}
+            to={stat.link}
             style={{
               backgroundColor: "#2d1b69",
               borderRadius: "12px",
@@ -401,14 +625,19 @@ export default function UserProfile() {
               border: "1px solid #4c1d95",
               transition: "all 0.2s",
               boxShadow: "0 2px 8px rgba(124, 58, 237, 0.1)",
+              textDecoration: "none",
+              display: "block",
+              cursor: "pointer",
             }}
             onMouseEnter={(e) => {
               e.currentTarget.style.transform = "translateY(-2px)";
               e.currentTarget.style.boxShadow = "0 4px 16px rgba(124, 58, 237, 0.3)";
+              e.currentTarget.style.borderColor = stat.color;
             }}
             onMouseLeave={(e) => {
               e.currentTarget.style.transform = "translateY(0)";
               e.currentTarget.style.boxShadow = "0 2px 8px rgba(124, 58, 237, 0.1)";
+              e.currentTarget.style.borderColor = "#4c1d95";
             }}
           >
             <div style={{ display: "flex", alignItems: "center", gap: "1rem" }}>
@@ -435,7 +664,7 @@ export default function UserProfile() {
                 </div>
               </div>
             </div>
-          </div>
+          </Link>
         ))}
       </div>
 

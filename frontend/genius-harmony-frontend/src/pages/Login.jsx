@@ -2,6 +2,7 @@ import { useState } from "react";
 import { Link, useNavigate, useLocation } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 import { useTheme } from "../context/ThemeContext";
+import logo from "../assets/GH long.png";
 
 export default function Login() {
   const [username, setUsername] = useState("");
@@ -80,7 +81,16 @@ export default function Login() {
       >
         {/* Logo */}
         <div style={{ textAlign: "center", marginBottom: "2rem" }}>
-          <div style={{ fontSize: "3rem", marginBottom: "0.5rem" }}>🎭</div>
+          <div style={{ marginBottom: "1rem", display: "flex", justifyContent: "center" }}>
+            <img
+              src={logo}
+              alt="Genius Harmony Logo"
+              style={{
+                height: "80px",
+                objectFit: "contain"
+              }}
+            />
+          </div>
           <h1
             style={{
               margin: 0,

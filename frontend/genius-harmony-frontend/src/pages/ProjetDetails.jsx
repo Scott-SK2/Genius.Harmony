@@ -1,11 +1,15 @@
 import { useEffect, useState } from "react";
 import { useParams, Link, useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
+import { useTheme } from "../context/ThemeContext";
+import { API_BASE_URL } from "../config";
 
 import { fetchProjetDetails, updateProjetStatut, deleteProjet } from "../api/projets";
 import { updateTache } from "../api/taches";
 import FormTache from "../components/FormTache";
 import UploadDocument from "../components/UploadDocument";
+import ConfirmModal from "../components/ConfirmModal";
+import SuccessModal from "../components/SuccessModal";
 
 const TYPE_LABELS = {
   film: "Film",
@@ -42,6 +46,7 @@ const TACHE_PRIORITE_LABELS = {
 export default function ProjetDetails() {
   const { id } = useParams();
   const { token, user } = useAuth();
+  const { theme } = useTheme();
   const navigate = useNavigate();
 
   const [projet, setProjet] = useState(null);
@@ -55,16 +60,40 @@ export default function ProjetDetails() {
   const [availableUsers, setAvailableUsers] = useState([]);
   const [loadingUsers, setLoadingUsers] = useState(false);
   const [draggedTask, setDraggedTask] = useState(null);
+  const [showDeleteProjetModal, setShowDeleteProjetModal] = useState(false);
+  const [showDeleteDocModal, setShowDeleteDocModal] = useState(false);
+  const [documentToDelete, setDocumentToDelete] = useState(null);
+  const [successModal, setSuccessModal] = useState({ isOpen: false, title: "", message: "", type: "success" });
 
   const loadProjet = async () => {
     if (!token || !id) return;
     try {
       setLoading(true);
+      setError(null);
       const data = await fetchProjetDetails(token, id);
       setProjet(data);
     } catch (err) {
       console.error("Erreur fetch projet details:", err);
-      setError("Impossible de charger les détails du projet");
+
+      // Déterminer le message d'erreur selon le code HTTP
+      let errorMessage = "Impossible de charger les détails du projet";
+
+      if (err.response) {
+        const status = err.response.status;
+        if (status === 403) {
+          errorMessage = "Accès refusé : Vous n'avez pas la permission de voir ce projet";
+        } else if (status === 404) {
+          errorMessage = "Projet introuvable : Ce projet n'existe pas ou a été supprimé";
+        } else if (status === 401) {
+          errorMessage = "Non authentifié : Veuillez vous reconnecter";
+        } else if (status >= 500) {
+          errorMessage = "Erreur serveur : Impossible de charger le projet pour le moment";
+        }
+      } else if (err.message === "Network Error") {
+        errorMessage = "Erreur de connexion : Vérifiez votre connexion internet";
+      }
+
+      setError(errorMessage);
     } finally {
       setLoading(false);
     }
@@ -169,7 +198,7 @@ export default function ProjetDetails() {
 
     setLoadingUsers(true);
     try {
-      const response = await fetch('http://127.0.0.1:8000/api/users/', {
+      const response = await fetch(`${API_BASE_URL}/api/users/`, {
         headers: {
           Authorization: `Bearer ${token}`,
         },
@@ -213,27 +242,135 @@ export default function ProjetDetails() {
     }
   };
 
-  // Fonction pour supprimer le projet (réservée au super_admin)
-  const handleDeleteProjet = async () => {
+  // Fonction pour ouvrir la modale de suppression du projet
+  const handleDeleteProjet = () => {
     if (!user || user.role !== 'super_admin') {
-      alert("Seul le Super Administrateur peut supprimer des projets");
+      setSuccessModal({
+        isOpen: true,
+        title: "Accès refusé",
+        message: "Seul le Super Administrateur peut supprimer des projets",
+        type: "warning"
+      });
       return;
     }
+    setShowDeleteProjetModal(true);
+  };
 
-    const confirmation = window.confirm(
-      `⚠️ ATTENTION ⚠️\n\nVoulez-vous vraiment supprimer le projet "${projet.titre}" ?\n\nCette action est IRRÉVERSIBLE et supprimera :\n- Le projet\n- Toutes ses tâches\n- Tous ses documents\n\nTapez OK pour confirmer la suppression.`
-    );
-
-    if (!confirmation) return;
-
+  // Fonction de confirmation de suppression du projet
+  const confirmDeleteProjet = async () => {
     try {
       await deleteProjet(token, id);
-      alert("✓ Projet supprimé avec succès");
-      navigate("/projets");
+      setSuccessModal({
+        isOpen: true,
+        title: "Succès",
+        message: "Projet supprimé avec succès",
+        type: "success"
+      });
+      setTimeout(() => {
+        navigate("/projets");
+      }, 1500);
     } catch (err) {
       console.error("Erreur suppression projet:", err);
-      alert("Erreur lors de la suppression du projet");
+      setSuccessModal({
+        isOpen: true,
+        title: "Erreur",
+        message: "Erreur lors de la suppression du projet",
+        type: "warning"
+      });
     }
+  };
+
+  // Fonction pour télécharger un document avec authentification
+  const handleDownloadDocument = async (documentId, titre) => {
+    try {
+      const response = await fetch(`${API_BASE_URL}/api/documents/${documentId}/download/`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+
+      if (!response.ok) {
+        throw new Error("Erreur lors du téléchargement");
+      }
+
+      // Récupérer le fichier en tant que blob
+      const blob = await response.blob();
+
+      // Créer un lien temporaire pour télécharger
+      const url = window.URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = titre || 'document'; // Nom du fichier
+      document.body.appendChild(a);
+      a.click();
+
+      // Nettoyer
+      window.URL.revokeObjectURL(url);
+      document.body.removeChild(a);
+    } catch (err) {
+      console.error("Erreur téléchargement document:", err);
+      setSuccessModal({
+        isOpen: true,
+        title: "Erreur",
+        message: "Impossible de télécharger le document",
+        type: "warning"
+      });
+    }
+  };
+
+  // Fonction pour ouvrir la modale de suppression de document
+  const handleDeleteDocument = (documentId, titre) => {
+    setDocumentToDelete({ id: documentId, titre });
+    setShowDeleteDocModal(true);
+  };
+
+  // Fonction de confirmation de suppression de document
+  const confirmDeleteDocument = async () => {
+    if (!documentToDelete) return;
+
+    try {
+      const response = await fetch(`${API_BASE_URL}/api/documents/${documentToDelete.id}/`, {
+        method: 'DELETE',
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+
+      if (!response.ok) {
+        throw new Error("Erreur lors de la suppression");
+      }
+
+      setSuccessModal({
+        isOpen: true,
+        title: "Succès",
+        message: "Document supprimé avec succès",
+        type: "success"
+      });
+      // Recharger les détails du projet pour mettre à jour la liste des documents
+      loadProjet();
+      setDocumentToDelete(null);
+    } catch (err) {
+      console.error("Erreur suppression document:", err);
+      setSuccessModal({
+        isOpen: true,
+        title: "Erreur",
+        message: "Impossible de supprimer le document. Vérifiez vos permissions.",
+        type: "warning"
+      });
+    }
+  };
+
+  // Fonction pour vérifier si l'utilisateur peut supprimer un document
+  const canDeleteDocument = (document) => {
+    if (!user || !document) return false;
+
+    // Admin et Super Admin peuvent tout supprimer
+    if (user.role === 'admin' || user.role === 'super_admin') return true;
+
+    // Le propriétaire du document peut le supprimer
+    if (document.uploade_par === user.id) return true;
+
+    return false;
   };
 
   // Fonction pour vérifier si l'utilisateur peut créer des tâches
@@ -378,36 +515,142 @@ export default function ProjetDetails() {
 
   if (error) {
     return (
-      <div>
+      <div
+        style={{
+          display: "flex",
+          justifyContent: "center",
+          alignItems: "center",
+          minHeight: "60vh",
+          padding: "2rem",
+        }}
+      >
         <div
           style={{
-            padding: "2rem",
-            backgroundColor: `${"#f87171"}10`,
-            border: `1px solid ${"#f87171"}`,
-            borderRadius: "12px",
-            color: "#f87171",
-            marginBottom: "1.5rem",
+            maxWidth: "600px",
+            width: "100%",
+            textAlign: "center",
           }}
         >
-          <strong>Erreur :</strong> {error}
+          {/* Icône d'erreur */}
+          <div
+            style={{
+              fontSize: "5rem",
+              marginBottom: "1.5rem",
+              filter: "drop-shadow(0 4px 8px rgba(248, 113, 113, 0.3))",
+            }}
+          >
+            {error.includes("Accès refusé") ? "🔒" :
+             error.includes("introuvable") ? "🔍" :
+             error.includes("authentifié") ? "🔑" :
+             error.includes("connexion") ? "📡" : "⚠️"}
+          </div>
+
+          {/* Titre */}
+          <h2
+            style={{
+              color: "#fff",
+              fontSize: "1.8rem",
+              marginBottom: "1rem",
+              fontWeight: "700",
+            }}
+          >
+            {error.includes("Accès refusé") ? "Accès Refusé" :
+             error.includes("introuvable") ? "Projet Introuvable" :
+             error.includes("authentifié") ? "Session Expirée" :
+             error.includes("connexion") ? "Problème de Connexion" : "Erreur"}
+          </h2>
+
+          {/* Message d'erreur */}
+          <div
+            style={{
+              padding: "2rem",
+              backgroundColor: "rgba(248, 113, 113, 0.1)",
+              border: "2px solid rgba(248, 113, 113, 0.3)",
+              borderRadius: "16px",
+              marginBottom: "2rem",
+              backdropFilter: "blur(10px)",
+            }}
+          >
+            <p
+              style={{
+                color: "#fca5a5",
+                fontSize: "1.1rem",
+                lineHeight: "1.6",
+                margin: 0,
+              }}
+            >
+              {error}
+            </p>
+          </div>
+
+          {/* Boutons d'action */}
+          <div
+            style={{
+              display: "flex",
+              gap: "1rem",
+              justifyContent: "center",
+              flexWrap: "wrap",
+            }}
+          >
+            <Link
+              to="/projets"
+              style={{
+                padding: "1rem 2rem",
+                backgroundColor: theme.colors.secondary,
+                color: "#fff",
+                textDecoration: "none",
+                borderRadius: "12px",
+                fontSize: "1rem",
+                fontWeight: "600",
+                transition: "all 0.3s",
+                boxShadow: "0 4px 12px rgba(249, 115, 22, 0.3)",
+                display: "inline-block",
+              }}
+              onMouseEnter={(e) => {
+                e.target.style.backgroundColor = theme.colors.orangeLight;
+                e.target.style.transform = "translateY(-2px)";
+                e.target.style.boxShadow = "0 6px 20px rgba(249, 115, 22, 0.4)";
+              }}
+              onMouseLeave={(e) => {
+                e.target.style.backgroundColor = theme.colors.secondary;
+                e.target.style.transform = "translateY(0)";
+                e.target.style.boxShadow = "0 4px 12px rgba(249, 115, 22, 0.3)";
+              }}
+            >
+              ← Retour aux projets
+            </Link>
+
+            <button
+              onClick={() => {
+                setError(null);
+                loadProjet();
+              }}
+              style={{
+                padding: "1rem 2rem",
+                backgroundColor: "rgba(124, 58, 237, 0.2)",
+                color: theme.colors.primary,
+                border: `2px solid ${theme.colors.primary}`,
+                borderRadius: "12px",
+                fontSize: "1rem",
+                fontWeight: "600",
+                cursor: "pointer",
+                transition: "all 0.3s",
+              }}
+              onMouseEnter={(e) => {
+                e.target.style.backgroundColor = theme.colors.primary;
+                e.target.style.color = "#fff";
+                e.target.style.transform = "translateY(-2px)";
+              }}
+              onMouseLeave={(e) => {
+                e.target.style.backgroundColor = "rgba(124, 58, 237, 0.2)";
+                e.target.style.color = theme.colors.primary;
+                e.target.style.transform = "translateY(0)";
+              }}
+            >
+              🔄 Réessayer
+            </button>
+          </div>
         </div>
-        <Link
-          to="/projets"
-          style={{
-            color: "#7c3aed",
-            textDecoration: "none",
-            fontSize: "1rem",
-            fontWeight: "500",
-          }}
-          onMouseEnter={(e) => {
-            e.target.style.textDecoration = "underline";
-          }}
-          onMouseLeave={(e) => {
-            e.target.style.textDecoration = "none";
-          }}
-        >
-          ← Retour à la liste des projets
-        </Link>
       </div>
     );
   }
@@ -458,7 +701,7 @@ export default function ProjetDetails() {
         <Link
           to="/projets"
           style={{
-            color: "#7c3aed",
+            color: theme.colors.secondary,
             textDecoration: "none",
             fontSize: "1rem",
             fontWeight: "600",
@@ -645,22 +888,24 @@ export default function ProjetDetails() {
               }}
               style={{
                 padding: "0.75rem 1.5rem",
-                backgroundColor: "#7c3aed",
-                color: "#fff",
+                backgroundColor: theme.colors.secondary,
+                color: theme.text.inverse,
                 border: "none",
                 borderRadius: "8px",
                 cursor: "pointer",
                 fontWeight: "600",
                 transition: "all 0.2s",
-                boxShadow: "0 2px 8px rgba(124, 58, 237, 0.1)",
+                boxShadow: theme.shadow.md,
               }}
               onMouseEnter={(e) => {
+                e.target.style.backgroundColor = theme.colors.orangeLight;
                 e.target.style.transform = "translateY(-2px)";
-                e.target.style.boxShadow = "0 4px 16px rgba(124, 58, 237, 0.3)";
+                e.target.style.boxShadow = theme.shadow.lg;
               }}
               onMouseLeave={(e) => {
+                e.target.style.backgroundColor = theme.colors.secondary;
                 e.target.style.transform = "translateY(0)";
-                e.target.style.boxShadow = "0 2px 8px rgba(124, 58, 237, 0.1)";
+                e.target.style.boxShadow = theme.shadow.md;
               }}
             >
               ⚙️ Gérer les membres
@@ -832,22 +1077,24 @@ export default function ProjetDetails() {
               onClick={() => setShowFormTache(true)}
               style={{
                 padding: "0.75rem 1.5rem",
-                backgroundColor: "#7c3aed",
-                color: "#fff",
+                backgroundColor: theme.colors.secondary,
+                color: theme.text.inverse,
                 border: "none",
                 borderRadius: "8px",
                 cursor: "pointer",
                 fontWeight: "600",
                 transition: "all 0.2s",
-                boxShadow: "0 2px 8px rgba(124, 58, 237, 0.1)",
+                boxShadow: theme.shadow.md,
               }}
               onMouseEnter={(e) => {
+                e.target.style.backgroundColor = theme.colors.orangeLight;
                 e.target.style.transform = "translateY(-2px)";
-                e.target.style.boxShadow = "0 4px 16px rgba(124, 58, 237, 0.3)";
+                e.target.style.boxShadow = theme.shadow.lg;
               }}
               onMouseLeave={(e) => {
+                e.target.style.backgroundColor = theme.colors.secondary;
                 e.target.style.transform = "translateY(0)";
-                e.target.style.boxShadow = "0 2px 8px rgba(124, 58, 237, 0.1)";
+                e.target.style.boxShadow = theme.shadow.md;
               }}
             >
               + Nouvelle tâche
@@ -1164,22 +1411,24 @@ export default function ProjetDetails() {
             onClick={() => setShowUploadDoc(true)}
             style={{
               padding: "0.75rem 1.5rem",
-              backgroundColor: "#7c3aed",
-              color: "#fff",
+              backgroundColor: theme.colors.secondary,
+              color: theme.text.inverse,
               border: "none",
               borderRadius: "8px",
               cursor: "pointer",
               fontWeight: "600",
               transition: "all 0.2s",
-              boxShadow: "0 2px 8px rgba(124, 58, 237, 0.1)",
+              boxShadow: theme.shadow.md,
             }}
             onMouseEnter={(e) => {
+              e.target.style.backgroundColor = theme.colors.orangeLight;
               e.target.style.transform = "translateY(-2px)";
-              e.target.style.boxShadow = "0 4px 16px rgba(124, 58, 237, 0.3)";
+              e.target.style.boxShadow = theme.shadow.lg;
             }}
             onMouseLeave={(e) => {
+              e.target.style.backgroundColor = theme.colors.secondary;
               e.target.style.transform = "translateY(0)";
-              e.target.style.boxShadow = "0 2px 8px rgba(124, 58, 237, 0.1)";
+              e.target.style.boxShadow = theme.shadow.md;
             }}
           >
             + Uploader un document
@@ -1254,34 +1503,100 @@ export default function ProjetDetails() {
                   )}
                 </div>
                 {doc.fichier_url && (
-                  <a
-                    href={doc.fichier_url}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    style={{
-                      padding: "0.75rem 1.5rem",
-                      backgroundColor: "#7c3aed",
-                      color: "#fff",
-                      borderRadius: "8px",
-                      textDecoration: "none",
-                      fontSize: "0.9rem",
-                      fontWeight: "600",
-                      marginLeft: "1.5rem",
-                      transition: "all 0.2s",
-                      boxShadow: "0 2px 8px rgba(124, 58, 237, 0.1)",
-                      whiteSpace: "nowrap",
-                    }}
-                    onMouseEnter={(e) => {
-                      e.target.style.transform = "translateY(-2px)";
-                      e.target.style.boxShadow = "0 4px 16px rgba(124, 58, 237, 0.3)";
-                    }}
-                    onMouseLeave={(e) => {
-                      e.target.style.transform = "translateY(0)";
-                      e.target.style.boxShadow = "0 2px 8px rgba(124, 58, 237, 0.1)";
-                    }}
-                  >
-                    ⬇ Télécharger
-                  </a>
+                  <div style={{ display: "flex", gap: "0.75rem", marginLeft: "1.5rem" }}>
+                    {/* Bouton Prévisualiser */}
+                    <a
+                      href={doc.fichier_url}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      style={{
+                        padding: "0.75rem 1.5rem",
+                        backgroundColor: theme.colors.primary,
+                        color: theme.text.inverse,
+                        borderRadius: "8px",
+                        textDecoration: "none",
+                        fontSize: "0.9rem",
+                        fontWeight: "600",
+                        transition: "all 0.2s",
+                        boxShadow: theme.shadow.md,
+                        whiteSpace: "nowrap",
+                      }}
+                      onMouseEnter={(e) => {
+                        e.target.style.backgroundColor = theme.colors.purpleLight;
+                        e.target.style.transform = "translateY(-2px)";
+                        e.target.style.boxShadow = theme.shadow.lg;
+                      }}
+                      onMouseLeave={(e) => {
+                        e.target.style.backgroundColor = theme.colors.primary;
+                        e.target.style.transform = "translateY(0)";
+                        e.target.style.boxShadow = theme.shadow.md;
+                      }}
+                    >
+                      👁 Prévisualiser
+                    </a>
+
+                    {/* Bouton Télécharger */}
+                    <button
+                      onClick={() => handleDownloadDocument(doc.id, doc.titre)}
+                      style={{
+                        padding: "0.75rem 1.5rem",
+                        backgroundColor: theme.colors.secondary,
+                        color: theme.text.inverse,
+                        borderRadius: "8px",
+                        border: "none",
+                        cursor: "pointer",
+                        fontSize: "0.9rem",
+                        fontWeight: "600",
+                        transition: "all 0.2s",
+                        boxShadow: theme.shadow.md,
+                        whiteSpace: "nowrap",
+                      }}
+                      onMouseEnter={(e) => {
+                        e.target.style.backgroundColor = theme.colors.orangeLight;
+                        e.target.style.transform = "translateY(-2px)";
+                        e.target.style.boxShadow = theme.shadow.lg;
+                      }}
+                      onMouseLeave={(e) => {
+                        e.target.style.backgroundColor = theme.colors.secondary;
+                        e.target.style.transform = "translateY(0)";
+                        e.target.style.boxShadow = theme.shadow.md;
+                      }}
+                    >
+                      ⬇ Télécharger
+                    </button>
+
+                    {/* Bouton Supprimer (seulement pour admin, super_admin ou propriétaire) */}
+                    {canDeleteDocument(doc) && (
+                      <button
+                        onClick={() => handleDeleteDocument(doc.id, doc.titre)}
+                        style={{
+                          padding: "0.75rem 1.5rem",
+                          backgroundColor: "#dc2626",
+                          color: "#fff",
+                          borderRadius: "8px",
+                          border: "none",
+                          cursor: "pointer",
+                          fontSize: "0.9rem",
+                          fontWeight: "600",
+                          transition: "all 0.2s",
+                          boxShadow: theme.shadow.md,
+                          whiteSpace: "nowrap",
+                        }}
+                        onMouseEnter={(e) => {
+                          e.target.style.backgroundColor = "#b91c1c";
+                          e.target.style.transform = "translateY(-2px)";
+                          e.target.style.boxShadow = theme.shadow.lg;
+                        }}
+                        onMouseLeave={(e) => {
+                          e.target.style.backgroundColor = "#dc2626";
+                          e.target.style.transform = "translateY(0)";
+                          e.target.style.boxShadow = theme.shadow.md;
+                        }}
+                      >
+                        🗑️ Supprimer
+                      </button>
+                    )}
+                  </div>
                 )}
               </div>
             ))}
@@ -1416,8 +1731,8 @@ export default function ProjetDetails() {
                 onClick={() => setShowManageMembres(false)}
                 style={{
                   padding: "0.75rem 1.5rem",
-                  backgroundColor: "#7c3aed",
-                  color: "#fff",
+                  backgroundColor: theme.colors.secondary,
+                  color: theme.text.inverse,
                   border: "none",
                   borderRadius: "8px",
                   cursor: "pointer",
@@ -1425,10 +1740,10 @@ export default function ProjetDetails() {
                   transition: "all 0.2s",
                 }}
                 onMouseEnter={(e) => {
-                  e.target.style.backgroundColor = "#6d32d1";
+                  e.target.style.backgroundColor = theme.colors.orangeLight;
                 }}
                 onMouseLeave={(e) => {
-                  e.target.style.backgroundColor = "#7c3aed";
+                  e.target.style.backgroundColor = theme.colors.secondary;
                 }}
               >
                 Fermer
@@ -1452,6 +1767,53 @@ export default function ProjetDetails() {
         onClose={() => setShowUploadDoc(false)}
         projetId={parseInt(id)}
         onSuccess={loadProjet}
+      />
+
+      {/* Modale de confirmation de suppression de projet */}
+      <ConfirmModal
+        isOpen={showDeleteProjetModal}
+        onClose={() => setShowDeleteProjetModal(false)}
+        onConfirm={confirmDeleteProjet}
+        title="Supprimer le projet"
+        message={`Voulez-vous vraiment supprimer le projet "${projet?.titre}" ?
+
+Cette action est IRRÉVERSIBLE et supprimera :
+• Le projet
+• Toutes ses tâches
+• Tous ses documents
+
+Êtes-vous absolument sûr de vouloir continuer ?`}
+        confirmText="Oui, supprimer définitivement"
+        cancelText="Non, annuler"
+        type="danger"
+      />
+
+      {/* Modale de confirmation de suppression de document */}
+      <ConfirmModal
+        isOpen={showDeleteDocModal}
+        onClose={() => {
+          setShowDeleteDocModal(false);
+          setDocumentToDelete(null);
+        }}
+        onConfirm={confirmDeleteDocument}
+        title="Supprimer le document"
+        message={`Voulez-vous vraiment supprimer le document "${documentToDelete?.titre}" ?
+
+Cette action est irréversible.`}
+        confirmText="Supprimer"
+        cancelText="Annuler"
+        type="danger"
+      />
+
+      {/* Modale de succès/notification */}
+      <SuccessModal
+        isOpen={successModal.isOpen}
+        onClose={() => setSuccessModal({ ...successModal, isOpen: false })}
+        title={successModal.title}
+        message={successModal.message}
+        type={successModal.type}
+        autoDismiss={successModal.type === "success"}
+        dismissDelay={3000}
       />
     </div>
   );

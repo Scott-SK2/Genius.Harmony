@@ -89,7 +89,7 @@ export default function UploadDocument({ isOpen, onClose, projetId, onSuccess })
       <form onSubmit={handleSubmit}>
         {/* Fichier */}
         <div style={{ marginBottom: "1rem" }}>
-          <label style={{ display: "block", marginBottom: "0.5rem", fontWeight: "500" }}>
+          <label style={{ display: "block", marginBottom: "0.5rem", fontWeight: "500", color: "#1a1a1a" }}>
             Fichier *
           </label>
           <input
@@ -112,7 +112,7 @@ export default function UploadDocument({ isOpen, onClose, projetId, onSuccess })
 
         {/* Titre */}
         <div style={{ marginBottom: "1rem" }}>
-          <label style={{ display: "block", marginBottom: "0.5rem", fontWeight: "500" }}>
+          <label style={{ display: "block", marginBottom: "0.5rem", fontWeight: "500", color: "#1a1a1a" }}>
             Titre *
           </label>
           <input
@@ -133,7 +133,7 @@ export default function UploadDocument({ isOpen, onClose, projetId, onSuccess })
 
         {/* Type */}
         <div style={{ marginBottom: "1rem" }}>
-          <label style={{ display: "block", marginBottom: "0.5rem", fontWeight: "500" }}>
+          <label style={{ display: "block", marginBottom: "0.5rem", fontWeight: "500", color: "#1a1a1a" }}>
             Type
           </label>
           <select
@@ -157,7 +157,7 @@ export default function UploadDocument({ isOpen, onClose, projetId, onSuccess })
 
         {/* Description */}
         <div style={{ marginBottom: "1.5rem" }}>
-          <label style={{ display: "block", marginBottom: "0.5rem", fontWeight: "500" }}>
+          <label style={{ display: "block", marginBottom: "0.5rem", fontWeight: "500", color: "#1a1a1a" }}>
             Description
           </label>
           <textarea

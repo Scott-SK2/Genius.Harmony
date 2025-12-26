@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { useAuth } from "../context/AuthContext";
+import { useTheme } from "../context/ThemeContext";
 import { fetchTaches, updateTache } from "../api/taches";
 import { fetchProjets } from "../api/projets";
 
@@ -12,6 +13,7 @@ const PRIORITE_LABELS = {
 
 export default function KanbanTaches() {
   const { token, user } = useAuth();
+  const { theme } = useTheme();
   const [taches, setTaches] = useState([]);
   const [projets, setProjets] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -288,8 +290,8 @@ export default function KanbanTaches() {
               }}
               style={{
                 padding: "0.75rem 1.5rem",
-                backgroundColor: "#f87171",
-                color: "#fff",
+                backgroundColor: theme.colors.danger,
+                color: theme.text.inverse,
                 border: "none",
                 borderRadius: "8px",
                 cursor: "pointer",
@@ -297,11 +299,11 @@ export default function KanbanTaches() {
                 transition: "all 0.2s",
               }}
               onMouseEnter={(e) => {
-                e.target.style.backgroundColor = "#ef4444";
+                e.target.style.backgroundColor = theme.colors.dangerHover;
                 e.target.style.transform = "translateY(-2px)";
               }}
               onMouseLeave={(e) => {
-                e.target.style.backgroundColor = "#f87171";
+                e.target.style.backgroundColor = theme.colors.danger;
                 e.target.style.transform = "translateY(0)";
               }}
             >
