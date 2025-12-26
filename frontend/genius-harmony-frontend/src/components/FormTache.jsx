@@ -140,7 +140,7 @@ export default function FormTache({ isOpen, onClose, tache, projetId, onSuccess 
       <form onSubmit={handleSubmit}>
         {/* Projet */}
         <div style={{ marginBottom: "1rem" }}>
-          <label style={{ display: "block", marginBottom: "0.5rem", fontWeight: "500" }}>
+          <label style={{ display: "block", marginBottom: "0.5rem", fontWeight: "500", color: "#1a1a1a" }}>
             Projet *
           </label>
           <select
@@ -168,7 +168,7 @@ export default function FormTache({ isOpen, onClose, tache, projetId, onSuccess 
 
         {/* Titre */}
         <div style={{ marginBottom: "1rem" }}>
-          <label style={{ display: "block", marginBottom: "0.5rem", fontWeight: "500" }}>
+          <label style={{ display: "block", marginBottom: "0.5rem", fontWeight: "500", color: "#1a1a1a" }}>
             Titre de la tâche *
           </label>
           <input
@@ -188,7 +188,7 @@ export default function FormTache({ isOpen, onClose, tache, projetId, onSuccess 
 
         {/* Description */}
         <div style={{ marginBottom: "1rem" }}>
-          <label style={{ display: "block", marginBottom: "0.5rem", fontWeight: "500" }}>
+          <label style={{ display: "block", marginBottom: "0.5rem", fontWeight: "500", color: "#1a1a1a" }}>
             Description
           </label>
           <textarea
@@ -208,7 +208,7 @@ export default function FormTache({ isOpen, onClose, tache, projetId, onSuccess 
         {/* Statut et Priorité */}
         <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "1rem", marginBottom: "1rem" }}>
           <div>
-            <label style={{ display: "block", marginBottom: "0.5rem", fontWeight: "500" }}>
+            <label style={{ display: "block", marginBottom: "0.5rem", fontWeight: "500", color: "#1a1a1a" }}>
               Statut
             </label>
             <select
@@ -231,7 +231,7 @@ export default function FormTache({ isOpen, onClose, tache, projetId, onSuccess 
           </div>
 
           <div>
-            <label style={{ display: "block", marginBottom: "0.5rem", fontWeight: "500" }}>
+            <label style={{ display: "block", marginBottom: "0.5rem", fontWeight: "500", color: "#1a1a1a" }}>
               Priorité
             </label>
             <select
@@ -256,7 +256,7 @@ export default function FormTache({ isOpen, onClose, tache, projetId, onSuccess 
 
         {/* Assigné à (sélection multiple) */}
         <div style={{ marginBottom: "1rem" }}>
-          <label style={{ display: "block", marginBottom: "0.5rem", fontWeight: "500" }}>
+          <label style={{ display: "block", marginBottom: "0.5rem", fontWeight: "500", color: "#1a1a1a" }}>
             Assigné à (plusieurs personnes possibles)
           </label>
           <div
@@ -311,7 +311,7 @@ export default function FormTache({ isOpen, onClose, tache, projetId, onSuccess 
 
         {/* Deadline */}
         <div style={{ marginBottom: "1.5rem" }}>
-          <label style={{ display: "block", marginBottom: "0.5rem", fontWeight: "500" }}>
+          <label style={{ display: "block", marginBottom: "0.5rem", fontWeight: "500", color: "#1a1a1a" }}>
             Deadline
           </label>
           <input
