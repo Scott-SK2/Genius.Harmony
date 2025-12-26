@@ -138,4 +138,209 @@ body {
   div {
     line-height: 1.6;
   }
+
+  /* NAVBAR MOBILE */
+  /* Afficher le bouton hamburger sur mobile */
+  .hamburger-menu {
+    display: flex !important;
+  }
+
+  /* Cacher les liens de navigation desktop sur mobile */
+  .nav-links-desktop {
+    display: none !important;
+  }
+
+  /* Cacher le menu utilisateur desktop sur mobile */
+  .user-menu-desktop {
+    display: none !important;
+  }
+
+  /* Afficher le menu mobile dropdown */
+  .mobile-menu-dropdown {
+    display: block !important;
+  }
+
+  /* Navbar plus compacte sur mobile */
+  .navbar-desktop {
+    padding: 0.75rem 1rem !important;
+  }
+
+  /* Logo plus petit sur mobile */
+  .navbar-desktop img {
+    height: 32px !important;
+  }
+
+  /* KANBAN MOBILE */
+  /* Kanban en une seule colonne sur mobile avec scroll horizontal */
+  div[style*="gridTemplateColumns: repeat(3, 1fr)"] {
+    display: flex !important;
+    flex-direction: column !important;
+    gap: 1rem !important;
+  }
+
+  /* Statistiques en 2 colonnes sur mobile */
+  div[style*="gridTemplateColumns: repeat(auto-fit, minmax(200px, 1fr))"] {
+    grid-template-columns: repeat(2, 1fr) !important;
+  }
+
+  /* Filtres en colonne sur mobile */
+  div[style*="display: flex"] > div[style*="flex: 1"] {
+    flex: 1 1 100% !important;
+  }
+
+  /* TABLES MOBILES */
+  /* Cacher les colonnes moins importantes sur mobile */
+  table th:nth-child(n+4),
+  table td:nth-child(n+4) {
+    display: none;
+  }
+
+  /* Garder uniquement : Titre, Type, Statut sur mobile */
+  table th:nth-child(1),
+  table td:nth-child(1),
+  table th:nth-child(2),
+  table td:nth-child(2),
+  table th:nth-child(3),
+  table td:nth-child(3) {
+    display: table-cell;
+  }
+
+  /* Padding plus compact dans les tables */
+  table th,
+  table td {
+    padding: 0.75rem 0.5rem !important;
+    font-size: 0.9rem !important;
+  }
+
+  /* BOUTONS ET ACTIONS */
+  /* Boutons d'action en pleine largeur */
+  button:not(.hamburger-menu):not([aria-label="Menu"]) {
+    width: 100%;
+    max-width: 100%;
+  }
+
+  /* Ajuster le texte des boutons sur mobile */
+  .logout-button {
+    padding: 0.75rem !important;
+    font-size: 0.9rem !important;
+  }
+}
+
+/* Media queries pour très petits smartphones */
+@media (max-width: 480px) {
+  /* Navigation encore plus compacte */
+  .navbar-desktop {
+    padding: 0.5rem !important;
+  }
+
+  .navbar-desktop img {
+    height: 28px !important;
+  }
+
+  /* Hamburger plus grand pour faciliter le tap */
+  .hamburger-menu {
+    font-size: 2rem !important;
+    padding: 0.75rem !important;
+  }
+
+  /* Menu mobile avec padding optimal */
+  .mobile-menu-dropdown {
+    padding: 0.5rem !important;
+  }
+
+  /* Liens du menu mobile avec plus d'espace */
+  .mobile-menu-dropdown a,
+  .mobile-menu-dropdown button {
+    padding: 1.25rem !important;
+    font-size: 1rem !important;
+  }
+
+  /* Statistiques en 1 colonne sur très petits écrans */
+  div[style*="gridTemplateColumns: repeat(auto-fit, minmax(200px, 1fr))"] {
+    grid-template-columns: 1fr !important;
+  }
+
+  /* Cacher le texte du profil utilisateur sur très petits écrans */
+  .user-info-text {
+    display: none !important;
+  }
+
+  /* Tables en mode card sur très petits écrans */
+  table,
+  thead,
+  tbody,
+  th,
+  td,
+  tr {
+    display: block;
+  }
+
+  thead tr {
+    display: none;
+  }
+
+  tr {
+    margin-bottom: 1rem;
+    border: 1px solid #4c1d95;
+    border-radius: 8px;
+    padding: 1rem;
+  }
+
+  td {
+    display: flex;
+    justify-content: space-between;
+    padding: 0.5rem 0 !important;
+    border: none !important;
+  }
+
+  td::before {
+    content: attr(data-label);
+    font-weight: bold;
+    color: #c4b5fd;
+  }
+
+  /* Kanban cards plus compactes */
+  div[style*="padding: 1.25rem"] {
+    padding: 1rem !important;
+  }
+
+  /* Filtres empilés verticalement */
+  div[style*="display: flex"][style*="gap: 1rem"] {
+    flex-direction: column !important;
+  }
+}
+
+/* Media queries pour tablettes en portrait */
+@media (min-width: 481px) and (max-width: 768px) {
+  /* Afficher le hamburger menu sur tablettes en portrait */
+  .hamburger-menu {
+    display: flex !important;
+  }
+
+  .nav-links-desktop {
+    display: none !important;
+  }
+
+  /* Garder le profil utilisateur visible sur tablettes */
+  .user-menu-desktop .user-profile-link {
+    display: flex !important;
+  }
+
+  /* Cacher le bouton déconnexion sur tablettes (disponible dans le menu) */
+  .user-menu-desktop .logout-button {
+    display: none !important;
+  }
+}
+
+/* Media queries pour desktop */
+@media (min-width: 769px) {
+  /* Cacher le menu mobile sur desktop */
+  .mobile-menu-dropdown {
+    display: none !important;
+  }
+
+  /* Cacher le hamburger sur desktop */
+  .hamburger-menu {
+    display: none !important;
+  }
 }
