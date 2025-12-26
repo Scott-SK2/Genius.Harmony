@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { useParams, Link } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 import { useTheme } from "../context/ThemeContext";
+import { API_BASE_URL } from "../config";
 
 const ROLE_LABELS = {
   super_admin: "Super Administrateur",
@@ -96,7 +97,7 @@ export default function UserProfile() {
 
     try {
       setUploadingPhoto(true);
-      const response = await fetch(`http://127.0.0.1:8000/api/users/${id}/upload-photo/`, {
+      const response = await fetch(`${API_BASE_URL}/api/users/${id}/upload-photo/`, {
         method: 'POST',
         headers: {
           Authorization: `Bearer ${token}`,
@@ -121,7 +122,7 @@ export default function UserProfile() {
   const fetchUserProfile = async () => {
     try {
       setLoading(true);
-      const response = await fetch(`http://127.0.0.1:8000/api/users/${id}/profile/`, {
+      const response = await fetch(`${API_BASE_URL}/api/users/${id}/profile/`, {
         headers: {
           Authorization: `Bearer ${token}`,
         },
