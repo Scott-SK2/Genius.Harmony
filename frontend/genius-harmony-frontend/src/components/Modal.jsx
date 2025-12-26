@@ -3,6 +3,7 @@ export default function Modal({ isOpen, onClose, title, children }) {
 
   return (
     <div
+      className="modal-overlay"
       style={{
         position: "fixed",
         top: 0,
@@ -14,16 +15,18 @@ export default function Modal({ isOpen, onClose, title, children }) {
         alignItems: "center",
         justifyContent: "center",
         zIndex: 1000,
+        padding: "1rem", // Padding pour mobile
       }}
       onClick={onClose}
     >
       <div
+        className="modal-content"
         style={{
           backgroundColor: "#fff",
           borderRadius: "8px",
-          padding: "2rem",
+          padding: "clamp(1rem, 4vw, 2rem)", // Padding responsive
           maxWidth: "600px",
-          width: "90%",
+          width: "100%",
           maxHeight: "90vh",
           overflow: "auto",
           position: "relative",
@@ -31,8 +34,8 @@ export default function Modal({ isOpen, onClose, title, children }) {
         onClick={(e) => e.stopPropagation()}
       >
         {/* Header */}
-        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "1.5rem" }}>
-          <h2 style={{ margin: 0 }}>{title}</h2>
+        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "1.5rem", gap: "1rem" }}>
+          <h2 style={{ margin: 0, fontSize: "clamp(1.2rem, 5vw, 1.5rem)" }}>{title}</h2>
           <button
             onClick={onClose}
             style={{
@@ -41,6 +44,9 @@ export default function Modal({ isOpen, onClose, title, children }) {
               fontSize: "1.5rem",
               cursor: "pointer",
               color: "#666",
+              padding: "0.5rem",
+              minWidth: "2.5rem",
+              minHeight: "2.5rem", // Touch target pour mobile
             }}
           >
             ×
