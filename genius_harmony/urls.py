@@ -23,11 +23,17 @@ from django.views.static import serve
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('api/', include('core.urls')),
-    # Servir les fichiers media en production via une vue Django explicite
-    # NOTE: En production réelle, utiliser S3/Cloudinary pour le stockage persistant
-    re_path(r'^media/(?P<path>.*)$', serve, {'document_root': settings.MEDIA_ROOT}),
 ]
 
-# Servir les fichiers media en développement (fallback)
-if settings.DEBUG:
-    urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
+# Servir les fichiers media UNIQUEMENT si Cloudinary n'est pas configuré
+# Quand Cloudinary est actif, les fichiers sont servis depuis cloudinary.com
+if not settings.CLOUDINARY_STORAGE.get('CLOUD_NAME'):
+    # Cloudinary non configuré -> servir les fichiers localement
+    if settings.DEBUG:
+        # En développement local
+        urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
+    else:
+        # En production sans Cloudinary (non recommandé, utiliser Cloudinary!)
+        urlpatterns += [
+            re_path(r'^media/(?P<path>.*)$', serve, {'document_root': settings.MEDIA_ROOT}),
+        ]

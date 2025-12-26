@@ -46,7 +46,10 @@ class MeView(APIView):
 
         photo_url = None
         if profile and profile.photo:
-            photo_url = request.build_absolute_uri(profile.photo.url)
+            photo_url = profile.photo.url
+            # Si l'URL n'est pas déjà absolue (Cloudinary), construire l'URL complète
+            if not photo_url.startswith(('http://', 'https://')):
+                photo_url = request.build_absolute_uri(photo_url)
 
         return Response({
             "id": user.id,
@@ -224,7 +227,10 @@ class UserProfileDetailView(APIView):
 
         photo_url = None
         if profile and profile.photo:
-            photo_url = request.build_absolute_uri(profile.photo.url)
+            photo_url = profile.photo.url
+            # Si l'URL n'est pas déjà absolue (Cloudinary), construire l'URL complète
+            if not photo_url.startswith(('http://', 'https://')):
+                photo_url = request.build_absolute_uri(photo_url)
 
         user_data = {
             "id": user.id,

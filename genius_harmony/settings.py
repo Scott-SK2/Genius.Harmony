@@ -143,10 +143,6 @@ STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
 # https://docs.djangoproject.com/en/6.0/ref/settings/#default-auto-field
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
-# Media files (User uploaded files)
-MEDIA_URL = '/media/'
-MEDIA_ROOT = BASE_DIR / 'media'
-
 # Cloudinary Configuration pour stockage persistant des fichiers
 CLOUDINARY_STORAGE = {
     'CLOUD_NAME': config('CLOUDINARY_CLOUD_NAME', default=''),
@@ -154,12 +150,17 @@ CLOUDINARY_STORAGE = {
     'API_SECRET': config('CLOUDINARY_API_SECRET', default=''),
 }
 
-# Utiliser Cloudinary pour le stockage des fichiers media en production
-# Fallback sur stockage local si Cloudinary n'est pas configuré
+# Configuration des fichiers media selon Cloudinary ou stockage local
 if CLOUDINARY_STORAGE['CLOUD_NAME']:
+    # Utiliser Cloudinary pour le stockage des fichiers media
     DEFAULT_FILE_STORAGE = 'cloudinary_storage.storage.MediaCloudinaryStorage'
+    # IMPORTANT: Ne pas définir MEDIA_URL quand Cloudinary est actif
+    # Cloudinary génère ses propres URLs (https://res.cloudinary.com/...)
 else:
+    # Fallback sur stockage local si Cloudinary n'est pas configuré
     DEFAULT_FILE_STORAGE = 'django.core.files.storage.FileSystemStorage'
+    MEDIA_URL = '/media/'
+    MEDIA_ROOT = BASE_DIR / 'media'
 
 REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': (

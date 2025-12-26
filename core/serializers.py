@@ -86,9 +86,15 @@ class UserProfileSerializer(serializers.ModelSerializer):
 
     def get_photo_url(self, obj):
         if hasattr(obj, 'profile') and obj.profile.photo:
+            photo_url = obj.profile.photo.url
+            # Si l'URL est déjà absolue (Cloudinary), la retourner telle quelle
+            if photo_url.startswith(('http://', 'https://')):
+                return photo_url
+            # Sinon, construire l'URL absolue (stockage local)
             request = self.context.get('request')
             if request:
-                return request.build_absolute_uri(obj.profile.photo.url)
+                return request.build_absolute_uri(photo_url)
+            return photo_url
         return None
 
     def update(self, instance, validated_data):
@@ -186,9 +192,16 @@ class DocumentSerializer(serializers.ModelSerializer):
         read_only_fields = ['id', 'uploade_par', 'created_at']
 
     def get_fichier_url(self, obj):
-        request = self.context.get('request')
-        if obj.fichier and request:
-            return request.build_absolute_uri(obj.fichier.url)
+        if obj.fichier:
+            fichier_url = obj.fichier.url
+            # Si l'URL est déjà absolue (Cloudinary), la retourner telle quelle
+            if fichier_url.startswith(('http://', 'https://')):
+                return fichier_url
+            # Sinon, construire l'URL absolue (stockage local)
+            request = self.context.get('request')
+            if request:
+                return request.build_absolute_uri(fichier_url)
+            return fichier_url
         return None
 
 
