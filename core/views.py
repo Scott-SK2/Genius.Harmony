@@ -157,9 +157,9 @@ class UserUploadPhotoView(APIView):
             return Response({"detail": "Utilisateur introuvable"}, status=status.HTTP_404_NOT_FOUND)
 
         # Vérifier que l'utilisateur peut modifier cette photo
-        # Soit c'est son propre profil, soit c'est un admin
+        # Soit c'est son propre profil, soit c'est un admin ou super_admin
         profile = getattr(request.user, 'profile', None)
-        if request.user.id != pk and (not profile or profile.role != 'admin'):
+        if request.user.id != pk and (not profile or profile.role not in ['admin', 'super_admin']):
             return Response(
                 {"detail": "Vous n'avez pas la permission de modifier cette photo"},
                 status=status.HTTP_403_FORBIDDEN
