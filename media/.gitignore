@@ -1,0 +1,4 @@
+*
+!.gitignore
+!profile_photos/
+!profile_photos/.gitkeep
