@@ -25,15 +25,15 @@ urlpatterns = [
     path('api/', include('core.urls')),
 ]
 
-# Servir les fichiers media UNIQUEMENT si Cloudinary n'est pas configuré
-# Quand Cloudinary est actif, les fichiers sont servis depuis cloudinary.com
-if not settings.CLOUDINARY_STORAGE.get('CLOUD_NAME'):
-    # Cloudinary non configuré -> servir les fichiers localement
+# Servir les fichiers media UNIQUEMENT si S3 n'est pas configuré
+# Quand S3 est actif, les fichiers sont servis depuis S3
+if not (settings.AWS_ACCESS_KEY_ID and settings.AWS_SECRET_ACCESS_KEY):
+    # S3 non configuré -> servir les fichiers localement
     if settings.DEBUG:
         # En développement local
         urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
     else:
-        # En production sans Cloudinary (non recommandé, utiliser Cloudinary!)
+        # En production sans S3 (non recommandé, utiliser S3!)
         urlpatterns += [
             re_path(r'^media/(?P<path>.*)$', serve, {'document_root': settings.MEDIA_ROOT}),
         ]
