@@ -15,6 +15,9 @@ from datetime import timedelta
 from decouple import config, Csv
 import dj_database_url
 import os
+import cloudinary
+import cloudinary.uploader
+import cloudinary.api
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -149,6 +152,15 @@ CLOUDINARY_STORAGE = {
     'API_KEY': config('CLOUDINARY_API_KEY', default=''),
     'API_SECRET': config('CLOUDINARY_API_SECRET', default=''),
 }
+
+# Configurer cloudinary explicitement
+if CLOUDINARY_STORAGE['CLOUD_NAME']:
+    cloudinary.config(
+        cloud_name=CLOUDINARY_STORAGE['CLOUD_NAME'],
+        api_key=CLOUDINARY_STORAGE['API_KEY'],
+        api_secret=CLOUDINARY_STORAGE['API_SECRET'],
+        secure=True
+    )
 
 # Configuration des fichiers media selon Cloudinary ou stockage local
 if CLOUDINARY_STORAGE['CLOUD_NAME']:
