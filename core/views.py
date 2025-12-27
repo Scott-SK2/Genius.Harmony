@@ -1006,7 +1006,16 @@ class DocumentDownloadView(APIView):
                 status=status.HTTP_404_NOT_FOUND
             )
 
-        # Obtenir le chemin du fichier
+        # Obtenir l'URL du fichier
+        fichier_url = document.fichier.url
+
+        # Si l'URL est absolue (S3 ou Cloudinary), rediriger vers cette URL
+        if fichier_url.startswith(('http://', 'https://')):
+            # Pour S3, retourner l'URL directement (le navigateur téléchargera depuis S3)
+            from django.http import HttpResponseRedirect
+            return HttpResponseRedirect(fichier_url)
+
+        # Sinon, c'est un fichier local - le servir directement
         file_path = document.fichier.path
 
         if not os.path.exists(file_path):
