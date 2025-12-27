@@ -148,6 +148,15 @@ AWS_SECRET_ACCESS_KEY = config('AWS_SECRET_ACCESS_KEY', default='')
 AWS_STORAGE_BUCKET_NAME = config('AWS_STORAGE_BUCKET_NAME', default='')
 AWS_S3_REGION_NAME = config('AWS_S3_REGION_NAME', default='eu-west-3')
 
+# Debug: Log AWS configuration (TEMPORARY - remove in production)
+print("=" * 50)
+print("AWS S3 Configuration Check:")
+print(f"AWS_ACCESS_KEY_ID: {'SET' if AWS_ACCESS_KEY_ID else 'EMPTY'}")
+print(f"AWS_SECRET_ACCESS_KEY: {'SET' if AWS_SECRET_ACCESS_KEY else 'EMPTY'}")
+print(f"AWS_STORAGE_BUCKET_NAME: {AWS_STORAGE_BUCKET_NAME if AWS_STORAGE_BUCKET_NAME else 'EMPTY'}")
+print(f"AWS_S3_REGION_NAME: {AWS_S3_REGION_NAME}")
+print("=" * 50)
+
 # Configuration des fichiers media selon AWS S3 ou stockage local
 if AWS_ACCESS_KEY_ID and AWS_SECRET_ACCESS_KEY and AWS_STORAGE_BUCKET_NAME:
     # Utiliser AWS S3 pour le stockage des fichiers media
