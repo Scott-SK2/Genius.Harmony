@@ -22,7 +22,22 @@ export default function MembreDashboard() {
           fetchProjets(token),
           fetchTaches(token, { assigne_a: user.id }),
         ]);
-        setProjets(projetsData);
+
+        // Filtrer les projets pour ne montrer que ceux où l'utilisateur est impliqué
+        const mesProjets = projetsData.filter(projet => {
+          // Membre du projet
+          const estMembre = projet.membres_details?.some(m => m.id === user.id);
+          // Chef de projet
+          const estChef = projet.chef_projet === user.id;
+          // Client du projet
+          const estClient = projet.client === user.id;
+          // Créateur du projet
+          const estCreateur = projet.created_by === user.id;
+
+          return estMembre || estChef || estClient || estCreateur;
+        });
+
+        setProjets(mesProjets);
         setMesTaches(tachesData);
       } catch (err) {
         console.error("Erreur fetch dashboard:", err);
@@ -366,12 +381,15 @@ export default function MembreDashboard() {
           </p>
         </div>
       ) : (
-        <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(300px, 1fr))", gap: "1.5rem" }}>
+        <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(320px, 1fr))", gap: "2rem" }}>
           {projets.map((projet) => {
             const statusConfig = {
               en_cours: { color: theme.colors.primary, label: "En cours" },
+              en_revision: { color: theme.colors.warning, label: "En révision" },
               termine: { color: theme.colors.success, label: "Terminé" },
               brouillon: { color: theme.text.secondary, label: "Brouillon" },
+              en_attente: { color: theme.colors.orange, label: "En attente" },
+              annule: { color: theme.colors.danger, label: "Annulé" },
             };
             const config = statusConfig[projet.statut] || statusConfig.brouillon;
 
@@ -380,14 +398,17 @@ export default function MembreDashboard() {
                 key={projet.id}
                 to={`/projets/${projet.id}`}
                 style={{
-                  padding: "1.5rem",
+                  padding: "2rem",
                   backgroundColor: theme.bg.card,
                   border: `1px solid ${theme.border.light}`,
-                  borderRadius: "12px",
+                  borderRadius: "16px",
                   textDecoration: "none",
                   color: "inherit",
                   transition: "all 0.2s",
                   boxShadow: theme.shadow.sm,
+                  display: "flex",
+                  flexDirection: "column",
+                  gap: "1.25rem",
                 }}
                 onMouseEnter={(e) => {
                   e.currentTarget.style.transform = "translateY(-4px)";
@@ -400,32 +421,42 @@ export default function MembreDashboard() {
                   e.currentTarget.style.borderColor = theme.border.light;
                 }}
               >
-                <div
-                  style={{
-                    fontWeight: "600",
-                    marginBottom: "0.75rem",
-                    color: theme.text.primary,
-                    fontSize: "1.1rem",
-                  }}
-                >
-                  {projet.titre}
+                <div>
+                  <div
+                    style={{
+                      fontWeight: "600",
+                      marginBottom: "0.5rem",
+                      color: theme.text.primary,
+                      fontSize: "1.2rem",
+                      lineHeight: "1.4",
+                    }}
+                  >
+                    {projet.titre}
+                  </div>
+                  <div
+                    style={{
+                      fontSize: "0.9rem",
+                      color: theme.text.secondary,
+                      display: "flex",
+                      alignItems: "center",
+                      gap: "1rem",
+                      marginTop: "0.75rem",
+                    }}
+                  >
+                    <span>📋 {projet.nombre_taches || 0} tâches</span>
+                    <span>·</span>
+                    <span>👥 {projet.nombre_membres || 0} membres</span>
+                  </div>
                 </div>
                 <div
                   style={{
-                    fontSize: "0.9rem",
-                    color: theme.text.secondary,
-                    marginBottom: "1rem",
-                  }}
-                >
-                  {projet.nombre_taches || 0} tâches · {projet.nombre_membres || 0} membres
-                </div>
-                <div
-                  style={{
-                    display: "inline-block",
-                    padding: "0.5rem 1rem",
+                    display: "inline-flex",
+                    alignItems: "center",
+                    alignSelf: "flex-start",
+                    padding: "0.6rem 1.2rem",
                     backgroundColor: `${config.color}20`,
                     color: config.color,
-                    borderRadius: "8px",
+                    borderRadius: "10px",
                     fontSize: "0.85rem",
                     fontWeight: "600",
                     border: `1px solid ${config.color}40`,
