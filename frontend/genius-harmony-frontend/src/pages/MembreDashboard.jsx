@@ -23,21 +23,8 @@ export default function MembreDashboard() {
           fetchTaches(token, { assigne_a: user.id }),
         ]);
 
-        // Filtrer les projets pour ne montrer que ceux où l'utilisateur est impliqué
-        const mesProjets = projetsData.filter(projet => {
-          // Membre du projet
-          const estMembre = projet.membres_details?.some(m => m.id === user.id);
-          // Chef de projet
-          const estChef = projet.chef_projet === user.id;
-          // Client du projet
-          const estClient = projet.client === user.id;
-          // Créateur du projet
-          const estCreateur = projet.created_by === user.id;
-
-          return estMembre || estChef || estClient || estCreateur;
-        });
-
-        setProjets(mesProjets);
+        // Le backend filtre déjà les projets pour ne montrer que ceux où l'utilisateur est impliqué
+        setProjets(projetsData);
         setMesTaches(tachesData);
       } catch (err) {
         console.error("Erreur fetch dashboard:", err);

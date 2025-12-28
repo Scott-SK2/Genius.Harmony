@@ -432,11 +432,21 @@ class ProjetListCreateView(generics.ListCreateAPIView):
         # Les projets créés par l'utilisateur (tous les statuts)
         projets_crees = Q(created_by=user)
 
-        # TOUS les projets publics (en_cours, en_revision, termine, annule) sont visibles par TOUS
-        projets_publics = Q(statut__in=['en_cours', 'en_revision', 'termine', 'annule'])
+        # Projets où l'utilisateur est membre
+        projets_membre = Q(membres=user)
 
-        # Tous les utilisateurs : projets créés + TOUS les projets publics
-        return queryset.filter(projets_crees | projets_publics).distinct()
+        # Projets où l'utilisateur est chef de projet
+        projets_chef = Q(chef_projet=user)
+
+        # Projets où l'utilisateur est client
+        projets_client = Q(client=user)
+
+        # Filtrer uniquement les projets publics ET où l'utilisateur est impliqué
+        projets_publics = Q(statut__in=['en_cours', 'en_revision', 'termine', 'annule'])
+        projets_impliques = (projets_crees | projets_membre | projets_chef | projets_client)
+
+        # Retourner les projets créés (tous statuts) + projets publics où l'utilisateur est impliqué
+        return queryset.filter(projets_crees | (projets_publics & projets_impliques)).distinct()
 
     def perform_create(self, serializer):
         # Vérifier que l'utilisateur a le droit de créer
