@@ -7,6 +7,7 @@ import { API_BASE_URL } from "../config";
 import { fetchProjetDetails, updateProjetStatut, deleteProjet } from "../api/projets";
 import { updateTache } from "../api/taches";
 import FormTache from "../components/FormTache";
+import FormProjet from "../components/FormProjet";
 import UploadDocument from "../components/UploadDocument";
 import ConfirmModal from "../components/ConfirmModal";
 import SuccessModal from "../components/SuccessModal";
@@ -64,6 +65,7 @@ export default function ProjetDetails() {
   const [showDeleteDocModal, setShowDeleteDocModal] = useState(false);
   const [documentToDelete, setDocumentToDelete] = useState(null);
   const [successModal, setSuccessModal] = useState({ isOpen: false, title: "", message: "", type: "success" });
+  const [showEditProjet, setShowEditProjet] = useState(false);
 
   const loadProjet = async () => {
     if (!token || !id) return;
@@ -188,6 +190,16 @@ export default function ProjetDetails() {
 
     // Chef de projet peut gérer son projet
     if (projet.chef_projet === user.id) return true;
+
+    return false;
+  };
+
+  // Fonction pour vérifier si l'utilisateur peut modifier le projet
+  const canEditProjet = () => {
+    if (!projet || !user) return false;
+
+    // Super Admin, Admin et Chef de pôle peuvent modifier
+    if (user.role === 'super_admin' || user.role === 'admin' || user.role === 'chef_pole') return true;
 
     return false;
   };
@@ -774,12 +786,47 @@ export default function ProjetDetails() {
             </span>
           )}
 
+          {/* Bouton de modification - réservé aux super_admin, admin et chef_pole */}
+          {canEditProjet() && (
+            <button
+              onClick={() => setShowEditProjet(true)}
+              style={{
+                marginLeft: user?.role === 'super_admin' ? "auto" : "auto",
+                padding: "0.75rem 1.5rem",
+                backgroundColor: theme.colors.secondary,
+                color: theme.text.inverse,
+                border: "none",
+                borderRadius: "8px",
+                cursor: "pointer",
+                fontWeight: "600",
+                fontSize: "0.9rem",
+                transition: "all 0.2s",
+                display: "flex",
+                alignItems: "center",
+                gap: "0.5rem",
+                boxShadow: theme.shadow.md,
+              }}
+              onMouseEnter={(e) => {
+                e.target.style.backgroundColor = theme.colors.orangeLight;
+                e.target.style.transform = "translateY(-2px)";
+                e.target.style.boxShadow = theme.shadow.lg;
+              }}
+              onMouseLeave={(e) => {
+                e.target.style.backgroundColor = theme.colors.secondary;
+                e.target.style.transform = "translateY(0)";
+                e.target.style.boxShadow = theme.shadow.md;
+              }}
+            >
+              ✏️ Modifier le projet
+            </button>
+          )}
+
           {/* Bouton de suppression - réservé au super_admin */}
           {user?.role === 'super_admin' && (
             <button
               onClick={handleDeleteProjet}
               style={{
-                marginLeft: "auto",
+                marginLeft: canEditProjet() ? "0.75rem" : "auto",
                 padding: "0.75rem 1.5rem",
                 backgroundColor: "rgba(239, 68, 68, 0.1)",
                 color: "#ef4444",
@@ -1767,6 +1814,13 @@ export default function ProjetDetails() {
         onClose={() => setShowUploadDoc(false)}
         projetId={parseInt(id)}
         onSuccess={loadProjet}
+      />
+
+      <FormProjet
+        isOpen={showEditProjet}
+        onClose={() => setShowEditProjet(false)}
+        onSuccess={loadProjet}
+        projet={projet}
       />
 
       {/* Modale de confirmation de suppression de projet */}
