@@ -97,6 +97,15 @@ export default function ProjetsList() {
 
   const canCreateProjet = user?.role === "admin" || user?.role === "super_admin" || user?.role === "chef_pole";
 
+  // Vérifier si l'utilisateur est assigné à un projet
+  const isUserAssigned = (projet) => {
+    const estMembre = projet.membres?.includes(user?.id);
+    const estChef = projet.chef_projet === user?.id;
+    const estClient = projet.client === user?.id;
+    const estCreateur = projet.created_by === user?.id;
+    return estMembre || estChef || estClient || estCreateur;
+  };
+
   return (
     <div style={{ width: "100%" }}>
       <div
@@ -109,7 +118,7 @@ export default function ProjetsList() {
       >
         <div>
           <p style={{ margin: 0, color: "#c4b5fd", fontSize: "1.05rem" }}>
-            Liste des projets auxquels vous avez accès
+            Tous les projets • Vous pouvez accéder uniquement aux projets où vous êtes assigné
           </p>
         </div>
         {canCreateProjet && (
@@ -155,7 +164,7 @@ export default function ProjetsList() {
         >
           <div style={{ fontSize: "4rem", marginBottom: "1rem" }}>📂</div>
           <p style={{ margin: 0, color: "#c4b5fd", fontSize: "1.1rem" }}>
-            Aucun projet trouvé. Vous n'avez accès à aucun projet pour le moment.
+            Aucun projet trouvé.
           </p>
         </div>
       ) : (
@@ -282,22 +291,41 @@ export default function ProjetsList() {
                   }}
                 >
                   <td style={{ padding: "1rem" }}>
-                    <Link
-                      to={`/projets/${projet.id}`}
-                      style={{
-                        color: theme.colors.secondary,
-                        textDecoration: "none",
-                        fontWeight: "600",
-                      }}
-                      onMouseEnter={(e) => {
-                        e.target.style.textDecoration = "underline";
-                      }}
-                      onMouseLeave={(e) => {
-                        e.target.style.textDecoration = "none";
-                      }}
-                    >
-                      {projet.titre}
-                    </Link>
+                    <div style={{ display: "flex", alignItems: "center", gap: "0.75rem" }}>
+                      <Link
+                        to={`/projets/${projet.id}`}
+                        style={{
+                          color: theme.colors.secondary,
+                          textDecoration: "none",
+                          fontWeight: "600",
+                        }}
+                        onMouseEnter={(e) => {
+                          e.target.style.textDecoration = "underline";
+                        }}
+                        onMouseLeave={(e) => {
+                          e.target.style.textDecoration = "none";
+                        }}
+                      >
+                        {projet.titre}
+                      </Link>
+                      {isUserAssigned(projet) && (
+                        <span
+                          style={{
+                            display: "inline-block",
+                            padding: "0.25rem 0.6rem",
+                            backgroundColor: "#10b98120",
+                            color: "#10b981",
+                            borderRadius: "6px",
+                            fontSize: "0.75rem",
+                            fontWeight: "600",
+                            border: "1px solid #10b98140",
+                          }}
+                          title="Vous êtes assigné à ce projet"
+                        >
+                          ✓ Assigné
+                        </span>
+                      )}
+                    </div>
                   </td>
                   <td style={{ padding: "1rem" }}>
                     <span style={{ fontSize: "0.9rem", color: "#c4b5fd" }}>
