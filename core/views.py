@@ -201,9 +201,22 @@ class UserUploadPhotoView(APIView):
                 status=status.HTTP_400_BAD_REQUEST
             )
 
-        # Enregistrer la photo
-        user.profile.photo = photo
-        user.profile.save()
+        # Enregistrer la photo avec gestion d'erreur détaillée
+        try:
+            print(f"[DEBUG] Uploading photo: {photo.name}, size: {photo.size} bytes")
+            user.profile.photo = photo
+            user.profile.save()
+            print(f"[DEBUG] Photo saved successfully. URL: {user.profile.photo.url}")
+        except Exception as e:
+            # Capturer toute erreur S3 et la logger
+            import traceback
+            error_details = traceback.format_exc()
+            print(f"[ERROR] Failed to upload photo to S3:")
+            print(error_details)
+            return Response(
+                {"detail": f"Erreur lors de l'upload: {str(e)}"},
+                status=status.HTTP_500_INTERNAL_SERVER_ERROR
+            )
 
         # Retourner les données mises à jour
         serializer = UserProfileSerializer(user, context={'request': request})
@@ -972,7 +985,20 @@ class DocumentListCreateView(generics.ListCreateAPIView):
 
     def perform_create(self, serializer):
         # Associer l'utilisateur connecté comme uploadeur
-        serializer.save(uploade_par=self.request.user)
+        try:
+            fichier = self.request.FILES.get('fichier')
+            if fichier:
+                print(f"[DEBUG] Uploading document: {fichier.name}, size: {fichier.size} bytes")
+            document = serializer.save(uploade_par=self.request.user)
+            if document.fichier:
+                print(f"[DEBUG] Document saved successfully. URL: {document.fichier.url}")
+        except Exception as e:
+            # Capturer toute erreur S3 et la logger
+            import traceback
+            error_details = traceback.format_exc()
+            print(f"[ERROR] Failed to upload document to S3:")
+            print(error_details)
+            raise  # Re-raise pour que DRF gère l'erreur
 
 
 class DocumentDetailView(generics.RetrieveUpdateDestroyAPIView):

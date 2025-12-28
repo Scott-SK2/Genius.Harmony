@@ -157,6 +157,15 @@ print(f"AWS_STORAGE_BUCKET_NAME: {AWS_STORAGE_BUCKET_NAME if AWS_STORAGE_BUCKET_
 print(f"AWS_S3_REGION_NAME: {AWS_S3_REGION_NAME}")
 print("=" * 50)
 
+# Enable verbose logging for boto3 to debug S3 issues
+import logging
+boto3_logger = logging.getLogger('boto3')
+boto3_logger.setLevel(logging.DEBUG)
+botocore_logger = logging.getLogger('botocore')
+botocore_logger.setLevel(logging.DEBUG)
+s3transfer_logger = logging.getLogger('s3transfer')
+s3transfer_logger.setLevel(logging.DEBUG)
+
 # Configuration des fichiers media selon AWS S3 ou stockage local
 if AWS_ACCESS_KEY_ID and AWS_SECRET_ACCESS_KEY and AWS_STORAGE_BUCKET_NAME:
     # Utiliser AWS S3 pour le stockage des fichiers media
