@@ -41,7 +41,6 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    'storages',  # AWS S3 storage
     'rest_framework',
     'core',
     'corsheaders',
@@ -142,48 +141,22 @@ STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
 # https://docs.djangoproject.com/en/6.0/ref/settings/#default-auto-field
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
-# AWS S3 Configuration pour stockage persistant des fichiers
-AWS_ACCESS_KEY_ID = config('AWS_ACCESS_KEY_ID', default='')
-AWS_SECRET_ACCESS_KEY = config('AWS_SECRET_ACCESS_KEY', default='')
-AWS_STORAGE_BUCKET_NAME = config('AWS_STORAGE_BUCKET_NAME', default='')
-AWS_S3_REGION_NAME = config('AWS_S3_REGION_NAME', default='eu-west-3')
+# Configuration du stockage des fichiers media avec Render Disk
+# Render Disk est monté à /opt/render/project/src/media pour persistance
+import os
 
-# Debug: Log AWS configuration (TEMPORARY - remove in production)
-print("=" * 50)
-print("AWS S3 Configuration Check:")
-print(f"AWS_ACCESS_KEY_ID: {'SET' if AWS_ACCESS_KEY_ID else 'EMPTY'}")
-print(f"AWS_SECRET_ACCESS_KEY: {'SET' if AWS_SECRET_ACCESS_KEY else 'EMPTY'}")
-print(f"AWS_STORAGE_BUCKET_NAME: {AWS_STORAGE_BUCKET_NAME if AWS_STORAGE_BUCKET_NAME else 'EMPTY'}")
-print(f"AWS_S3_REGION_NAME: {AWS_S3_REGION_NAME}")
-print("=" * 50)
-
-# Enable verbose logging for boto3 to debug S3 issues
-import logging
-boto3_logger = logging.getLogger('boto3')
-boto3_logger.setLevel(logging.DEBUG)
-botocore_logger = logging.getLogger('botocore')
-botocore_logger.setLevel(logging.DEBUG)
-s3transfer_logger = logging.getLogger('s3transfer')
-s3transfer_logger.setLevel(logging.DEBUG)
-
-# Configuration des fichiers media selon AWS S3 ou stockage local
-if AWS_ACCESS_KEY_ID and AWS_SECRET_ACCESS_KEY and AWS_STORAGE_BUCKET_NAME:
-    # Utiliser AWS S3 pour le stockage des fichiers media
-    AWS_S3_CUSTOM_DOMAIN = f'{AWS_STORAGE_BUCKET_NAME}.s3.{AWS_S3_REGION_NAME}.amazonaws.com'
-    AWS_S3_OBJECT_PARAMETERS = {
-        'CacheControl': 'max-age=86400',
-    }
-    # Ne pas utiliser AWS_DEFAULT_ACL car les buckets S3 modernes ont ACLs désactivés
-    # On s'appuie sur la Bucket Policy pour l'accès public
-    AWS_DEFAULT_ACL = None
-    AWS_QUERYSTRING_AUTH = False
-    DEFAULT_FILE_STORAGE = 'storages.backends.s3boto3.S3Boto3Storage'
-    MEDIA_URL = f'https://{AWS_S3_CUSTOM_DOMAIN}/'
+# Détecter si on est sur Render avec un disk monté
+RENDER_DISK_PATH = '/opt/render/project/src/media'
+if os.path.exists(RENDER_DISK_PATH):
+    MEDIA_ROOT = RENDER_DISK_PATH
+    print(f"✅ [INFO] Using Render Disk for persistent media storage: {MEDIA_ROOT}")
 else:
-    # Fallback sur stockage local si S3 n'est pas configuré
-    DEFAULT_FILE_STORAGE = 'django.core.files.storage.FileSystemStorage'
-    MEDIA_URL = '/media/'
+    # Développement local
     MEDIA_ROOT = BASE_DIR / 'media'
+    print(f"[INFO] Using local media storage: {MEDIA_ROOT}")
+
+MEDIA_URL = '/media/'
+DEFAULT_FILE_STORAGE = 'django.core.files.storage.FileSystemStorage'
 
 REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': (

@@ -47,7 +47,7 @@ class MeView(APIView):
         photo_url = None
         if profile and profile.photo:
             photo_url = profile.photo.url
-            # Si l'URL n'est pas déjà absolue (Cloudinary), construire l'URL complète
+            # Construire l'URL absolue pour les fichiers locaux
             if not photo_url.startswith(('http://', 'https://')):
                 photo_url = request.build_absolute_uri(photo_url)
 
@@ -208,10 +208,10 @@ class UserUploadPhotoView(APIView):
             user.profile.save()
             print(f"[DEBUG] Photo saved successfully. URL: {user.profile.photo.url}")
         except Exception as e:
-            # Capturer toute erreur S3 et la logger
+            # Capturer toute erreur et la logger
             import traceback
             error_details = traceback.format_exc()
-            print(f"[ERROR] Failed to upload photo to S3:")
+            print(f"[ERROR] Failed to upload photo:")
             print(error_details)
             return Response(
                 {"detail": f"Erreur lors de l'upload: {str(e)}"},
@@ -241,7 +241,7 @@ class UserProfileDetailView(APIView):
         photo_url = None
         if profile and profile.photo:
             photo_url = profile.photo.url
-            # Si l'URL n'est pas déjà absolue (Cloudinary), construire l'URL complète
+            # Construire l'URL absolue pour les fichiers locaux
             if not photo_url.startswith(('http://', 'https://')):
                 photo_url = request.build_absolute_uri(photo_url)
 
@@ -993,10 +993,10 @@ class DocumentListCreateView(generics.ListCreateAPIView):
             if document.fichier:
                 print(f"[DEBUG] Document saved successfully. URL: {document.fichier.url}")
         except Exception as e:
-            # Capturer toute erreur S3 et la logger
+            # Capturer toute erreur et la logger
             import traceback
             error_details = traceback.format_exc()
-            print(f"[ERROR] Failed to upload document to S3:")
+            print(f"[ERROR] Failed to upload document:")
             print(error_details)
             raise  # Re-raise pour que DRF gère l'erreur
 
@@ -1035,13 +1035,12 @@ class DocumentDownloadView(APIView):
         # Obtenir l'URL du fichier
         fichier_url = document.fichier.url
 
-        # Si l'URL est absolue (S3 ou Cloudinary), rediriger vers cette URL
+        # Si l'URL est absolue (service externe), rediriger vers cette URL
         if fichier_url.startswith(('http://', 'https://')):
-            # Pour S3, retourner l'URL directement (le navigateur téléchargera depuis S3)
             from django.http import HttpResponseRedirect
             return HttpResponseRedirect(fichier_url)
 
-        # Sinon, c'est un fichier local - le servir directement
+        # Sinon, c'est un fichier local - le servir directement depuis Render Disk
         file_path = document.fichier.path
 
         if not os.path.exists(file_path):
