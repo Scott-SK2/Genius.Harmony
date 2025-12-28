@@ -220,7 +220,7 @@ class ProjetListSerializer(serializers.ModelSerializer):
         fields = [
             'id', 'titre', 'type', 'statut', 'pole', 'pole_name',
             'client', 'client_username', 'chef_projet', 'chef_projet_username', 'chef_projet_status',
-            'created_by', 'created_by_username',
+            'created_by', 'created_by_username', 'membres',
             'nombre_taches', 'nombre_membres', 'date_debut', 'date_fin_prevue',
             'created_at', 'updated_at'
         ]
