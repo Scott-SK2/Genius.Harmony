@@ -172,7 +172,7 @@ export default function AdminUsers() {
                     fontWeight: "500",
                   }}
                 >
-                  ID
+                  Photo
                 </th>
                 <th
                   style={{
@@ -246,8 +246,41 @@ export default function AdminUsers() {
                     e.currentTarget.style.backgroundColor = "transparent";
                   }}
                 >
-                  <td style={{ padding: "1rem", color: "#a78bfa" }}>
-                    #{u.id}
+                  <td style={{ padding: "1rem" }}>
+                    <div
+                      style={{
+                        width: "48px",
+                        height: "48px",
+                        borderRadius: "50%",
+                        overflow: "hidden",
+                        border: "2px solid #4c1d95",
+                        backgroundColor: "#1e1b4b",
+                        display: "flex",
+                        alignItems: "center",
+                        justifyContent: "center",
+                      }}
+                    >
+                      {u.photo_url ? (
+                        <img
+                          src={u.photo_url}
+                          alt={u.username}
+                          style={{
+                            width: "100%",
+                            height: "100%",
+                            objectFit: "cover",
+                          }}
+                          onError={(e) => {
+                            // Image par défaut si erreur de chargement
+                            e.target.style.display = "none";
+                            e.target.parentElement.innerHTML = "👤";
+                            e.target.parentElement.style.fontSize = "24px";
+                            e.target.parentElement.style.color = "#a78bfa";
+                          }}
+                        />
+                      ) : (
+                        <span style={{ fontSize: "24px", color: "#a78bfa" }}>👤</span>
+                      )}
+                    </div>
                   </td>
                   <td style={{ padding: "1rem", color: "#fff", fontWeight: "500" }}>
                     {u.username}
