@@ -234,7 +234,7 @@ export default function UserProfile() {
               fontWeight: "600",
               transition: "all 0.2s",
               display: "inline-block",
-            }
+            }}
             onMouseEnter={(e) => {
               e.target.style.backgroundColor = theme.colors.accent;
               e.target.style.transform = "translateY(-2px)";
