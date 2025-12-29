@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 import { useTheme } from "../context/ThemeContext";
+import { useResponsive } from "../hooks/useResponsive";
 import { fetchPoles, createPole, updatePole, deletePole } from "../api/poles";
 import { fetchProjets } from "../api/projets";
 import { fetchUsers } from "../api/users";
@@ -9,6 +10,7 @@ import { fetchUsers } from "../api/users";
 export default function AdminDashboard() {
   const { token } = useAuth();
   const { theme } = useTheme();
+  const { isMobile, isTablet } = useResponsive();
   const navigate = useNavigate();
   const [poles, setPoles] = useState([]);
   const [users, setUsers] = useState([]);
@@ -123,20 +125,20 @@ export default function AdminDashboard() {
 
   return (
     <div style={{ width: "100%", maxWidth: "100%" }}>
-      {/* Stats Cards - 3 cartes alignées */}
+      {/* Stats Cards - Responsive */}
       <div
         style={{
           display: "grid",
-          gridTemplateColumns: "repeat(3, 1fr)",
-          gap: "1.5rem",
-          marginBottom: "3rem",
+          gridTemplateColumns: isMobile ? "1fr" : isTablet ? "repeat(2, 1fr)" : "repeat(3, 1fr)",
+          gap: isMobile ? "1rem" : "1.5rem",
+          marginBottom: isMobile ? "2rem" : "3rem",
         }}
       >
           <div
             onClick={() => navigate("/projets")}
             style={{
               backgroundColor: "#2d1b69",
-              padding: "1.5rem",
+              padding: isMobile ? "1rem" : "1.5rem",
               borderRadius: "12px",
               border: "1px solid #4c1d95",
               cursor: "pointer",
@@ -170,18 +172,18 @@ export default function AdminDashboard() {
                 📋
               </div>
               <div>
-                <div style={{ color: "#c4b5fd", fontSize: "0.9rem" }}>Projets</div>
-                <div style={{ color: "#fff", fontSize: "2rem", fontWeight: "bold" }}>{stats.totalProjets}</div>
+                <div style={{ color: "#c4b5fd", fontSize: isMobile ? "0.8rem" : "0.9rem" }}>Projets</div>
+                <div style={{ color: "#fff", fontSize: isMobile ? "1.5rem" : "2rem", fontWeight: "bold" }}>{stats.totalProjets}</div>
               </div>
             </div>
-            <div style={{ color: "#a78bfa", fontSize: "0.85rem" }}>Total des projets</div>
+            <div style={{ color: "#a78bfa", fontSize: isMobile ? "0.75rem" : "0.85rem" }}>Total des projets</div>
           </div>
 
           <div
             onClick={() => navigate("/admin/poles")}
             style={{
               backgroundColor: "#2d1b69",
-              padding: "1.5rem",
+              padding: isMobile ? "1rem" : "1.5rem",
               borderRadius: "12px",
               border: "1px solid #4c1d95",
               cursor: "pointer",
@@ -215,18 +217,18 @@ export default function AdminDashboard() {
                 🎯
               </div>
               <div>
-                <div style={{ color: "#c4b5fd", fontSize: "0.9rem" }}>Pôles</div>
-                <div style={{ color: "#fff", fontSize: "2rem", fontWeight: "bold" }}>{stats.totalPoles}</div>
+                <div style={{ color: "#c4b5fd", fontSize: isMobile ? "0.8rem" : "0.9rem" }}>Pôles</div>
+                <div style={{ color: "#fff", fontSize: isMobile ? "1.5rem" : "2rem", fontWeight: "bold" }}>{stats.totalPoles}</div>
               </div>
             </div>
-            <div style={{ color: "#a78bfa", fontSize: "0.85rem" }}>Pôles définis</div>
+            <div style={{ color: "#a78bfa", fontSize: isMobile ? "0.75rem" : "0.85rem" }}>Pôles définis</div>
           </div>
 
           <div
             onClick={() => navigate("/admin/users")}
             style={{
               backgroundColor: "#2d1b69",
-              padding: "1.5rem",
+              padding: isMobile ? "1rem" : "1.5rem",
               borderRadius: "12px",
               border: "1px solid #4c1d95",
               cursor: "pointer",
@@ -260,18 +262,18 @@ export default function AdminDashboard() {
                 👥
               </div>
               <div>
-                <div style={{ color: "#c4b5fd", fontSize: "0.9rem" }}>Utilisateurs</div>
-                <div style={{ color: "#fff", fontSize: "2rem", fontWeight: "bold" }}>{stats.totalUtilisateurs}</div>
+                <div style={{ color: "#c4b5fd", fontSize: isMobile ? "0.8rem" : "0.9rem" }}>Utilisateurs</div>
+                <div style={{ color: "#fff", fontSize: isMobile ? "1.5rem" : "2rem", fontWeight: "bold" }}>{stats.totalUtilisateurs}</div>
               </div>
             </div>
-            <div style={{ color: "#a78bfa", fontSize: "0.85rem" }}>Membres de l'équipe</div>
+            <div style={{ color: "#a78bfa", fontSize: isMobile ? "0.75rem" : "0.85rem" }}>Membres de l'équipe</div>
           </div>
         </div>
 
         {/* Gestion des Pôles */}
         <div>
-          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "1.5rem" }}>
-            <h3 style={{ color: "#fff", margin: 0, fontSize: "1.5rem" }}>Pôles récents</h3>
+          <div style={{ display: "flex", flexDirection: isMobile ? "column" : "row", justifyContent: "space-between", alignItems: isMobile ? "stretch" : "center", marginBottom: "1.5rem", gap: isMobile ? "1rem" : "0" }}>
+            <h3 style={{ color: "#fff", margin: 0, fontSize: isMobile ? "1.25rem" : "1.5rem" }}>Pôles récents</h3>
             <button
               onClick={() => handleOpenModal()}
               style={{
