@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { useParams, Link, useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 import { useTheme } from "../context/ThemeContext";
+import { useResponsive } from "../hooks/useResponsive";
 import { API_BASE_URL } from "../config";
 
 import { fetchProjetDetails, updateProjetStatut, deleteProjet } from "../api/projets";
@@ -48,6 +49,7 @@ export default function ProjetDetails() {
   const { id } = useParams();
   const { token, user } = useAuth();
   const { theme } = useTheme();
+  const { isMobile, isSmallScreen } = useResponsive();
   const navigate = useNavigate();
 
   const [projet, setProjet] = useState(null);
@@ -487,6 +489,26 @@ export default function ProjetDetails() {
       });
 
       // Recharger le projet pour obtenir les tâches à jour
+      await loadProjet();
+    } catch (err) {
+      console.error("Erreur update tache:", err);
+      setError("Impossible de déplacer la tâche");
+    }
+  };
+
+  // Fonction pour déplacer une tâche avec des boutons (pour mobile)
+  const handleMoveTache = async (tache, nouveauStatut) => {
+    if (!canDragTask(tache)) return;
+
+    // Si le statut n'a pas changé, ne rien faire
+    if (tache.statut === nouveauStatut) return;
+
+    try {
+      await updateTache(token, tache.id, {
+        statut: nouveauStatut,
+      });
+
+      // Recharger le projet
       await loadProjet();
     } catch (err) {
       console.error("Erreur update tache:", err);
@@ -1166,11 +1188,11 @@ export default function ProjetDetails() {
           </div>
         ) : (
           <>
-            {/* Statistiques */}
+            {/* Statistiques - Responsive */}
             <div
               style={{
                 display: "grid",
-                gridTemplateColumns: "repeat(3, 1fr)",
+                gridTemplateColumns: isMobile ? "1fr" : "repeat(3, 1fr)",
                 gap: "1rem",
                 marginBottom: "2rem",
               }}
@@ -1230,13 +1252,13 @@ export default function ProjetDetails() {
               })}
             </div>
 
-            {/* Board Kanban */}
+            {/* Board Kanban - Responsive */}
             <div
               style={{
                 display: "grid",
-                gridTemplateColumns: "repeat(3, 1fr)",
-                gap: "1.5rem",
-                minHeight: "400px",
+                gridTemplateColumns: isMobile ? "1fr" : "repeat(3, 1fr)",
+                gap: isMobile ? "1rem" : "1.5rem",
+                minHeight: isMobile ? "auto" : "400px",
               }}
             >
               {[
@@ -1412,6 +1434,66 @@ export default function ProjetDetails() {
                                   >
                                     ✏️ Modifier
                                   </button>
+                                </div>
+                              )}
+
+                              {/* Boutons de déplacement sur mobile */}
+                              {isSmallScreen && isDraggable && (
+                                <div style={{ marginTop: "0.75rem", display: "flex", gap: "0.5rem" }}>
+                                  {tache.statut !== "a_faire" && (
+                                    <button
+                                      onClick={() => handleMoveTache(tache, tache.statut === "en_cours" ? "a_faire" : "en_cours")}
+                                      style={{
+                                        flex: 1,
+                                        padding: "0.5rem 0.75rem",
+                                        backgroundColor: "transparent",
+                                        color: "#a78bfa",
+                                        border: "1px solid #a78bfa",
+                                        borderRadius: "8px",
+                                        fontSize: "0.8rem",
+                                        fontWeight: "600",
+                                        cursor: "pointer",
+                                        transition: "all 0.2s",
+                                      }}
+                                      onMouseEnter={(e) => {
+                                        e.target.style.backgroundColor = "#a78bfa";
+                                        e.target.style.color = "#fff";
+                                      }}
+                                      onMouseLeave={(e) => {
+                                        e.target.style.backgroundColor = "transparent";
+                                        e.target.style.color = "#a78bfa";
+                                      }}
+                                    >
+                                      ← Précédent
+                                    </button>
+                                  )}
+                                  {tache.statut !== "termine" && (
+                                    <button
+                                      onClick={() => handleMoveTache(tache, tache.statut === "a_faire" ? "en_cours" : "termine")}
+                                      style={{
+                                        flex: 1,
+                                        padding: "0.5rem 0.75rem",
+                                        backgroundColor: "transparent",
+                                        color: "#10b981",
+                                        border: "1px solid #10b981",
+                                        borderRadius: "8px",
+                                        fontSize: "0.8rem",
+                                        fontWeight: "600",
+                                        cursor: "pointer",
+                                        transition: "all 0.2s",
+                                      }}
+                                      onMouseEnter={(e) => {
+                                        e.target.style.backgroundColor = "#10b981";
+                                        e.target.style.color = "#fff";
+                                      }}
+                                      onMouseLeave={(e) => {
+                                        e.target.style.backgroundColor = "transparent";
+                                        e.target.style.color = "#10b981";
+                                      }}
+                                    >
+                                      Suivant →
+                                    </button>
+                                  )}
                                 </div>
                               )}
 
