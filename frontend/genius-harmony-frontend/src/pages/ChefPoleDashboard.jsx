@@ -2,12 +2,14 @@ import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 import { useTheme } from "../context/ThemeContext";
+import { useResponsive } from "../hooks/useResponsive";
 import { fetchProjets } from "../api/projets";
 import { fetchTaches } from "../api/taches";
 
 export default function ChefPoleDashboard() {
   const { user, token } = useAuth();
   const { theme } = useTheme();
+  const { isMobile, isTablet, isSmallScreen } = useResponsive();
   const [projets, setProjets] = useState([]);
   const [taches, setTaches] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -59,18 +61,18 @@ export default function ChefPoleDashboard() {
   return (
     <div>
       {/* En-tête */}
-      <div style={{ marginBottom: "3rem", textAlign: "center" }}>
+      <div style={{ marginBottom: isMobile ? "2rem" : "3rem", textAlign: "center" }}>
         <h1
           style={{
             margin: 0,
             marginBottom: "0.75rem",
             color: "#fff",
-            fontSize: "2.2rem",
+            fontSize: isMobile ? "1.5rem" : "2.2rem",
           }}
         >
           Dashboard Chef de Pôle
         </h1>
-        <p style={{ margin: 0, color: "#c4b5fd", fontSize: "1.1rem" }}>
+        <p style={{ margin: 0, color: "#c4b5fd", fontSize: isMobile ? "0.95rem" : "1.1rem" }}>
           Bienvenue, <strong style={{ color: "#fff" }}>{user?.username}</strong>
         </p>
         {user?.pole_name && (
@@ -80,7 +82,7 @@ export default function ChefPoleDashboard() {
               color: theme.colors.secondary,
               fontWeight: "600",
               marginTop: "0.75rem",
-              fontSize: "1.1rem",
+              fontSize: isMobile ? "0.95rem" : "1.1rem",
             }}
           >
             🎯 Pôle : {user.pole_name}
@@ -92,8 +94,8 @@ export default function ChefPoleDashboard() {
       <h2
         style={{
           color: "#fff",
-          marginBottom: "1.5rem",
-          fontSize: "1.5rem",
+          marginBottom: isMobile ? "1rem" : "1.5rem",
+          fontSize: isMobile ? "1.2rem" : "1.5rem",
         }}
       >
         Vue d'ensemble de mon pôle
@@ -101,9 +103,9 @@ export default function ChefPoleDashboard() {
       <div
         style={{
           display: "grid",
-          gridTemplateColumns: "repeat(auto-fit, minmax(250px, 1fr))",
-          gap: "1.5rem",
-          marginBottom: "2.5rem",
+          gridTemplateColumns: isMobile ? "1fr" : isTablet ? "repeat(2, 1fr)" : "repeat(2, 1fr)",
+          gap: isMobile ? "1rem" : "1.5rem",
+          marginBottom: isMobile ? "1.5rem" : "2.5rem",
         }}
       >
         {[
@@ -129,8 +131,8 @@ export default function ChefPoleDashboard() {
             to={stat.link}
             style={{
               backgroundColor: theme.bg.card,
-              borderRadius: "16px",
-              padding: "2rem",
+              borderRadius: isMobile ? "12px" : "16px",
+              padding: isMobile ? "1.25rem" : "2rem",
               boxShadow: theme.shadow.md,
               border: `1px solid ${theme.border.light}`,
               transition: "all 0.3s",
@@ -159,14 +161,14 @@ export default function ChefPoleDashboard() {
             >
               <div
                 style={{
-                  width: "60px",
-                  height: "60px",
+                  width: isMobile ? "50px" : "60px",
+                  height: isMobile ? "50px" : "60px",
                   borderRadius: "12px",
                   backgroundColor: `${stat.color}20`,
                   display: "flex",
                   alignItems: "center",
                   justifyContent: "center",
-                  fontSize: "2rem",
+                  fontSize: isMobile ? "1.5rem" : "2rem",
                 }}
               >
                 {stat.icon}
@@ -174,7 +176,7 @@ export default function ChefPoleDashboard() {
               <div>
                 <div
                   style={{
-                    fontSize: "0.9rem",
+                    fontSize: isMobile ? "0.8rem" : "0.9rem",
                     color: theme.text.secondary,
                     fontWeight: "500",
                     marginBottom: "0.25rem",
@@ -184,7 +186,7 @@ export default function ChefPoleDashboard() {
                 </div>
                 <div
                   style={{
-                    fontSize: "2.5rem",
+                    fontSize: isMobile ? "1.8rem" : "2.5rem",
                     fontWeight: "700",
                     color: theme.text.primary,
                     lineHeight: 1,
@@ -196,9 +198,9 @@ export default function ChefPoleDashboard() {
             </div>
             <div
               style={{
-                fontSize: "0.9rem",
+                fontSize: isMobile ? "0.85rem" : "0.9rem",
                 color: theme.text.secondary,
-                paddingTop: "1rem",
+                paddingTop: isMobile ? "0.75rem" : "1rem",
                 borderTop: `1px solid ${theme.border.light}`,
               }}
             >
@@ -212,8 +214,8 @@ export default function ChefPoleDashboard() {
       <h2
         style={{
           color: "#fff",
-          marginBottom: "1.5rem",
-          fontSize: "1.5rem",
+          marginBottom: isMobile ? "1rem" : "1.5rem",
+          fontSize: isMobile ? "1.2rem" : "1.5rem",
         }}
       >
         Projets en cours
@@ -222,34 +224,36 @@ export default function ChefPoleDashboard() {
         <div
           style={{
             textAlign: "center",
-            padding: "3rem",
+            padding: isMobile ? "2rem" : "3rem",
             backgroundColor: theme.bg.card,
             borderRadius: "12px",
             border: `1px dashed ${theme.border.medium}`,
-            marginBottom: "2.5rem",
+            marginBottom: isMobile ? "1.5rem" : "2.5rem",
           }}
         >
-          <div style={{ fontSize: "3rem", marginBottom: "1rem" }}>📂</div>
-          <p style={{ color: theme.text.secondary, margin: 0 }}>
+          <div style={{ fontSize: isMobile ? "2rem" : "3rem", marginBottom: "1rem" }}>📂</div>
+          <p style={{ color: theme.text.secondary, margin: 0, fontSize: isMobile ? "0.9rem" : "1rem" }}>
             Aucun projet en cours pour le moment.
           </p>
         </div>
       ) : (
-        <div style={{ display: "grid", gap: "1rem", marginBottom: "2.5rem" }}>
+        <div style={{ display: "grid", gap: "1rem", marginBottom: isMobile ? "1.5rem" : "2.5rem" }}>
           {projetsEnCours.slice(0, 5).map((projet) => (
             <Link
               key={projet.id}
               to={`/projets/${projet.id}`}
               style={{
-                padding: "1.5rem",
+                padding: isMobile ? "1rem" : "1.5rem",
                 backgroundColor: theme.bg.card,
                 border: `1px solid ${theme.border.light}`,
                 borderRadius: "12px",
                 textDecoration: "none",
                 color: "inherit",
                 display: "flex",
+                flexDirection: isSmallScreen ? "column" : "row",
                 justifyContent: "space-between",
-                alignItems: "center",
+                alignItems: isSmallScreen ? "flex-start" : "center",
+                gap: isSmallScreen ? "0.75rem" : "0",
                 transition: "all 0.2s",
                 boxShadow: theme.shadow.sm,
               }}
@@ -264,30 +268,31 @@ export default function ChefPoleDashboard() {
                 e.currentTarget.style.borderColor = theme.border.light;
               }}
             >
-              <div>
+              <div style={{ flex: 1 }}>
                 <div
                   style={{
                     fontWeight: "600",
                     marginBottom: "0.5rem",
                     color: theme.text.primary,
-                    fontSize: "1.05rem",
+                    fontSize: isMobile ? "0.95rem" : "1.05rem",
                   }}
                 >
                   {projet.titre}
                 </div>
-                <div style={{ fontSize: "0.9rem", color: theme.text.secondary }}>
+                <div style={{ fontSize: isMobile ? "0.85rem" : "0.9rem", color: theme.text.secondary }}>
                   {projet.nombre_taches || 0} tâches · {projet.nombre_membres || 0} membres
                 </div>
               </div>
               <div
                 style={{
-                  padding: "0.5rem 1rem",
+                  padding: isMobile ? "0.4rem 0.8rem" : "0.5rem 1rem",
                   backgroundColor: `${theme.colors.primary}20`,
                   color: theme.colors.primary,
                   borderRadius: "8px",
-                  fontSize: "0.85rem",
+                  fontSize: isMobile ? "0.8rem" : "0.85rem",
                   fontWeight: "600",
                   border: `1px solid ${theme.colors.primary}40`,
+                  alignSelf: isSmallScreen ? "flex-start" : "auto",
                 }}
               >
                 En cours
@@ -301,8 +306,8 @@ export default function ChefPoleDashboard() {
       <h2
         style={{
           color: "#fff",
-          marginBottom: "1.5rem",
-          fontSize: "1.5rem",
+          marginBottom: isMobile ? "1rem" : "1.5rem",
+          fontSize: isMobile ? "1.2rem" : "1.5rem",
         }}
       >
         Tâches urgentes à traiter
@@ -311,14 +316,14 @@ export default function ChefPoleDashboard() {
         <div
           style={{
             textAlign: "center",
-            padding: "3rem",
+            padding: isMobile ? "2rem" : "3rem",
             backgroundColor: theme.bg.card,
             borderRadius: "12px",
             border: `1px dashed ${theme.border.medium}`,
           }}
         >
-          <div style={{ fontSize: "3rem", marginBottom: "1rem" }}>✅</div>
-          <p style={{ color: theme.text.secondary, margin: 0 }}>
+          <div style={{ fontSize: isMobile ? "2rem" : "3rem", marginBottom: "1rem" }}>✅</div>
+          <p style={{ color: theme.text.secondary, margin: 0, fontSize: isMobile ? "0.9rem" : "1rem" }}>
             Aucune tâche urgente pour le moment.
           </p>
         </div>
@@ -331,13 +336,15 @@ export default function ChefPoleDashboard() {
               <div
                 key={tache.id}
                 style={{
-                  padding: "1.5rem",
+                  padding: isMobile ? "1rem" : "1.5rem",
                   backgroundColor: theme.bg.card,
                   border: `1px solid ${theme.border.light}`,
                   borderRadius: "12px",
                   display: "flex",
+                  flexDirection: isSmallScreen ? "column" : "row",
                   justifyContent: "space-between",
-                  alignItems: "center",
+                  alignItems: isSmallScreen ? "flex-start" : "center",
+                  gap: isSmallScreen ? "0.75rem" : "0",
                   transition: "all 0.2s",
                   boxShadow: theme.shadow.sm,
                 }}
@@ -356,12 +363,12 @@ export default function ChefPoleDashboard() {
                       fontWeight: "600",
                       marginBottom: "0.5rem",
                       color: theme.text.primary,
-                      fontSize: "1.05rem",
+                      fontSize: isMobile ? "0.95rem" : "1.05rem",
                     }}
                   >
                     {tache.titre}
                   </div>
-                  <div style={{ fontSize: "0.9rem", color: theme.text.secondary }}>
+                  <div style={{ fontSize: isMobile ? "0.85rem" : "0.9rem", color: theme.text.secondary }}>
                     {tache.projet_details?.titre || "Projet inconnu"}
                     {tache.deadline && (
                       <span> · Deadline: {new Date(tache.deadline).toLocaleDateString("fr-FR")}</span>
@@ -370,15 +377,16 @@ export default function ChefPoleDashboard() {
                 </div>
                 <div
                   style={{
-                    padding: "0.5rem 1rem",
+                    padding: isMobile ? "0.4rem 0.8rem" : "0.5rem 1rem",
                     backgroundColor: tache.priorite === "urgente" ? `${theme.colors.danger}20` : `${theme.colors.warning}20`,
                     color: tache.priorite === "urgente" ? theme.colors.danger : theme.colors.warning,
                     borderRadius: "8px",
-                    fontSize: "0.85rem",
+                    fontSize: isMobile ? "0.8rem" : "0.85rem",
                     fontWeight: "600",
-                    marginLeft: "1rem",
+                    marginLeft: isSmallScreen ? "0" : "1rem",
                     border: `1px solid ${tache.priorite === "urgente" ? theme.colors.danger : theme.colors.warning}40`,
                     whiteSpace: "nowrap",
+                    alignSelf: isSmallScreen ? "flex-start" : "auto",
                   }}
                 >
                   {tache.priorite === "urgente" ? "🔥 Urgente" : "⚠️ Haute"}

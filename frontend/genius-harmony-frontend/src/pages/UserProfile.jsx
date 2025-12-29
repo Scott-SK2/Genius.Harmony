@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { useParams, Link } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 import { useTheme } from "../context/ThemeContext";
+import { useResponsive } from "../hooks/useResponsive";
 import { API_BASE_URL } from "../config";
 
 const ROLE_LABELS = {
@@ -72,6 +73,7 @@ export default function UserProfile() {
   const { id } = useParams();
   const { token, user } = useAuth();
   const { theme } = useTheme();
+  const { isMobile, isTablet, isSmallScreen } = useResponsive();
   const [userProfile, setUserProfile] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -200,13 +202,13 @@ export default function UserProfile() {
   return (
     <div style={{ width: "100%" }}>
       {/* Navigation */}
-      <div style={{ marginBottom: "2rem", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+      <div style={{ marginBottom: isMobile ? "1.5rem" : "2rem", display: "flex", flexDirection: isSmallScreen ? "column" : "row", gap: isSmallScreen ? "1rem" : "0", justifyContent: "space-between", alignItems: isSmallScreen ? "flex-start" : "center" }}>
         <Link
           to="/admin/users"
           style={{
             color: theme.colors.primary,
             textDecoration: "none",
-            fontSize: "1rem",
+            fontSize: isMobile ? "0.9rem" : "1rem",
             fontWeight: "600",
           }}
           onMouseEnter={(e) => {
@@ -223,16 +225,16 @@ export default function UserProfile() {
           <Link
             to={`/users/${id}/edit`}
             style={{
-              padding: "0.6rem 1.2rem",
+              padding: isMobile ? "0.5rem 1rem" : "0.6rem 1.2rem",
               backgroundColor: theme.colors.secondary,
               color: theme.text.inverse,
               textDecoration: "none",
               borderRadius: "8px",
-              fontSize: "0.95rem",
+              fontSize: isMobile ? "0.85rem" : "0.95rem",
               fontWeight: "600",
               transition: "all 0.2s",
               display: "inline-block",
-            }}
+            }
             onMouseEnter={(e) => {
               e.target.style.backgroundColor = theme.colors.accent;
               e.target.style.transform = "translateY(-2px)";
@@ -252,20 +254,20 @@ export default function UserProfile() {
       {/* En-tête du profil */}
       <div
         style={{
-          marginBottom: "2.5rem",
+          marginBottom: isMobile ? "1.5rem" : "2.5rem",
           backgroundColor: theme.bg.tertiary,
-          padding: "2rem",
-          borderRadius: "16px",
+          padding: isMobile ? "1.25rem" : "2rem",
+          borderRadius: isMobile ? "12px" : "16px",
           boxShadow: theme.shadow.lg,
           border: `1px solid ${theme.border.light}`,
         }}
       >
-        <div style={{ display: "flex", alignItems: "center", gap: "2rem", marginBottom: "1.5rem", flexWrap: "wrap" }}>
+        <div style={{ display: "flex", alignItems: "center", gap: isMobile ? "1rem" : "2rem", marginBottom: isMobile ? "1rem" : "1.5rem", flexWrap: "wrap" }}>
           <div style={{ position: "relative" }}>
             <div
               style={{
-                width: "80px",
-                height: "80px",
+                width: isMobile ? "60px" : "80px",
+                height: isMobile ? "60px" : "80px",
                 borderRadius: "50%",
                 backgroundColor: theme.colors.primary,
                 display: "flex",
@@ -335,10 +337,10 @@ export default function UserProfile() {
             />
           </div>
           <div>
-            <h1 style={{ margin: 0, color: theme.text.primary, fontSize: "2rem" }}>
+            <h1 style={{ margin: 0, color: theme.text.primary, fontSize: isMobile ? "1.5rem" : "2rem" }}>
               {userProfile.username}
             </h1>
-            <div style={{ color: theme.text.secondary, fontSize: "1.1rem", marginTop: "0.5rem" }}>
+            <div style={{ color: theme.text.secondary, fontSize: isMobile ? "0.9rem" : "1.1rem", marginTop: "0.5rem" }}>
               {ROLE_LABELS[userProfile.role] || userProfile.role}
               {(userProfile.role === 'membre' || userProfile.role === 'chef_pole') && userProfile.membre_specialite &&
                 ` (${SPECIALITE_LABELS[userProfile.membre_specialite] || userProfile.membre_specialite})`}
@@ -350,18 +352,18 @@ export default function UserProfile() {
         <div
           style={{
             display: "grid",
-            gridTemplateColumns: "repeat(auto-fit, minmax(250px, 1fr))",
-            gap: "1.5rem",
-            marginTop: "1.5rem",
-            paddingTop: "1.5rem",
+            gridTemplateColumns: isMobile ? "1fr" : isTablet ? "repeat(2, 1fr)" : "repeat(4, 1fr)",
+            gap: isMobile ? "1rem" : "1.5rem",
+            marginTop: isMobile ? "1rem" : "1.5rem",
+            paddingTop: isMobile ? "1rem" : "1.5rem",
             borderTop: `1px solid ${theme.border.medium}`,
           }}
         >
           <div>
-            <div style={{ fontSize: "0.85rem", color: theme.text.tertiary, marginBottom: "0.5rem" }}>
+            <div style={{ fontSize: isMobile ? "0.75rem" : "0.85rem", color: theme.text.tertiary, marginBottom: "0.5rem" }}>
               Email
             </div>
-            <div style={{ color: theme.text.primary, fontSize: "1rem" }}>{userProfile.email}</div>
+            <div style={{ color: theme.text.primary, fontSize: isMobile ? "0.9rem" : "1rem", wordBreak: "break-word" }}>{userProfile.email}</div>
           </div>
           {userProfile.first_name && (
             <div>
@@ -422,8 +424,8 @@ export default function UserProfile() {
             <div
               style={{
                 display: "grid",
-                gridTemplateColumns: "repeat(auto-fit, minmax(250px, 1fr))",
-                gap: "1rem",
+                gridTemplateColumns: isMobile ? "1fr" : "repeat(auto-fit, minmax(250px, 1fr))",
+                gap: isMobile ? "0.75rem" : "1rem",
               }}
             >
               {userProfile.phone && (
@@ -603,9 +605,9 @@ export default function UserProfile() {
       <div
         style={{
           display: "grid",
-          gridTemplateColumns: "repeat(auto-fit, minmax(200px, 1fr))",
-          gap: "1.5rem",
-          marginBottom: "2.5rem",
+          gridTemplateColumns: isMobile ? "1fr" : isTablet ? "repeat(2, 1fr)" : "repeat(5, 1fr)",
+          gap: isMobile ? "1rem" : "1.5rem",
+          marginBottom: isMobile ? "1.5rem" : "2.5rem",
         }}
       >
         {[
@@ -621,7 +623,7 @@ export default function UserProfile() {
             style={{
               backgroundColor: "#2d1b69",
               borderRadius: "12px",
-              padding: "1.5rem",
+              padding: isMobile ? "1rem" : "1.5rem",
               border: "1px solid #4c1d95",
               transition: "all 0.2s",
               boxShadow: "0 2px 8px rgba(124, 58, 237, 0.1)",
@@ -643,23 +645,23 @@ export default function UserProfile() {
             <div style={{ display: "flex", alignItems: "center", gap: "1rem" }}>
               <div
                 style={{
-                  width: "50px",
-                  height: "50px",
+                  width: isMobile ? "40px" : "50px",
+                  height: isMobile ? "40px" : "50px",
                   borderRadius: "10px",
                   backgroundColor: `${stat.color}33`,
                   display: "flex",
                   alignItems: "center",
                   justifyContent: "center",
-                  fontSize: "1.5rem",
+                  fontSize: isMobile ? "1.2rem" : "1.5rem",
                 }}
               >
                 {stat.icon}
               </div>
               <div>
-                <div style={{ fontSize: "0.85rem", color: "#c4b5fd", marginBottom: "0.25rem" }}>
+                <div style={{ fontSize: isMobile ? "0.75rem" : "0.85rem", color: "#c4b5fd", marginBottom: "0.25rem" }}>
                   {stat.label}
                 </div>
-                <div style={{ fontSize: "2rem", fontWeight: "700", color: "#fff", lineHeight: 1 }}>
+                <div style={{ fontSize: isMobile ? "1.5rem" : "2rem", fontWeight: "700", color: "#fff", lineHeight: 1 }}>
                   {stat.value}
                 </div>
               </div>
@@ -669,8 +671,8 @@ export default function UserProfile() {
       </div>
 
       {/* Tâches assignées */}
-      <div style={{ marginBottom: "2.5rem" }}>
-        <h2 style={{ margin: 0, marginBottom: "1.5rem", color: "#fff", fontSize: "1.5rem" }}>
+      <div style={{ marginBottom: isMobile ? "1.5rem" : "2.5rem" }}>
+        <h2 style={{ margin: 0, marginBottom: isMobile ? "1rem" : "1.5rem", color: "#fff", fontSize: isMobile ? "1.2rem" : "1.5rem" }}>
           📋 Tâches assignées ({userProfile.taches_assignees.length})
         </h2>
 
@@ -693,9 +695,9 @@ export default function UserProfile() {
             <div
               style={{
                 display: "grid",
-                gridTemplateColumns: "repeat(3, 1fr)",
-                gap: "1rem",
-                marginBottom: "1.5rem",
+                gridTemplateColumns: isMobile ? "repeat(3, 1fr)" : "repeat(3, 1fr)",
+                gap: isMobile ? "0.75rem" : "1rem",
+                marginBottom: isMobile ? "1rem" : "1.5rem",
               }}
             >
               {[
@@ -708,15 +710,15 @@ export default function UserProfile() {
                   style={{
                     backgroundColor: "#2d1b69",
                     borderRadius: "8px",
-                    padding: "1rem",
+                    padding: isMobile ? "0.75rem" : "1rem",
                     border: "1px solid #4c1d95",
                     textAlign: "center",
                   }}
                 >
-                  <div style={{ fontSize: "1.5rem", fontWeight: "700", color: stat.color }}>
+                  <div style={{ fontSize: isMobile ? "1.2rem" : "1.5rem", fontWeight: "700", color: stat.color }}>
                     {stat.value}
                   </div>
-                  <div style={{ fontSize: "0.85rem", color: "#c4b5fd", marginTop: "0.25rem" }}>
+                  <div style={{ fontSize: isMobile ? "0.75rem" : "0.85rem", color: "#c4b5fd", marginTop: "0.25rem" }}>
                     {stat.label}
                   </div>
                 </div>
@@ -731,7 +733,7 @@ export default function UserProfile() {
                   style={{
                     backgroundColor: "#2d1b69",
                     borderRadius: "12px",
-                    padding: "1.5rem",
+                    padding: isMobile ? "1rem" : "1.5rem",
                     border: "1px solid #4c1d95",
                     transition: "all 0.2s",
                     boxShadow: "0 2px 8px rgba(124, 58, 237, 0.1)",
@@ -743,9 +745,9 @@ export default function UserProfile() {
                     e.currentTarget.style.boxShadow = "0 2px 8px rgba(124, 58, 237, 0.1)";
                   }}
                 >
-                  <div style={{ display: "flex", justifyContent: "space-between", alignItems: "start", marginBottom: "1rem" }}>
-                    <div>
-                      <h3 style={{ margin: 0, color: "#fff", fontSize: "1.1rem", marginBottom: "0.5rem" }}>
+                  <div style={{ display: "flex", flexDirection: isSmallScreen ? "column" : "row", justifyContent: "space-between", alignItems: isSmallScreen ? "flex-start" : "start", gap: isSmallScreen ? "0.75rem" : "0", marginBottom: isMobile ? "0.75rem" : "1rem" }}>
+                    <div style={{ flex: 1 }}>
+                      <h3 style={{ margin: 0, color: "#fff", fontSize: isMobile ? "1rem" : "1.1rem", marginBottom: "0.5rem" }}>
                         {tache.titre}
                       </h3>
                       {tache.projet_details && (
@@ -767,12 +769,12 @@ export default function UserProfile() {
                         </Link>
                       )}
                     </div>
-                    <div style={{ display: "flex", gap: "0.5rem", alignItems: "center" }}>
+                    <div style={{ display: "flex", flexDirection: isSmallScreen ? "column" : "row", gap: isMobile ? "0.5rem" : "0.5rem", alignItems: isSmallScreen ? "flex-start" : "center" }}>
                       <span
                         style={{
-                          padding: "0.4rem 0.75rem",
+                          padding: isMobile ? "0.3rem 0.6rem" : "0.4rem 0.75rem",
                           borderRadius: "6px",
-                          fontSize: "0.85rem",
+                          fontSize: isMobile ? "0.75rem" : "0.85rem",
                           fontWeight: "600",
                           backgroundColor: `${PRIORITE_COLORS[tache.priorite]}33`,
                           color: PRIORITE_COLORS[tache.priorite],
@@ -783,9 +785,9 @@ export default function UserProfile() {
                       </span>
                       <span
                         style={{
-                          padding: "0.4rem 0.75rem",
+                          padding: isMobile ? "0.3rem 0.6rem" : "0.4rem 0.75rem",
                           borderRadius: "6px",
-                          fontSize: "0.85rem",
+                          fontSize: isMobile ? "0.75rem" : "0.85rem",
                           fontWeight: "600",
                           color: "#c4b5fd",
                         }}
@@ -808,8 +810,8 @@ export default function UserProfile() {
 
       {/* Projets en tant que client */}
       {userProfile.projets_client.length > 0 && (
-        <div style={{ marginBottom: "2.5rem" }}>
-          <h2 style={{ margin: 0, marginBottom: "1.5rem", color: "#fff", fontSize: "1.5rem" }}>
+        <div style={{ marginBottom: isMobile ? "1.5rem" : "2.5rem" }}>
+          <h2 style={{ margin: 0, marginBottom: isMobile ? "1rem" : "1.5rem", color: "#fff", fontSize: isMobile ? "1.2rem" : "1.5rem" }}>
             👤 Projets (Client) ({userProfile.projets_client.length})
           </h2>
           <div style={{ display: "grid", gap: "1rem" }}>
@@ -820,7 +822,7 @@ export default function UserProfile() {
                 style={{
                   backgroundColor: "#2d1b69",
                   borderRadius: "12px",
-                  padding: "1.5rem",
+                  padding: isMobile ? "1rem" : "1.5rem",
                   border: "1px solid #4c1d95",
                   textDecoration: "none",
                   display: "block",
@@ -836,26 +838,27 @@ export default function UserProfile() {
                   e.currentTarget.style.transform = "translateX(0)";
                 }}
               >
-                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "start" }}>
-                  <div>
-                    <h3 style={{ margin: 0, color: "#fff", fontSize: "1.1rem", marginBottom: "0.5rem" }}>
+                <div style={{ display: "flex", flexDirection: isSmallScreen ? "column" : "row", justifyContent: "space-between", alignItems: isSmallScreen ? "flex-start" : "start", gap: isSmallScreen ? "0.75rem" : "0" }}>
+                  <div style={{ flex: 1 }}>
+                    <h3 style={{ margin: 0, color: "#fff", fontSize: isMobile ? "1rem" : "1.1rem", marginBottom: "0.5rem" }}>
                       {projet.titre}
                     </h3>
                     {projet.pole_details && (
-                      <div style={{ color: "#c4b5fd", fontSize: "0.9rem" }}>
+                      <div style={{ color: "#c4b5fd", fontSize: isMobile ? "0.85rem" : "0.9rem" }}>
                         🎯 {projet.pole_details.name}
                       </div>
                     )}
                   </div>
                   <span
                     style={{
-                      padding: "0.4rem 0.75rem",
+                      padding: isMobile ? "0.3rem 0.6rem" : "0.4rem 0.75rem",
                       borderRadius: "6px",
-                      fontSize: "0.85rem",
+                      fontSize: isMobile ? "0.75rem" : "0.85rem",
                       fontWeight: "600",
                       backgroundColor: `${STATUT_COLORS[projet.statut]}33`,
                       color: STATUT_COLORS[projet.statut],
                       border: `1px solid ${STATUT_COLORS[projet.statut]}`,
+                      alignSelf: isSmallScreen ? "flex-start" : "auto",
                     }}
                   >
                     {STATUT_PROJET_LABELS[projet.statut]}
@@ -869,8 +872,8 @@ export default function UserProfile() {
 
       {/* Projets en tant que chef */}
       {userProfile.projets_chef.length > 0 && (
-        <div style={{ marginBottom: "2.5rem" }}>
-          <h2 style={{ margin: 0, marginBottom: "1.5rem", color: "#fff", fontSize: "1.5rem" }}>
+        <div style={{ marginBottom: isMobile ? "1.5rem" : "2.5rem" }}>
+          <h2 style={{ margin: 0, marginBottom: isMobile ? "1rem" : "1.5rem", color: "#fff", fontSize: isMobile ? "1.2rem" : "1.5rem" }}>
             🎯 Projets (Chef de projet) ({userProfile.projets_chef.length})
           </h2>
           <div style={{ display: "grid", gap: "1rem" }}>
@@ -881,7 +884,7 @@ export default function UserProfile() {
                 style={{
                   backgroundColor: "#2d1b69",
                   borderRadius: "12px",
-                  padding: "1.5rem",
+                  padding: isMobile ? "1rem" : "1.5rem",
                   border: "1px solid #4c1d95",
                   textDecoration: "none",
                   display: "block",
@@ -897,26 +900,27 @@ export default function UserProfile() {
                   e.currentTarget.style.transform = "translateX(0)";
                 }}
               >
-                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "start" }}>
-                  <div>
-                    <h3 style={{ margin: 0, color: "#fff", fontSize: "1.1rem", marginBottom: "0.5rem" }}>
+                <div style={{ display: "flex", flexDirection: isSmallScreen ? "column" : "row", justifyContent: "space-between", alignItems: isSmallScreen ? "flex-start" : "start", gap: isSmallScreen ? "0.75rem" : "0" }}>
+                  <div style={{ flex: 1 }}>
+                    <h3 style={{ margin: 0, color: "#fff", fontSize: isMobile ? "1rem" : "1.1rem", marginBottom: "0.5rem" }}>
                       {projet.titre}
                     </h3>
                     {projet.pole_details && (
-                      <div style={{ color: "#c4b5fd", fontSize: "0.9rem" }}>
+                      <div style={{ color: "#c4b5fd", fontSize: isMobile ? "0.85rem" : "0.9rem" }}>
                         🎯 {projet.pole_details.name}
                       </div>
                     )}
                   </div>
                   <span
                     style={{
-                      padding: "0.4rem 0.75rem",
+                      padding: isMobile ? "0.3rem 0.6rem" : "0.4rem 0.75rem",
                       borderRadius: "6px",
-                      fontSize: "0.85rem",
+                      fontSize: isMobile ? "0.75rem" : "0.85rem",
                       fontWeight: "600",
                       backgroundColor: `${STATUT_COLORS[projet.statut]}33`,
                       color: STATUT_COLORS[projet.statut],
                       border: `1px solid ${STATUT_COLORS[projet.statut]}`,
+                      alignSelf: isSmallScreen ? "flex-start" : "auto",
                     }}
                   >
                     {STATUT_PROJET_LABELS[projet.statut]}
@@ -930,8 +934,8 @@ export default function UserProfile() {
 
       {/* Projets en tant que membre */}
       {userProfile.projets_membre.length > 0 && (
-        <div style={{ marginBottom: "2.5rem" }}>
-          <h2 style={{ margin: 0, marginBottom: "1.5rem", color: "#fff", fontSize: "1.5rem" }}>
+        <div style={{ marginBottom: isMobile ? "1.5rem" : "2.5rem" }}>
+          <h2 style={{ margin: 0, marginBottom: isMobile ? "1rem" : "1.5rem", color: "#fff", fontSize: isMobile ? "1.2rem" : "1.5rem" }}>
             👥 Projets (Membre d'équipe) ({userProfile.projets_membre.length})
           </h2>
           <div style={{ display: "grid", gap: "1rem" }}>
@@ -942,7 +946,7 @@ export default function UserProfile() {
                 style={{
                   backgroundColor: "#2d1b69",
                   borderRadius: "12px",
-                  padding: "1.5rem",
+                  padding: isMobile ? "1rem" : "1.5rem",
                   border: "1px solid #4c1d95",
                   textDecoration: "none",
                   display: "block",
@@ -958,26 +962,27 @@ export default function UserProfile() {
                   e.currentTarget.style.transform = "translateX(0)";
                 }}
               >
-                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "start" }}>
-                  <div>
-                    <h3 style={{ margin: 0, color: "#fff", fontSize: "1.1rem", marginBottom: "0.5rem" }}>
+                <div style={{ display: "flex", flexDirection: isSmallScreen ? "column" : "row", justifyContent: "space-between", alignItems: isSmallScreen ? "flex-start" : "start", gap: isSmallScreen ? "0.75rem" : "0" }}>
+                  <div style={{ flex: 1 }}>
+                    <h3 style={{ margin: 0, color: "#fff", fontSize: isMobile ? "1rem" : "1.1rem", marginBottom: "0.5rem" }}>
                       {projet.titre}
                     </h3>
                     {projet.pole_details && (
-                      <div style={{ color: "#c4b5fd", fontSize: "0.9rem" }}>
+                      <div style={{ color: "#c4b5fd", fontSize: isMobile ? "0.85rem" : "0.9rem" }}>
                         🎯 {projet.pole_details.name}
                       </div>
                     )}
                   </div>
                   <span
                     style={{
-                      padding: "0.4rem 0.75rem",
+                      padding: isMobile ? "0.3rem 0.6rem" : "0.4rem 0.75rem",
                       borderRadius: "6px",
-                      fontSize: "0.85rem",
+                      fontSize: isMobile ? "0.75rem" : "0.85rem",
                       fontWeight: "600",
                       backgroundColor: `${STATUT_COLORS[projet.statut]}33`,
                       color: STATUT_COLORS[projet.statut],
                       border: `1px solid ${STATUT_COLORS[projet.statut]}`,
+                      alignSelf: isSmallScreen ? "flex-start" : "auto",
                     }}
                   >
                     {STATUT_PROJET_LABELS[projet.statut]}
@@ -991,8 +996,8 @@ export default function UserProfile() {
 
       {/* Projets créés */}
       {userProfile.projets_crees.length > 0 && (
-        <div style={{ marginBottom: "2.5rem" }}>
-          <h2 style={{ margin: 0, marginBottom: "1.5rem", color: "#fff", fontSize: "1.5rem" }}>
+        <div style={{ marginBottom: isMobile ? "1.5rem" : "2.5rem" }}>
+          <h2 style={{ margin: 0, marginBottom: isMobile ? "1rem" : "1.5rem", color: "#fff", fontSize: isMobile ? "1.2rem" : "1.5rem" }}>
             ✨ Projets créés ({userProfile.projets_crees.length})
           </h2>
           <div style={{ display: "grid", gap: "1rem" }}>
@@ -1003,7 +1008,7 @@ export default function UserProfile() {
                 style={{
                   backgroundColor: "#2d1b69",
                   borderRadius: "12px",
-                  padding: "1.5rem",
+                  padding: isMobile ? "1rem" : "1.5rem",
                   border: "1px solid #4c1d95",
                   textDecoration: "none",
                   display: "block",
@@ -1019,26 +1024,27 @@ export default function UserProfile() {
                   e.currentTarget.style.transform = "translateX(0)";
                 }}
               >
-                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "start" }}>
-                  <div>
-                    <h3 style={{ margin: 0, color: "#fff", fontSize: "1.1rem", marginBottom: "0.5rem" }}>
+                <div style={{ display: "flex", flexDirection: isSmallScreen ? "column" : "row", justifyContent: "space-between", alignItems: isSmallScreen ? "flex-start" : "start", gap: isSmallScreen ? "0.75rem" : "0" }}>
+                  <div style={{ flex: 1 }}>
+                    <h3 style={{ margin: 0, color: "#fff", fontSize: isMobile ? "1rem" : "1.1rem", marginBottom: "0.5rem" }}>
                       {projet.titre}
                     </h3>
                     {projet.pole_details && (
-                      <div style={{ color: "#c4b5fd", fontSize: "0.9rem" }}>
+                      <div style={{ color: "#c4b5fd", fontSize: isMobile ? "0.85rem" : "0.9rem" }}>
                         🎯 {projet.pole_details.name}
                       </div>
                     )}
                   </div>
                   <span
                     style={{
-                      padding: "0.4rem 0.75rem",
+                      padding: isMobile ? "0.3rem 0.6rem" : "0.4rem 0.75rem",
                       borderRadius: "6px",
-                      fontSize: "0.85rem",
+                      fontSize: isMobile ? "0.75rem" : "0.85rem",
                       fontWeight: "600",
                       backgroundColor: `${STATUT_COLORS[projet.statut]}33`,
                       color: STATUT_COLORS[projet.statut],
                       border: `1px solid ${STATUT_COLORS[projet.statut]}`,
+                      alignSelf: isSmallScreen ? "flex-start" : "auto",
                     }}
                   >
                     {STATUT_PROJET_LABELS[projet.statut]}
