@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { useParams, Link, useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
+import { useTheme } from "../context/ThemeContext";
 import { fetchPoleDetails } from "../api/poles";
 import { fetchProjets } from "../api/projets";
 import { fetchUsers } from "../api/users";
@@ -26,6 +27,7 @@ const STATUT_COLORS = {
 export default function PoleDetails() {
   const { id } = useParams();
   const { token, user } = useAuth();
+  const { theme } = useTheme();
   const navigate = useNavigate();
   const [pole, setPole] = useState(null);
   const [projets, setProjets] = useState([]);
@@ -143,7 +145,7 @@ export default function PoleDetails() {
                 <Link
                   to={`/users/${pole.chef}/profile`}
                   style={{
-                    color: "#7c3aed",
+                    color: theme.colors.secondary,
                     textDecoration: "none",
                     fontWeight: "500",
                   }}

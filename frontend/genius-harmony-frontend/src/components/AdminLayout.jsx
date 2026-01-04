@@ -1,6 +1,7 @@
 import { Link, useLocation } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 import { useState, useEffect, useRef } from "react";
+import logo from "../assets/GH long.png";
 
 export default function AdminLayout({ children, pageTitle = "Dashboard" }) {
   const { user, logout } = useAuth();
@@ -79,10 +80,17 @@ export default function AdminLayout({ children, pageTitle = "Dashboard" }) {
               cursor: "pointer",
               display: "flex",
               alignItems: "center",
-              gap: "0.5rem",
+              gap: "0.75rem",
             }}
           >
-            🎭 Genius Harmony
+            <img
+              src={logo}
+              alt="Genius Harmony Logo"
+              style={{
+                height: "40px",
+                objectFit: "contain"
+              }}
+            />
             <span style={{ fontSize: "0.8rem", transition: "transform 0.2s", transform: showMenu ? "rotate(180deg)" : "rotate(0)" }}>▼</span>
           </div>
 

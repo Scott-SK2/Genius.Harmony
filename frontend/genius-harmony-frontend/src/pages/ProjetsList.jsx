@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
+import { useTheme } from "../context/ThemeContext";
 import { fetchProjets } from "../api/projets";
 import FormProjet from "../components/FormProjet";
 
@@ -25,6 +26,7 @@ const STATUT_LABELS = {
 
 export default function ProjetsList() {
   const { token, user } = useAuth();
+  const { theme } = useTheme();
   const [projets, setProjets] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -115,23 +117,25 @@ export default function ProjetsList() {
             onClick={() => setShowFormProjet(true)}
             style={{
               padding: "0.75rem 1.5rem",
-              backgroundColor: "#10b981",
-              color: "#fff",
+              backgroundColor: theme.colors.secondary,
+              color: theme.text.inverse,
               border: "none",
               borderRadius: "8px",
               cursor: "pointer",
               fontWeight: "600",
               fontSize: "1rem",
               transition: "all 0.2s",
-              boxShadow: "0 2px 8px rgba(124, 58, 237, 0.3)",
+              boxShadow: theme.shadow.md,
             }}
             onMouseEnter={(e) => {
+              e.target.style.backgroundColor = theme.colors.orangeLight;
               e.target.style.transform = "translateY(-2px)";
-              e.target.style.boxShadow = "0 4px 12px rgba(124, 58, 237, 0.5)";
+              e.target.style.boxShadow = theme.shadow.lg;
             }}
             onMouseLeave={(e) => {
+              e.target.style.backgroundColor = theme.colors.secondary;
               e.target.style.transform = "translateY(0)";
-              e.target.style.boxShadow = "0 2px 8px rgba(124, 58, 237, 0.3)";
+              e.target.style.boxShadow = theme.shadow.md;
             }}
           >
             + Nouveau projet
@@ -281,7 +285,7 @@ export default function ProjetsList() {
                     <Link
                       to={`/projets/${projet.id}`}
                       style={{
-                        color: "#7c3aed",
+                        color: theme.colors.secondary,
                         textDecoration: "none",
                         fontWeight: "600",
                       }}

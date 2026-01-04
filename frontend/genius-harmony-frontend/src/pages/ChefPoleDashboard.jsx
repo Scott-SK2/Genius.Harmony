@@ -64,20 +64,20 @@ export default function ChefPoleDashboard() {
           style={{
             margin: 0,
             marginBottom: "0.75rem",
-            color: theme.text.primary,
+            color: "#fff",
             fontSize: "2.2rem",
           }}
         >
           Dashboard Chef de Pôle
         </h1>
-        <p style={{ margin: 0, color: theme.text.secondary, fontSize: "1.1rem" }}>
-          Bienvenue, <strong style={{ color: theme.text.primary }}>{user?.username}</strong>
+        <p style={{ margin: 0, color: "#c4b5fd", fontSize: "1.1rem" }}>
+          Bienvenue, <strong style={{ color: "#fff" }}>{user?.username}</strong>
         </p>
         {user?.pole_name && (
           <p
             style={{
               margin: 0,
-              color: theme.colors.primary,
+              color: theme.colors.secondary,
               fontWeight: "600",
               marginTop: "0.75rem",
               fontSize: "1.1rem",
@@ -91,7 +91,7 @@ export default function ChefPoleDashboard() {
       {/* Statistiques */}
       <h2
         style={{
-          color: theme.text.primary,
+          color: "#fff",
           marginBottom: "1.5rem",
           fontSize: "1.5rem",
         }}
@@ -113,6 +113,7 @@ export default function ChefPoleDashboard() {
             value: projets.length,
             subtitle: `${projetsEnCours.length} en cours`,
             color: theme.colors.primary,
+            link: "/projets",
           },
           {
             icon: "✓",
@@ -120,10 +121,12 @@ export default function ChefPoleDashboard() {
             value: taches.length,
             subtitle: `${tachesAFaire.length} à faire, ${tachesEnCours.length} en cours`,
             color: theme.colors.info,
+            link: "/taches/kanban",
           },
         ].map((stat, index) => (
-          <div
+          <Link
             key={index}
+            to={stat.link}
             style={{
               backgroundColor: theme.bg.card,
               borderRadius: "16px",
@@ -131,15 +134,19 @@ export default function ChefPoleDashboard() {
               boxShadow: theme.shadow.md,
               border: `1px solid ${theme.border.light}`,
               transition: "all 0.3s",
-              cursor: "default",
+              cursor: "pointer",
+              textDecoration: "none",
+              display: "block",
             }}
             onMouseEnter={(e) => {
               e.currentTarget.style.transform = "translateY(-4px)";
               e.currentTarget.style.boxShadow = theme.shadow.xl;
+              e.currentTarget.style.borderColor = stat.color;
             }}
             onMouseLeave={(e) => {
               e.currentTarget.style.transform = "translateY(0)";
               e.currentTarget.style.boxShadow = theme.shadow.md;
+              e.currentTarget.style.borderColor = theme.border.light;
             }}
           >
             <div
@@ -197,14 +204,14 @@ export default function ChefPoleDashboard() {
             >
               {stat.subtitle}
             </div>
-          </div>
+          </Link>
         ))}
       </div>
 
       {/* Projets en cours */}
       <h2
         style={{
-          color: theme.text.primary,
+          color: "#fff",
           marginBottom: "1.5rem",
           fontSize: "1.5rem",
         }}
@@ -293,7 +300,7 @@ export default function ChefPoleDashboard() {
       {/* Tâches urgentes */}
       <h2
         style={{
-          color: theme.text.primary,
+          color: "#fff",
           marginBottom: "1.5rem",
           fontSize: "1.5rem",
         }}

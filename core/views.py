@@ -1,5 +1,8 @@
 from django.shortcuts import render
 from django.db.models import Q
+from django.http import FileResponse, Http404
+import os
+import mimetypes
 
 from rest_framework import generics, permissions, status
 from rest_framework.views import APIView
@@ -43,7 +46,10 @@ class MeView(APIView):
 
         photo_url = None
         if profile and profile.photo:
-            photo_url = request.build_absolute_uri(profile.photo.url)
+            photo_url = profile.photo.url
+            # Si l'URL n'est pas déjà absolue (Cloudinary), construire l'URL complète
+            if not photo_url.startswith(('http://', 'https://')):
+                photo_url = request.build_absolute_uri(photo_url)
 
         return Response({
             "id": user.id,
@@ -69,6 +75,28 @@ class IsAdminUserProfile(permissions.BasePermission):
             return False
         profile = getattr(user, 'profile', None)
         return is_admin_or_super(profile)
+
+
+class CanEditOwnProfile(permissions.BasePermission):
+    """
+    Permet à un utilisateur de modifier son propre profil,
+    ou aux admins de modifier n'importe quel profil
+    """
+
+    def has_permission(self, request, view):
+        return request.user and request.user.is_authenticated
+
+    def has_object_permission(self, request, view, obj):
+        # L'utilisateur peut modifier son propre profil
+        if request.user.id == obj.id:
+            return True
+
+        # Les admins peuvent modifier n'importe quel profil
+        profile = getattr(request.user, 'profile', None)
+        if profile and is_admin_or_super(profile):
+            return True
+
+        return False
 
 
 class CanViewUsers(permissions.BasePermission):
@@ -135,7 +163,7 @@ class UserListView(generics.ListAPIView):
 class UserUpdateView(generics.UpdateAPIView):
     queryset = User.objects.all().select_related('profile', 'profile__pole')
     serializer_class = UserProfileSerializer
-    permission_classes = [IsAdminUserProfile]
+    permission_classes = [CanEditOwnProfile]
 
 
 class UserDeleteView(generics.DestroyAPIView):
@@ -157,9 +185,9 @@ class UserUploadPhotoView(APIView):
             return Response({"detail": "Utilisateur introuvable"}, status=status.HTTP_404_NOT_FOUND)
 
         # Vérifier que l'utilisateur peut modifier cette photo
-        # Soit c'est son propre profil, soit c'est un admin
+        # Soit c'est son propre profil, soit c'est un admin ou super_admin
         profile = getattr(request.user, 'profile', None)
-        if request.user.id != pk and (not profile or profile.role != 'admin'):
+        if request.user.id != pk and (not profile or profile.role not in ['admin', 'super_admin']):
             return Response(
                 {"detail": "Vous n'avez pas la permission de modifier cette photo"},
                 status=status.HTTP_403_FORBIDDEN
@@ -199,7 +227,10 @@ class UserProfileDetailView(APIView):
 
         photo_url = None
         if profile and profile.photo:
-            photo_url = request.build_absolute_uri(profile.photo.url)
+            photo_url = profile.photo.url
+            # Si l'URL n'est pas déjà absolue (Cloudinary), construire l'URL complète
+            if not photo_url.startswith(('http://', 'https://')):
+                photo_url = request.build_absolute_uri(photo_url)
 
         user_data = {
             "id": user.id,
@@ -215,6 +246,12 @@ class UserProfileDetailView(APIView):
             "client_type": profile.client_type if profile else None,
             "photo_url": photo_url,
             "date_joined": user.date_joined,
+            # Champs de contact
+            "phone": profile.phone if profile else None,
+            "website": profile.website if profile else None,
+            "instagram": profile.instagram if profile else None,
+            "twitter": profile.twitter if profile else None,
+            "tiktok": profile.tiktok if profile else None,
         }
 
         # Projets où l'utilisateur est client
@@ -879,6 +916,38 @@ class TacheDetailView(generics.RetrieveUpdateDestroyAPIView):
 
 
 # ===============================
+# Permissions pour les documents
+# ===============================
+
+class CanDeleteDocument(permissions.BasePermission):
+    """
+    Permission pour supprimer un document :
+    - Super Admin : peut tout supprimer
+    - Admin : peut tout supprimer
+    - Propriétaire du document (uploade_par) : peut supprimer son propre document
+    """
+
+    def has_object_permission(self, request, view, obj):
+        user = request.user
+        if not user or not user.is_authenticated:
+            return False
+
+        profile = getattr(user, 'profile', None)
+        if not profile:
+            return False
+
+        # Admin et Super Admin peuvent tout supprimer
+        if profile.role in ['admin', 'super_admin']:
+            return True
+
+        # Le propriétaire du document peut le supprimer
+        if obj.uploade_par == user:
+            return True
+
+        return False
+
+
+# ===============================
 # Vues pour les documents
 # ===============================
 
@@ -910,9 +979,52 @@ class DocumentDetailView(generics.RetrieveUpdateDestroyAPIView):
     """
     GET: Récupère les détails d'un document
     PUT/PATCH: Modifie un document
-    DELETE: Supprime un document
+    DELETE: Supprime un document (Admin, Super Admin, ou propriétaire uniquement)
     """
     queryset = Document.objects.all().select_related('projet', 'uploade_par')
     serializer_class = DocumentSerializer
-    permission_classes = [permissions.IsAuthenticated]
+    permission_classes = [permissions.IsAuthenticated, CanDeleteDocument]
     parser_classes = [MultiPartParser, FormParser]
+
+
+class DocumentDownloadView(APIView):
+    """
+    GET: Télécharge un document avec les headers appropriés pour forcer le téléchargement
+    """
+    permission_classes = [permissions.IsAuthenticated]
+
+    def get(self, request, pk):
+        try:
+            document = Document.objects.get(pk=pk)
+        except Document.DoesNotExist:
+            raise Http404("Document non trouvé")
+
+        # Vérifier que le fichier existe
+        if not document.fichier:
+            return Response(
+                {"detail": "Aucun fichier associé à ce document"},
+                status=status.HTTP_404_NOT_FOUND
+            )
+
+        # Obtenir le chemin du fichier
+        file_path = document.fichier.path
+
+        if not os.path.exists(file_path):
+            return Response(
+                {"detail": "Fichier introuvable sur le serveur"},
+                status=status.HTTP_404_NOT_FOUND
+            )
+
+        # Déterminer le type MIME
+        content_type, _ = mimetypes.guess_type(file_path)
+        if content_type is None:
+            content_type = 'application/octet-stream'
+
+        # Obtenir le nom du fichier original
+        filename = os.path.basename(file_path)
+
+        # Créer la réponse avec le fichier
+        response = FileResponse(open(file_path, 'rb'), content_type=content_type)
+        response['Content-Disposition'] = f'attachment; filename="{filename}"'
+
+        return response

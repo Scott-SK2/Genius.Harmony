@@ -7,7 +7,7 @@ from .views import (
     UserListView, UserUpdateView, UserDeleteView, UserUploadPhotoView, UserProfileDetailView,
     ProjetListCreateView, ProjetDetailView, ProjetUpdateStatutView, ProjetAcceptChefView, ProjetDeclineChefView,
     TacheListCreateView, TacheDetailView,
-    DocumentListCreateView, DocumentDetailView,
+    DocumentListCreateView, DocumentDetailView, DocumentDownloadView,
 )
 
 urlpatterns = [
@@ -42,4 +42,5 @@ urlpatterns = [
     # Documents
     path('documents/', DocumentListCreateView.as_view(), name='documents-list-create'),
     path('documents/<int:pk>/', DocumentDetailView.as_view(), name='documents-detail'),
+    path('documents/<int:pk>/download/', DocumentDownloadView.as_view(), name='documents-download'),
 ]
