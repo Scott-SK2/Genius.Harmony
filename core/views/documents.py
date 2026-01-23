@@ -116,6 +116,32 @@ class DocumentDownloadView(APIView):
         # Récupérer l'extension du fichier stocké
         _, file_extension = os.path.splitext(document.fichier.name)
 
+        # Si pas d'extension, essayer de la deviner à partir du type MIME
+        if not file_extension and content_type != 'application/octet-stream':
+            # Mapping manuel pour les types courants (pour éviter .jpe au lieu de .jpg, etc.)
+            mime_to_ext = {
+                'image/jpeg': '.jpg',
+                'image/png': '.png',
+                'image/gif': '.gif',
+                'image/webp': '.webp',
+                'application/pdf': '.pdf',
+                'application/msword': '.doc',
+                'application/vnd.openxmlformats-officedocument.wordprocessingml.document': '.docx',
+                'application/vnd.ms-excel': '.xls',
+                'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet': '.xlsx',
+                'application/vnd.ms-powerpoint': '.ppt',
+                'application/vnd.openxmlformats-officedocument.presentationml.presentation': '.pptx',
+                'text/plain': '.txt',
+                'text/csv': '.csv',
+                'application/zip': '.zip',
+                'application/x-rar-compressed': '.rar',
+            }
+
+            file_extension = mime_to_ext.get(content_type)
+            if not file_extension:
+                # Fallback sur mimetypes.guess_extension
+                file_extension = mimetypes.guess_extension(content_type) or ''
+
         # Utiliser le titre du document + extension
         # Nettoyer le titre pour éviter les caractères problématiques
         safe_title = "".join(c for c in document.titre if c.isalnum() or c in (' ', '-', '_')).strip()
