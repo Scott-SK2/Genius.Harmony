@@ -29,6 +29,8 @@ export default function EditProfile() {
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState(null);
   const [formData, setFormData] = useState({
+    first_name: "",
+    last_name: "",
     description: "",
     membre_specialite: "",
     phone: "",
@@ -63,6 +65,8 @@ export default function EditProfile() {
 
         const data = await response.json();
         setFormData({
+          first_name: data.first_name || "",
+          last_name: data.last_name || "",
           description: data.description || "",
           membre_specialite: data.membre_specialite || "",
           phone: data.phone || "",
@@ -216,6 +220,79 @@ export default function EditProfile() {
             border: `1px solid ${theme.border.light}`,
           }}
         >
+          {/* Section Informations personnelles */}
+          <div style={{ marginBottom: "1.5rem" }}>
+            <h3 style={{ margin: 0, marginBottom: "1rem", color: theme.text.primary, fontSize: "1.25rem" }}>
+              👤 Informations personnelles
+            </h3>
+
+            {/* Prénom */}
+            <div style={{ marginBottom: "1rem" }}>
+              <label
+                htmlFor="first_name"
+                style={{
+                  display: "block",
+                  marginBottom: "0.5rem",
+                  color: theme.colors.secondary,
+                  fontWeight: "600",
+                }}
+              >
+                Prénom
+              </label>
+              <input
+                type="text"
+                id="first_name"
+                value={formData.first_name}
+                onChange={(e) => setFormData({ ...formData, first_name: e.target.value })}
+                style={{
+                  width: "100%",
+                  padding: "0.75rem",
+                  backgroundColor: theme.bg.secondary,
+                  border: `1px solid ${theme.border.medium}`,
+                  borderRadius: "8px",
+                  color: theme.text.primary,
+                  fontSize: "1rem",
+                }}
+                placeholder="Jean"
+              />
+            </div>
+
+            {/* Nom */}
+            <div style={{ marginBottom: "1rem" }}>
+              <label
+                htmlFor="last_name"
+                style={{
+                  display: "block",
+                  marginBottom: "0.5rem",
+                  color: theme.colors.secondary,
+                  fontWeight: "600",
+                }}
+              >
+                Nom
+              </label>
+              <input
+                type="text"
+                id="last_name"
+                value={formData.last_name}
+                onChange={(e) => setFormData({ ...formData, last_name: e.target.value })}
+                style={{
+                  width: "100%",
+                  padding: "0.75rem",
+                  backgroundColor: theme.bg.secondary,
+                  border: `1px solid ${theme.border.medium}`,
+                  borderRadius: "8px",
+                  color: theme.text.primary,
+                  fontSize: "1rem",
+                }}
+                placeholder="Dupont"
+              />
+            </div>
+
+            <div style={{ fontSize: "0.85rem", color: theme.text.tertiary, marginTop: "0.5rem" }}>
+              Votre prénom et nom ne seront visibles que dans votre profil
+            </div>
+          </div>
+
           {/* Description */}
           <div style={{ marginBottom: "1.5rem" }}>
             <label
