@@ -116,7 +116,7 @@ class DocumentDownloadView(APIView):
         filename = os.path.basename(file_path)
 
         # Créer la réponse avec le fichier
-        with open(file_path, 'rb') as file_handle:
-            response = FileResponse(file_handle, content_type=content_type)
-            response['Content-Disposition'] = f'attachment; filename="{filename}"'
-            return response
+        # FileResponse gère l'ouverture et la fermeture du fichier automatiquement
+        response = FileResponse(open(file_path, 'rb'), content_type=content_type)
+        response['Content-Disposition'] = f'attachment; filename="{filename}"'
+        return response
