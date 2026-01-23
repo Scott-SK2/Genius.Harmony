@@ -112,8 +112,14 @@ class DocumentDownloadView(APIView):
         if content_type is None:
             content_type = 'application/octet-stream'
 
-        # Obtenir le nom du fichier original
-        filename = os.path.basename(file_path)
+        # Construire le nom du fichier avec l'extension correcte
+        # Récupérer l'extension du fichier stocké
+        _, file_extension = os.path.splitext(document.fichier.name)
+
+        # Utiliser le titre du document + extension
+        # Nettoyer le titre pour éviter les caractères problématiques
+        safe_title = "".join(c for c in document.titre if c.isalnum() or c in (' ', '-', '_')).strip()
+        filename = f"{safe_title}{file_extension}"
 
         # Créer la réponse avec le fichier
         # FileResponse gère l'ouverture et la fermeture du fichier automatiquement
