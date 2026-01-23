@@ -69,20 +69,37 @@ class DocumentDownloadView(APIView):
                 status=status.HTTP_404_NOT_FOUND
             )
 
-        # Pour les fichiers S3, rediriger vers l'URL signée
-        # L'URL S3 contient déjà les paramètres de téléchargement appropriés
         file_url = document.fichier.url
 
-        # Si c'est une URL S3 (commence par http:// ou https://), rediriger
+        # Si c'est une URL S3 (commence par http:// ou https://)
         if file_url.startswith(('http://', 'https://')):
+            # Pour S3, générer une URL signée temporaire si nécessaire
+            from django.conf import settings
+            from django.core.files.storage import default_storage
+
+            # Si on utilise S3 et que QUERYSTRING_AUTH n'est pas activé
+            if hasattr(settings, 'AWS_STORAGE_BUCKET_NAME') and settings.AWS_STORAGE_BUCKET_NAME:
+                if not settings.AWS_QUERYSTRING_AUTH:
+                    # Générer une URL signée valide pendant 1 heure
+                    try:
+                        signed_url = default_storage.url(document.fichier.name, expire=3600, parameters={'ResponseContentDisposition': f'attachment; filename="{document.titre}.{document.fichier.name.split(".")[-1]}"'})
+                        return HttpResponseRedirect(signed_url)
+                    except Exception:
+                        # Si la génération échoue, utiliser l'URL normale
+                        pass
+
+            # Pour les URLs publiques ou autre stockage cloud
             return HttpResponseRedirect(file_url)
 
-        # Sinon, c'est un fichier local (mode développement)
-        # Note: Ce code ne s'exécutera qu'en développement avec stockage local
+        # Fichier local (mode développement)
         import os
         from django.http import FileResponse
 
-        file_path = document.fichier.path
+        try:
+            file_path = document.fichier.path
+        except (NotImplementedError, AttributeError):
+            # Si .path n'est pas supporté par le storage backend
+            return HttpResponseRedirect(file_url)
 
         if not os.path.exists(file_path):
             return Response(
@@ -98,9 +115,8 @@ class DocumentDownloadView(APIView):
         # Obtenir le nom du fichier original
         filename = os.path.basename(file_path)
 
-        # Créer la réponse avec le fichier en utilisant context manager
-        file_handle = open(file_path, 'rb')
-        response = FileResponse(file_handle, content_type=content_type)
-        response['Content-Disposition'] = f'attachment; filename="{filename}"'
-
-        return response
+        # Créer la réponse avec le fichier
+        with open(file_path, 'rb') as file_handle:
+            response = FileResponse(file_handle, content_type=content_type)
+            response['Content-Disposition'] = f'attachment; filename="{filename}"'
+            return response

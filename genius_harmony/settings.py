@@ -156,7 +156,9 @@ if AWS_ACCESS_KEY_ID and AWS_SECRET_ACCESS_KEY and AWS_STORAGE_BUCKET_NAME:
         'CacheControl': 'max-age=86400',
     }
     AWS_DEFAULT_ACL = 'public-read'
-    AWS_QUERYSTRING_AUTH = False
+    # Activer les URLs signées pour sécuriser l'accès aux fichiers
+    AWS_QUERYSTRING_AUTH = True
+    AWS_QUERYSTRING_EXPIRE = 3600  # URLs valides pendant 1 heure
     DEFAULT_FILE_STORAGE = 'storages.backends.s3boto3.S3Boto3Storage'
     MEDIA_URL = f'https://{AWS_S3_CUSTOM_DOMAIN}/'
 else:
