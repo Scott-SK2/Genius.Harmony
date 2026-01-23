@@ -160,7 +160,8 @@ if AWS_ACCESS_KEY_ID and AWS_SECRET_ACCESS_KEY and AWS_STORAGE_BUCKET_NAME:
     AWS_QUERYSTRING_AUTH = True
     AWS_QUERYSTRING_EXPIRE = 3600  # URLs valides pendant 1 heure
     DEFAULT_FILE_STORAGE = 'storages.backends.s3boto3.S3Boto3Storage'
-    MEDIA_URL = f'https://{AWS_S3_CUSTOM_DOMAIN}/'
+    # Ne pas définir MEDIA_URL avec QUERYSTRING_AUTH=True
+    # Les URLs sont générées dynamiquement par django-storages
 else:
     # Fallback sur stockage local si S3 n'est pas configuré
     DEFAULT_FILE_STORAGE = 'django.core.files.storage.FileSystemStorage'
