@@ -117,7 +117,7 @@ class DocumentDownloadView(APIView):
         _, file_extension = os.path.splitext(document.fichier.name)
 
         # Si pas d'extension, essayer de la deviner à partir du type MIME
-        if not file_extension and content_type != 'application/octet-stream':
+        if not file_extension:
             # Mapping manuel pour les types courants (pour éviter .jpe au lieu de .jpg, etc.)
             mime_to_ext = {
                 'image/jpeg': '.jpg',
@@ -140,7 +140,11 @@ class DocumentDownloadView(APIView):
             file_extension = mime_to_ext.get(content_type)
             if not file_extension:
                 # Fallback sur mimetypes.guess_extension
-                file_extension = mimetypes.guess_extension(content_type) or ''
+                file_extension = mimetypes.guess_extension(content_type)
+
+            # Si toujours pas d'extension, utiliser .pdf par défaut
+            if not file_extension:
+                file_extension = '.pdf'
 
         # Utiliser le titre du document + extension
         # Nettoyer le titre pour éviter les caractères problématiques
