@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 import { useTheme } from "../context/ThemeContext";
+import { useResponsive } from "../hooks/useResponsive";
 import { fetchPoles, createPole, updatePole, deletePole } from "../api/poles";
 import { fetchProjets } from "../api/projets";
 import { fetchUsers } from "../api/users";
@@ -9,6 +10,7 @@ import { fetchUsers } from "../api/users";
 export default function AdminDashboard() {
   const { token } = useAuth();
   const { theme } = useTheme();
+  const { isMobile, isTablet } = useResponsive();
   const navigate = useNavigate();
   const [poles, setPoles] = useState([]);
   const [users, setUsers] = useState([]);
@@ -123,20 +125,20 @@ export default function AdminDashboard() {
 
   return (
     <div style={{ width: "100%", maxWidth: "100%" }}>
-      {/* Stats Cards - 3 cartes alignées */}
+      {/* Stats Cards - Responsive */}
       <div
         style={{
           display: "grid",
-          gridTemplateColumns: "repeat(3, 1fr)",
-          gap: "1.5rem",
-          marginBottom: "3rem",
+          gridTemplateColumns: isMobile ? "1fr" : isTablet ? "repeat(2, 1fr)" : "repeat(3, 1fr)",
+          gap: isMobile ? "1rem" : "1.5rem",
+          marginBottom: isMobile ? "2rem" : "3rem",
         }}
       >
           <div
             onClick={() => navigate("/projets")}
             style={{
               backgroundColor: "#2d1b69",
-              padding: "1.5rem",
+              padding: isMobile ? "1rem" : "1.5rem",
               borderRadius: "12px",
               border: "1px solid #4c1d95",
               cursor: "pointer",
@@ -170,18 +172,18 @@ export default function AdminDashboard() {
                 📋
               </div>
               <div>
-                <div style={{ color: "#c4b5fd", fontSize: "0.9rem" }}>Projets</div>
-                <div style={{ color: "#fff", fontSize: "2rem", fontWeight: "bold" }}>{stats.totalProjets}</div>
+                <div style={{ color: "#c4b5fd", fontSize: isMobile ? "0.8rem" : "0.9rem" }}>Projets</div>
+                <div style={{ color: "#fff", fontSize: isMobile ? "1.5rem" : "2rem", fontWeight: "bold" }}>{stats.totalProjets}</div>
               </div>
             </div>
-            <div style={{ color: "#a78bfa", fontSize: "0.85rem" }}>Total des projets</div>
+            <div style={{ color: "#a78bfa", fontSize: isMobile ? "0.75rem" : "0.85rem" }}>Total des projets</div>
           </div>
 
           <div
             onClick={() => navigate("/admin/poles")}
             style={{
               backgroundColor: "#2d1b69",
-              padding: "1.5rem",
+              padding: isMobile ? "1rem" : "1.5rem",
               borderRadius: "12px",
               border: "1px solid #4c1d95",
               cursor: "pointer",
@@ -215,18 +217,18 @@ export default function AdminDashboard() {
                 🎯
               </div>
               <div>
-                <div style={{ color: "#c4b5fd", fontSize: "0.9rem" }}>Pôles</div>
-                <div style={{ color: "#fff", fontSize: "2rem", fontWeight: "bold" }}>{stats.totalPoles}</div>
+                <div style={{ color: "#c4b5fd", fontSize: isMobile ? "0.8rem" : "0.9rem" }}>Pôles</div>
+                <div style={{ color: "#fff", fontSize: isMobile ? "1.5rem" : "2rem", fontWeight: "bold" }}>{stats.totalPoles}</div>
               </div>
             </div>
-            <div style={{ color: "#a78bfa", fontSize: "0.85rem" }}>Pôles définis</div>
+            <div style={{ color: "#a78bfa", fontSize: isMobile ? "0.75rem" : "0.85rem" }}>Pôles définis</div>
           </div>
 
           <div
             onClick={() => navigate("/admin/users")}
             style={{
               backgroundColor: "#2d1b69",
-              padding: "1.5rem",
+              padding: isMobile ? "1rem" : "1.5rem",
               borderRadius: "12px",
               border: "1px solid #4c1d95",
               cursor: "pointer",
@@ -260,18 +262,18 @@ export default function AdminDashboard() {
                 👥
               </div>
               <div>
-                <div style={{ color: "#c4b5fd", fontSize: "0.9rem" }}>Utilisateurs</div>
-                <div style={{ color: "#fff", fontSize: "2rem", fontWeight: "bold" }}>{stats.totalUtilisateurs}</div>
+                <div style={{ color: "#c4b5fd", fontSize: isMobile ? "0.8rem" : "0.9rem" }}>Utilisateurs</div>
+                <div style={{ color: "#fff", fontSize: isMobile ? "1.5rem" : "2rem", fontWeight: "bold" }}>{stats.totalUtilisateurs}</div>
               </div>
             </div>
-            <div style={{ color: "#a78bfa", fontSize: "0.85rem" }}>Membres de l'équipe</div>
+            <div style={{ color: "#a78bfa", fontSize: isMobile ? "0.75rem" : "0.85rem" }}>Membres de l'équipe</div>
           </div>
         </div>
 
         {/* Gestion des Pôles */}
         <div>
-          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "1.5rem" }}>
-            <h3 style={{ color: "#fff", margin: 0, fontSize: "1.5rem" }}>Pôles récents</h3>
+          <div style={{ display: "flex", flexDirection: isMobile ? "column" : "row", justifyContent: "space-between", alignItems: isMobile ? "stretch" : "center", marginBottom: "1.5rem", gap: isMobile ? "1rem" : "0" }}>
+            <h3 style={{ color: "#fff", margin: 0, fontSize: isMobile ? "1.25rem" : "1.5rem" }}>Pôles récents</h3>
             <button
               onClick={() => handleOpenModal()}
               style={{
@@ -300,90 +302,190 @@ export default function AdminDashboard() {
             </button>
           </div>
 
-          <div style={{ backgroundColor: "#2d1b69", borderRadius: "12px", overflow: "hidden", border: "1px solid #4c1d95" }}>
-            <table style={{ width: "100%", borderCollapse: "collapse" }}>
-              <thead>
-                <tr style={{ borderBottom: "1px solid #4c1d95" }}>
-                  <th style={{ padding: "1rem", textAlign: "left", color: "#c4b5fd", fontWeight: "500" }}>Nom</th>
-                  <th style={{ padding: "1rem", textAlign: "left", color: "#c4b5fd", fontWeight: "500" }}>Description</th>
-                  <th style={{ padding: "1rem", textAlign: "left", color: "#c4b5fd", fontWeight: "500" }}>Chef de pôle</th>
-                  <th style={{ padding: "1rem", textAlign: "left", color: "#c4b5fd", fontWeight: "500" }}>Actions</th>
-                </tr>
-              </thead>
-              <tbody>
-                {poles.length === 0 ? (
-                  <tr>
-                    <td colSpan="4" style={{ padding: "2rem", textAlign: "center", color: "#a78bfa" }}>
-                      Aucun pôle créé
-                    </td>
+          {/* Affichage responsive : cartes sur mobile, tableau sur desktop */}
+          {isMobile || isTablet ? (
+            // Vue en cartes pour mobile et tablette
+            <div style={{ display: "grid", gap: "1rem" }}>
+              {poles.length === 0 ? (
+                <div style={{ backgroundColor: "#2d1b69", borderRadius: "12px", border: "1px solid #4c1d95", padding: "2rem", textAlign: "center", color: "#a78bfa" }}>
+                  Aucun pôle créé
+                </div>
+              ) : (
+                poles.map((pole) => (
+                  <div
+                    key={pole.id}
+                    style={{
+                      backgroundColor: "#2d1b69",
+                      borderRadius: "12px",
+                      padding: isMobile ? "1rem" : "1.5rem",
+                      border: "1px solid #4c1d95",
+                      transition: "all 0.2s",
+                    }}
+                    onMouseEnter={(e) => {
+                      e.currentTarget.style.borderColor = "#7c3aed";
+                      e.currentTarget.style.transform = "translateY(-2px)";
+                    }}
+                    onMouseLeave={(e) => {
+                      e.currentTarget.style.borderColor = "#4c1d95";
+                      e.currentTarget.style.transform = "translateY(0)";
+                    }}
+                  >
+                    <div style={{ marginBottom: "1rem" }}>
+                      <h4 style={{ margin: 0, marginBottom: "0.5rem", color: "#fff", fontSize: isMobile ? "1.1rem" : "1.2rem" }}>
+                        {pole.name}
+                      </h4>
+                      {pole.description && (
+                        <p style={{ margin: 0, marginBottom: "0.75rem", color: "#c4b5fd", fontSize: isMobile ? "0.85rem" : "0.9rem", lineHeight: "1.5" }}>
+                          {pole.description}
+                        </p>
+                      )}
+                      <div style={{ color: "#a78bfa", fontSize: isMobile ? "0.85rem" : "0.9rem" }}>
+                        👤 Chef: {pole.chef_username || "Non assigné"}
+                      </div>
+                    </div>
+                    <div style={{ display: "flex", flexDirection: isMobile ? "column" : "row", gap: "0.5rem" }}>
+                      <button
+                        onClick={() => handleOpenModal(pole)}
+                        style={{
+                          flex: 1,
+                          backgroundColor: "transparent",
+                          color: "#a78bfa",
+                          border: "1px solid #a78bfa",
+                          padding: isMobile ? "0.75rem" : "0.5rem 1rem",
+                          borderRadius: "6px",
+                          cursor: "pointer",
+                          fontSize: "0.85rem",
+                          transition: "all 0.2s",
+                          fontWeight: "500",
+                        }}
+                        onMouseEnter={(e) => {
+                          e.target.style.backgroundColor = "#a78bfa";
+                          e.target.style.color = "#1e1b4b";
+                        }}
+                        onMouseLeave={(e) => {
+                          e.target.style.backgroundColor = "transparent";
+                          e.target.style.color = "#a78bfa";
+                        }}
+                      >
+                        ✏️ Modifier
+                      </button>
+                      <button
+                        onClick={() => handleDelete(pole.id)}
+                        style={{
+                          flex: 1,
+                          backgroundColor: "transparent",
+                          color: "#f87171",
+                          border: "1px solid #f87171",
+                          padding: isMobile ? "0.75rem" : "0.5rem 1rem",
+                          borderRadius: "6px",
+                          cursor: "pointer",
+                          fontSize: "0.85rem",
+                          transition: "all 0.2s",
+                          fontWeight: "500",
+                        }}
+                        onMouseEnter={(e) => {
+                          e.target.style.backgroundColor = "#f87171";
+                          e.target.style.color = "#fff";
+                        }}
+                        onMouseLeave={(e) => {
+                          e.target.style.backgroundColor = "transparent";
+                          e.target.style.color = "#f87171";
+                        }}
+                      >
+                        🗑️ Supprimer
+                      </button>
+                    </div>
+                  </div>
+                ))
+              )}
+            </div>
+          ) : (
+            // Vue en tableau pour desktop
+            <div style={{ backgroundColor: "#2d1b69", borderRadius: "12px", overflow: "hidden", border: "1px solid #4c1d95" }}>
+              <table style={{ width: "100%", borderCollapse: "collapse" }}>
+                <thead>
+                  <tr style={{ borderBottom: "1px solid #4c1d95" }}>
+                    <th style={{ padding: "1rem", textAlign: "left", color: "#c4b5fd", fontWeight: "500" }}>Nom</th>
+                    <th style={{ padding: "1rem", textAlign: "left", color: "#c4b5fd", fontWeight: "500" }}>Description</th>
+                    <th style={{ padding: "1rem", textAlign: "left", color: "#c4b5fd", fontWeight: "500" }}>Chef de pôle</th>
+                    <th style={{ padding: "1rem", textAlign: "left", color: "#c4b5fd", fontWeight: "500" }}>Actions</th>
                   </tr>
-                ) : (
-                  poles.map((pole) => (
-                    <tr
-                      key={pole.id}
-                      style={{ borderBottom: "1px solid #4c1d95", transition: "background-color 0.2s" }}
-                      onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = "#4c1d95")}
-                      onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = "transparent")}
-                    >
-                      <td style={{ padding: "1rem", color: "#fff", fontWeight: "500" }}>{pole.name}</td>
-                      <td style={{ padding: "1rem", color: "#c4b5fd" }}>{pole.description || "-"}</td>
-                      <td style={{ padding: "1rem", color: "#c4b5fd" }}>{pole.chef_username || "Non assigné"}</td>
-                      <td style={{ padding: "1rem" }}>
-                        <div style={{ display: "flex", gap: "0.5rem" }}>
-                          <button
-                            onClick={() => handleOpenModal(pole)}
-                            style={{
-                              backgroundColor: "transparent",
-                              color: "#a78bfa",
-                              border: "1px solid #a78bfa",
-                              padding: "0.5rem 1rem",
-                              borderRadius: "6px",
-                              cursor: "pointer",
-                              fontSize: "0.85rem",
-                              transition: "all 0.2s",
-                            }}
-                            onMouseEnter={(e) => {
-                              e.target.style.backgroundColor = "#a78bfa";
-                              e.target.style.color = "#1e1b4b";
-                            }}
-                            onMouseLeave={(e) => {
-                              e.target.style.backgroundColor = "transparent";
-                              e.target.style.color = "#a78bfa";
-                            }}
-                          >
-                            Modifier
-                          </button>
-                          <button
-                            onClick={() => handleDelete(pole.id)}
-                            style={{
-                              backgroundColor: "transparent",
-                              color: "#f87171",
-                              border: "1px solid #f87171",
-                              padding: "0.5rem 1rem",
-                              borderRadius: "6px",
-                              cursor: "pointer",
-                              fontSize: "0.85rem",
-                              transition: "all 0.2s",
-                            }}
-                            onMouseEnter={(e) => {
-                              e.target.style.backgroundColor = "#f87171";
-                              e.target.style.color = "#fff";
-                            }}
-                            onMouseLeave={(e) => {
-                              e.target.style.backgroundColor = "transparent";
-                              e.target.style.color = "#f87171";
-                            }}
-                          >
-                            Supprimer
-                          </button>
-                        </div>
+                </thead>
+                <tbody>
+                  {poles.length === 0 ? (
+                    <tr>
+                      <td colSpan="4" style={{ padding: "2rem", textAlign: "center", color: "#a78bfa" }}>
+                        Aucun pôle créé
                       </td>
                     </tr>
-                  ))
-                )}
-              </tbody>
-            </table>
-          </div>
+                  ) : (
+                    poles.map((pole) => (
+                      <tr
+                        key={pole.id}
+                        style={{ borderBottom: "1px solid #4c1d95", transition: "background-color 0.2s" }}
+                        onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = "#4c1d95")}
+                        onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = "transparent")}
+                      >
+                        <td style={{ padding: "1rem", color: "#fff", fontWeight: "500" }}>{pole.name}</td>
+                        <td style={{ padding: "1rem", color: "#c4b5fd" }}>{pole.description || "-"}</td>
+                        <td style={{ padding: "1rem", color: "#c4b5fd" }}>{pole.chef_username || "Non assigné"}</td>
+                        <td style={{ padding: "1rem" }}>
+                          <div style={{ display: "flex", gap: "0.5rem" }}>
+                            <button
+                              onClick={() => handleOpenModal(pole)}
+                              style={{
+                                backgroundColor: "transparent",
+                                color: "#a78bfa",
+                                border: "1px solid #a78bfa",
+                                padding: "0.5rem 1rem",
+                                borderRadius: "6px",
+                                cursor: "pointer",
+                                fontSize: "0.85rem",
+                                transition: "all 0.2s",
+                              }}
+                              onMouseEnter={(e) => {
+                                e.target.style.backgroundColor = "#a78bfa";
+                                e.target.style.color = "#1e1b4b";
+                              }}
+                              onMouseLeave={(e) => {
+                                e.target.style.backgroundColor = "transparent";
+                                e.target.style.color = "#a78bfa";
+                              }}
+                            >
+                              Modifier
+                            </button>
+                            <button
+                              onClick={() => handleDelete(pole.id)}
+                              style={{
+                                backgroundColor: "transparent",
+                                color: "#f87171",
+                                border: "1px solid #f87171",
+                                padding: "0.5rem 1rem",
+                                borderRadius: "6px",
+                                cursor: "pointer",
+                                fontSize: "0.85rem",
+                                transition: "all 0.2s",
+                              }}
+                              onMouseEnter={(e) => {
+                                e.target.style.backgroundColor = "#f87171";
+                                e.target.style.color = "#fff";
+                              }}
+                              onMouseLeave={(e) => {
+                                e.target.style.backgroundColor = "transparent";
+                                e.target.style.color = "#f87171";
+                              }}
+                            >
+                              Supprimer
+                            </button>
+                          </div>
+                        </td>
+                      </tr>
+                    ))
+                  )}
+                </tbody>
+              </table>
+            </div>
+          )}
         </div>
 
         {/* Modal */}

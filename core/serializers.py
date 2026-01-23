@@ -23,9 +23,11 @@ class RegisterSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = User
-        fields = ['username', 'email', 'password', 'role', 'client_type']
+        fields = ['username', 'email', 'password', 'first_name', 'last_name', 'role', 'client_type']
         extra_kwargs = {
             'password': {'write_only': True},
+            'first_name': {'required': True},
+            'last_name': {'required': True},
         }
 
     def create(self, validated_data):
@@ -82,15 +84,15 @@ class UserProfileSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = User
-        fields = ['id', 'username', 'email', 'role', 'pole', 'pole_name', 'membre_specialite', 'description', 'photo', 'photo_url', 'phone', 'website', 'instagram', 'twitter', 'tiktok']
+        fields = ['id', 'username', 'email', 'first_name', 'last_name', 'role', 'pole', 'pole_name', 'membre_specialite', 'description', 'photo', 'photo_url', 'phone', 'website', 'instagram', 'twitter', 'tiktok']
 
     def get_photo_url(self, obj):
         if hasattr(obj, 'profile') and obj.profile.photo:
             photo_url = obj.profile.photo.url
-            # Si l'URL est déjà absolue (Cloudinary), la retourner telle quelle
+            # Si l'URL est déjà absolue, la retourner telle quelle
             if photo_url.startswith(('http://', 'https://')):
                 return photo_url
-            # Sinon, construire l'URL absolue (stockage local)
+            # Sinon, construire l'URL absolue (Render Disk)
             request = self.context.get('request')
             if request:
                 return request.build_absolute_uri(photo_url)
@@ -99,6 +101,14 @@ class UserProfileSerializer(serializers.ModelSerializer):
 
     def update(self, instance, validated_data):
         profile_data = validated_data.pop('profile', {})
+
+        # Mettre à jour les champs du User (first_name, last_name)
+        if 'first_name' in validated_data:
+            instance.first_name = validated_data['first_name']
+        if 'last_name' in validated_data:
+            instance.last_name = validated_data['last_name']
+
+        # Mettre à jour les champs du Profile
         role = profile_data.get('role')
         pole = profile_data.get('pole')
         membre_specialite = profile_data.get('membre_specialite')
@@ -194,10 +204,10 @@ class DocumentSerializer(serializers.ModelSerializer):
     def get_fichier_url(self, obj):
         if obj.fichier:
             fichier_url = obj.fichier.url
-            # Si l'URL est déjà absolue (Cloudinary), la retourner telle quelle
+            # Si l'URL est déjà absolue, la retourner telle quelle
             if fichier_url.startswith(('http://', 'https://')):
                 return fichier_url
-            # Sinon, construire l'URL absolue (stockage local)
+            # Sinon, construire l'URL absolue (Render Disk)
             request = self.context.get('request')
             if request:
                 return request.build_absolute_uri(fichier_url)
@@ -220,7 +230,7 @@ class ProjetListSerializer(serializers.ModelSerializer):
         fields = [
             'id', 'titre', 'type', 'statut', 'pole', 'pole_name',
             'client', 'client_username', 'chef_projet', 'chef_projet_username', 'chef_projet_status',
-            'created_by', 'created_by_username',
+            'created_by', 'created_by_username', 'membres',
             'nombre_taches', 'nombre_membres', 'date_debut', 'date_fin_prevue',
             'created_at', 'updated_at'
         ]

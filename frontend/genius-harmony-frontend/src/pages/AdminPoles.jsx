@@ -2,12 +2,14 @@ import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 import { useTheme } from "../context/ThemeContext";
+import { useResponsive } from "../hooks/useResponsive";
 import { fetchPoles, createPole, updatePole, deletePole } from "../api/poles";
 import { fetchUsers } from "../api/users";
 
 export default function AdminPoles() {
   const { token, user } = useAuth();
   const { theme } = useTheme();
+  const { isMobile } = useResponsive();
   const navigate = useNavigate();
   const [poles, setPoles] = useState([]);
   const [users, setUsers] = useState([]);
@@ -174,7 +176,7 @@ export default function AdminPoles() {
               style={{
                 backgroundColor: "#2d1b69",
                 borderRadius: "12px",
-                padding: "1.5rem",
+                padding: isMobile ? "1rem" : "1.5rem",
                 border: "1px solid #4c1d95",
                 transition: "all 0.2s",
                 cursor: "pointer",
@@ -202,7 +204,7 @@ export default function AdminPoles() {
                       margin: 0,
                       marginBottom: "0.75rem",
                       color: "#fff",
-                      fontSize: "1.3rem",
+                      fontSize: isMobile ? "1.1rem" : "1.3rem",
                     }}
                   >
                     {pole.name}
@@ -214,6 +216,7 @@ export default function AdminPoles() {
                         marginBottom: "1rem",
                         color: "#c4b5fd",
                         lineHeight: "1.6",
+                        fontSize: isMobile ? "0.9rem" : "1rem",
                       }}
                     >
                       {pole.description}
@@ -253,7 +256,7 @@ export default function AdminPoles() {
                   )}
                 </div>
                 {canEdit && (
-                  <div style={{ display: "flex", gap: "0.75rem" }}>
+                  <div style={{ display: "flex", flexDirection: isMobile ? "column" : "row", gap: "0.75rem" }}>
                     <button
                       onClick={(e) => {
                         e.stopPropagation();

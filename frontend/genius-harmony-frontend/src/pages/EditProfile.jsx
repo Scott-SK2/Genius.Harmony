@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { useParams, useNavigate, Link } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 import { useTheme } from "../context/ThemeContext";
+import { useResponsive } from "../hooks/useResponsive";
 import { API_BASE_URL } from "../config";
 
 const SPECIALITE_OPTIONS = [
@@ -22,11 +23,14 @@ export default function EditProfile() {
   const { id } = useParams();
   const { token, user } = useAuth();
   const { theme } = useTheme();
+  const { isMobile } = useResponsive();
   const navigate = useNavigate();
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState(null);
   const [formData, setFormData] = useState({
+    first_name: "",
+    last_name: "",
     description: "",
     membre_specialite: "",
     phone: "",
@@ -61,6 +65,8 @@ export default function EditProfile() {
 
         const data = await response.json();
         setFormData({
+          first_name: data.first_name || "",
+          last_name: data.last_name || "",
           description: data.description || "",
           membre_specialite: data.membre_specialite || "",
           phone: data.phone || "",
@@ -183,7 +189,7 @@ export default function EditProfile() {
       </div>
 
       {/* Titre */}
-      <h1 style={{ margin: 0, marginBottom: "2rem", color: theme.text.primary, fontSize: "2rem" }}>
+      <h1 style={{ margin: 0, marginBottom: isMobile ? "1.5rem" : "2rem", color: theme.text.primary, fontSize: isMobile ? "1.5rem" : "2rem" }}>
         ✏️ Modifier le profil
       </h1>
 
@@ -208,12 +214,85 @@ export default function EditProfile() {
         <div
           style={{
             backgroundColor: theme.bg.tertiary,
-            padding: "2rem",
-            borderRadius: "16px",
+            padding: isMobile ? "1.25rem" : "2rem",
+            borderRadius: isMobile ? "12px" : "16px",
             boxShadow: theme.shadow.lg,
             border: `1px solid ${theme.border.light}`,
           }}
         >
+          {/* Section Informations personnelles */}
+          <div style={{ marginBottom: "1.5rem" }}>
+            <h3 style={{ margin: 0, marginBottom: "1rem", color: theme.text.primary, fontSize: "1.25rem" }}>
+              👤 Informations personnelles
+            </h3>
+
+            {/* Prénom */}
+            <div style={{ marginBottom: "1rem" }}>
+              <label
+                htmlFor="first_name"
+                style={{
+                  display: "block",
+                  marginBottom: "0.5rem",
+                  color: theme.colors.secondary,
+                  fontWeight: "600",
+                }}
+              >
+                Prénom
+              </label>
+              <input
+                type="text"
+                id="first_name"
+                value={formData.first_name}
+                onChange={(e) => setFormData({ ...formData, first_name: e.target.value })}
+                style={{
+                  width: "100%",
+                  padding: "0.75rem",
+                  backgroundColor: theme.bg.secondary,
+                  border: `1px solid ${theme.border.medium}`,
+                  borderRadius: "8px",
+                  color: theme.text.primary,
+                  fontSize: "1rem",
+                }}
+                placeholder="Jean"
+              />
+            </div>
+
+            {/* Nom */}
+            <div style={{ marginBottom: "1rem" }}>
+              <label
+                htmlFor="last_name"
+                style={{
+                  display: "block",
+                  marginBottom: "0.5rem",
+                  color: theme.colors.secondary,
+                  fontWeight: "600",
+                }}
+              >
+                Nom
+              </label>
+              <input
+                type="text"
+                id="last_name"
+                value={formData.last_name}
+                onChange={(e) => setFormData({ ...formData, last_name: e.target.value })}
+                style={{
+                  width: "100%",
+                  padding: "0.75rem",
+                  backgroundColor: theme.bg.secondary,
+                  border: `1px solid ${theme.border.medium}`,
+                  borderRadius: "8px",
+                  color: theme.text.primary,
+                  fontSize: "1rem",
+                }}
+                placeholder="Dupont"
+              />
+            </div>
+
+            <div style={{ fontSize: "0.85rem", color: theme.text.tertiary, marginTop: "0.5rem" }}>
+              Votre prénom et nom ne seront visibles que dans votre profil
+            </div>
+          </div>
+
           {/* Description */}
           <div style={{ marginBottom: "1.5rem" }}>
             <label
@@ -457,13 +536,13 @@ export default function EditProfile() {
           )}
 
           {/* Boutons */}
-          <div style={{ display: "flex", gap: "1rem", marginTop: "2rem" }}>
+          <div style={{ display: "flex", flexDirection: isMobile ? "column" : "row", gap: "1rem", marginTop: isMobile ? "1.5rem" : "2rem" }}>
             <button
               type="submit"
               disabled={saving}
               style={{
                 flex: 1,
-                padding: "0.75rem 1.5rem",
+                padding: isMobile ? "0.75rem 1rem" : "0.75rem 1.5rem",
                 backgroundColor: saving ? theme.colors.accent : theme.colors.secondary,
                 color: theme.text.inverse,
                 border: "none",
@@ -494,7 +573,7 @@ export default function EditProfile() {
               to={`/users/${id}`}
               style={{
                 flex: 1,
-                padding: "0.75rem 1.5rem",
+                padding: isMobile ? "0.75rem 1rem" : "0.75rem 1.5rem",
                 backgroundColor: theme.bg.tertiary,
                 color: theme.text.primary,
                 border: "none",

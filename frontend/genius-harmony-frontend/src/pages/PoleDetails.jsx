@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { useParams, Link, useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 import { useTheme } from "../context/ThemeContext";
+import { useResponsive } from "../hooks/useResponsive";
 import { fetchPoleDetails } from "../api/poles";
 import { fetchProjets } from "../api/projets";
 import { fetchUsers } from "../api/users";
@@ -28,6 +29,7 @@ export default function PoleDetails() {
   const { id } = useParams();
   const { token, user } = useAuth();
   const { theme } = useTheme();
+  const { isMobile, isTablet, isSmallScreen } = useResponsive();
   const navigate = useNavigate();
   const [pole, setPole] = useState(null);
   const [projets, setProjets] = useState([]);
@@ -91,23 +93,23 @@ export default function PoleDetails() {
   return (
     <div style={{ width: "100%", maxWidth: "100%" }}>
       {/* Header avec bouton retour */}
-      <div style={{ marginBottom: "2rem", display: "flex", alignItems: "center", gap: "1rem" }}>
+      <div style={{ marginBottom: isMobile ? "1.5rem" : "2rem", display: "flex", flexDirection: isSmallScreen ? "column" : "row", alignItems: isSmallScreen ? "flex-start" : "center", gap: isMobile ? "0.75rem" : "1rem" }}>
         <button
           onClick={() => navigate("/admin/poles")}
           style={{
-            padding: "0.5rem 1rem",
+            padding: isMobile ? "0.5rem 0.75rem" : "0.5rem 1rem",
             backgroundColor: "#4c1d95",
             color: "#fff",
             border: "none",
             borderRadius: "8px",
             cursor: "pointer",
-            fontSize: "0.9rem",
+            fontSize: isMobile ? "0.85rem" : "0.9rem",
             fontWeight: "500",
           }}
         >
           ← Retour
         </button>
-        <h1 style={{ margin: 0, color: "#fff", fontSize: "2rem" }}>
+        <h1 style={{ margin: 0, color: "#fff", fontSize: isMobile ? "1.5rem" : "2rem" }}>
           🎯 {pole.name}
         </h1>
       </div>
@@ -116,17 +118,17 @@ export default function PoleDetails() {
       <div
         style={{
           backgroundColor: "#2d1b69",
-          padding: "2rem",
+          padding: isMobile ? "1.25rem" : "2rem",
           borderRadius: "12px",
           border: "1px solid #4c1d95",
-          marginBottom: "2rem",
+          marginBottom: isMobile ? "1.5rem" : "2rem",
         }}
       >
-        <h2 style={{ margin: 0, marginBottom: "1.5rem", color: "#fff", fontSize: "1.5rem" }}>
+        <h2 style={{ margin: 0, marginBottom: isMobile ? "1rem" : "1.5rem", color: "#fff", fontSize: isMobile ? "1.2rem" : "1.5rem" }}>
           Informations
         </h2>
 
-        <div style={{ display: "grid", gridTemplateColumns: "repeat(2, 1fr)", gap: "1.5rem" }}>
+        <div style={{ display: "grid", gridTemplateColumns: isSmallScreen ? "1fr" : "repeat(2, 1fr)", gap: isMobile ? "1rem" : "1.5rem" }}>
           <div>
             <div style={{ fontSize: "0.85rem", color: "#a78bfa", marginBottom: "0.5rem" }}>
               Description
@@ -159,45 +161,87 @@ export default function PoleDetails() {
           </div>
         </div>
 
-        <div style={{ marginTop: "1.5rem", display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: "1rem" }}>
-          <div style={{ textAlign: "center", padding: "1rem", backgroundColor: "#1e1b4b", borderRadius: "8px" }}>
-            <div style={{ fontSize: "2rem", color: "#7c3aed", fontWeight: "bold" }}>
+        <div style={{ marginTop: isMobile ? "1rem" : "1.5rem", display: "grid", gridTemplateColumns: isMobile ? "1fr" : "repeat(3, 1fr)", gap: isMobile ? "0.75rem" : "1rem" }}>
+          <div style={{ textAlign: "center", padding: isMobile ? "0.75rem" : "1rem", backgroundColor: "#1e1b4b", borderRadius: "8px" }}>
+            <div style={{ fontSize: isMobile ? "1.5rem" : "2rem", color: "#7c3aed", fontWeight: "bold" }}>
               {projets.length}
             </div>
-            <div style={{ fontSize: "0.9rem", color: "#c4b5fd" }}>Projets</div>
+            <div style={{ fontSize: isMobile ? "0.8rem" : "0.9rem", color: "#c4b5fd" }}>Projets</div>
           </div>
-          <div style={{ textAlign: "center", padding: "1rem", backgroundColor: "#1e1b4b", borderRadius: "8px" }}>
-            <div style={{ fontSize: "2rem", color: "#7c3aed", fontWeight: "bold" }}>
+          <div style={{ textAlign: "center", padding: isMobile ? "0.75rem" : "1rem", backgroundColor: "#1e1b4b", borderRadius: "8px" }}>
+            <div style={{ fontSize: isMobile ? "1.5rem" : "2rem", color: "#7c3aed", fontWeight: "bold" }}>
               {membres.length}
             </div>
-            <div style={{ fontSize: "0.9rem", color: "#c4b5fd" }}>Membres</div>
+            <div style={{ fontSize: isMobile ? "0.8rem" : "0.9rem", color: "#c4b5fd" }}>Membres</div>
           </div>
-          <div style={{ textAlign: "center", padding: "1rem", backgroundColor: "#1e1b4b", borderRadius: "8px" }}>
-            <div style={{ fontSize: "2rem", color: "#10b981", fontWeight: "bold" }}>
+          <div style={{ textAlign: "center", padding: isMobile ? "0.75rem" : "1rem", backgroundColor: "#1e1b4b", borderRadius: "8px" }}>
+            <div style={{ fontSize: isMobile ? "1.5rem" : "2rem", color: "#10b981", fontWeight: "bold" }}>
               {projets.filter((p) => p.statut === "en_cours").length}
             </div>
-            <div style={{ fontSize: "0.9rem", color: "#c4b5fd" }}>En cours</div>
+            <div style={{ fontSize: isMobile ? "0.8rem" : "0.9rem", color: "#c4b5fd" }}>En cours</div>
           </div>
         </div>
       </div>
 
       {/* Projets associés */}
-      <div style={{ marginBottom: "2rem" }}>
-        <h2 style={{ margin: 0, marginBottom: "1.5rem", color: "#fff", fontSize: "1.5rem" }}>
+      <div style={{ marginBottom: isMobile ? "1.5rem" : "2rem" }}>
+        <h2 style={{ margin: 0, marginBottom: isMobile ? "1rem" : "1.5rem", color: "#fff", fontSize: isMobile ? "1.2rem" : "1.5rem" }}>
           Projets associés
         </h2>
         {projets.length === 0 ? (
           <div
             style={{
               textAlign: "center",
-              padding: "3rem",
+              padding: isMobile ? "2rem" : "3rem",
               backgroundColor: "#2d1b69",
               borderRadius: "12px",
               border: "1px dashed #4c1d95",
             }}
           >
-            <div style={{ fontSize: "3rem", marginBottom: "1rem" }}>📋</div>
-            <p style={{ margin: 0, color: "#c4b5fd" }}>Aucun projet associé à ce pôle</p>
+            <div style={{ fontSize: isMobile ? "2rem" : "3rem", marginBottom: "1rem" }}>📋</div>
+            <p style={{ margin: 0, color: "#c4b5fd", fontSize: isMobile ? "0.9rem" : "1rem" }}>Aucun projet associé à ce pôle</p>
+          </div>
+        ) : isSmallScreen ? (
+          <div style={{ display: "grid", gap: "1rem" }}>
+            {projets.map((projet) => (
+              <div
+                key={projet.id}
+                onClick={() => navigate(`/projets/${projet.id}`)}
+                style={{
+                  backgroundColor: "#2d1b69",
+                  borderRadius: "12px",
+                  border: "1px solid #4c1d95",
+                  padding: isMobile ? "1rem" : "1.25rem",
+                  cursor: "pointer",
+                  transition: "all 0.2s",
+                }}
+                onMouseEnter={(e) => (e.currentTarget.style.borderColor = "#7c3aed")}
+                onMouseLeave={(e) => (e.currentTarget.style.borderColor = "#4c1d95")}
+              >
+                <div style={{ marginBottom: "0.75rem" }}>
+                  <div style={{ color: "#fff", fontWeight: "600", fontSize: isMobile ? "1rem" : "1.1rem", marginBottom: "0.5rem" }}>
+                    {projet.titre}
+                  </div>
+                  <span
+                    style={{
+                      display: "inline-block",
+                      padding: "0.25rem 0.75rem",
+                      borderRadius: "12px",
+                      backgroundColor: `${STATUT_COLORS[projet.statut]}20`,
+                      color: STATUT_COLORS[projet.statut],
+                      fontSize: isMobile ? "0.75rem" : "0.85rem",
+                      fontWeight: "500",
+                    }}
+                  >
+                    {STATUT_PROJET_LABELS[projet.statut] || projet.statut}
+                  </span>
+                </div>
+                <div style={{ fontSize: isMobile ? "0.85rem" : "0.9rem", color: "#c4b5fd" }}>
+                  <div>👤 Chef: {projet.chef_projet_username || "—"}</div>
+                  <div>👥 {projet.membres_count || 0} membre{projet.membres_count > 1 ? "s" : ""}</div>
+                </div>
+              </div>
+            ))}
           </div>
         ) : (
           <div
@@ -271,28 +315,28 @@ export default function PoleDetails() {
 
       {/* Membres du pôle */}
       <div>
-        <h2 style={{ margin: 0, marginBottom: "1.5rem", color: "#fff", fontSize: "1.5rem" }}>
+        <h2 style={{ margin: 0, marginBottom: isMobile ? "1rem" : "1.5rem", color: "#fff", fontSize: isMobile ? "1.2rem" : "1.5rem" }}>
           Membres du pôle
         </h2>
         {membres.length === 0 ? (
           <div
             style={{
               textAlign: "center",
-              padding: "3rem",
+              padding: isMobile ? "2rem" : "3rem",
               backgroundColor: "#2d1b69",
               borderRadius: "12px",
               border: "1px dashed #4c1d95",
             }}
           >
-            <div style={{ fontSize: "3rem", marginBottom: "1rem" }}>👥</div>
-            <p style={{ margin: 0, color: "#c4b5fd" }}>Aucun membre assigné à ce pôle</p>
+            <div style={{ fontSize: isMobile ? "2rem" : "3rem", marginBottom: "1rem" }}>👥</div>
+            <p style={{ margin: 0, color: "#c4b5fd", fontSize: isMobile ? "0.9rem" : "1rem" }}>Aucun membre assigné à ce pôle</p>
           </div>
         ) : (
           <div
             style={{
               display: "grid",
-              gridTemplateColumns: "repeat(auto-fill, minmax(280px, 1fr))",
-              gap: "1rem",
+              gridTemplateColumns: isMobile ? "1fr" : "repeat(auto-fill, minmax(280px, 1fr))",
+              gap: isMobile ? "0.75rem" : "1rem",
             }}
           >
             {membres.map((membre) => (
@@ -302,7 +346,7 @@ export default function PoleDetails() {
                 style={{
                   textDecoration: "none",
                   backgroundColor: "#2d1b69",
-                  padding: "1.5rem",
+                  padding: isMobile ? "1rem" : "1.5rem",
                   borderRadius: "12px",
                   border: "1px solid #4c1d95",
                   transition: "all 0.2s",

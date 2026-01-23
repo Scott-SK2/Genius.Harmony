@@ -142,7 +142,22 @@ Après 12 mois, coût très faible: ~$0.023 par GB/mois
 
 ---
 
+## ⚠️ Problème résolu: ACLs désactivés sur les buckets S3 modernes
+
+**Symptôme:** Les URLs S3 sont générées correctement mais les fichiers n'apparaissent pas dans le bucket S3 (bucket reste vide à 0 objets).
+
+**Cause:** Les nouveaux buckets S3 ont les ACLs désactivés par défaut ("Object Ownership" = "Bucket owner enforced"). La configuration `AWS_DEFAULT_ACL = 'public-read'` causait l'échec silencieux des uploads.
+
+**✅ Solution appliquée:** Le code a été mis à jour pour utiliser `AWS_DEFAULT_ACL = None` et s'appuyer uniquement sur la Bucket Policy pour l'accès public. C'est la méthode moderne recommandée par AWS.
+
+---
+
 ## Dépannage
+
+### Les fichiers ne s'uploadent pas (bucket S3 reste vide):
+- ✅ **CORRIGÉ:** Le problème d'ACL a été résolu dans le code
+- Redéployez l'application sur Render après ce fix
+- Vérifiez les logs Render pour confirmer que les credentials AWS sont chargés
 
 ### L'URL pointe toujours vers Render (`/media/...`):
 - Vérifiez que les 4 variables sont bien définies sur Render
@@ -152,10 +167,12 @@ Après 12 mois, coût très faible: ~$0.023 par GB/mois
 ### Erreur 403 Forbidden:
 - Vérifiez la Bucket Policy dans S3
 - Assurez-vous que "Block Public Access" est désactivé
+- La Bucket Policy suffit pour l'accès public (pas besoin d'ACLs)
 
 ### Erreur de connexion AWS:
 - Vérifiez que l'Access Key ID et Secret sont corrects
 - Vérifiez que l'utilisateur IAM a la permission "AmazonS3FullAccess"
+- Vérifiez les logs Render pour voir les erreurs boto3
 
 ---
 
