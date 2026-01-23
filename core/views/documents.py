@@ -112,11 +112,47 @@ class DocumentDownloadView(APIView):
         if content_type is None:
             content_type = 'application/octet-stream'
 
-        # Obtenir le nom du fichier original
-        filename = os.path.basename(file_path)
+        # Construire le nom du fichier avec l'extension correcte
+        # Récupérer l'extension du fichier stocké
+        _, file_extension = os.path.splitext(document.fichier.name)
+
+        # Si pas d'extension, essayer de la deviner à partir du type MIME
+        if not file_extension:
+            # Mapping manuel pour les types courants (pour éviter .jpe au lieu de .jpg, etc.)
+            mime_to_ext = {
+                'image/jpeg': '.jpg',
+                'image/png': '.png',
+                'image/gif': '.gif',
+                'image/webp': '.webp',
+                'application/pdf': '.pdf',
+                'application/msword': '.doc',
+                'application/vnd.openxmlformats-officedocument.wordprocessingml.document': '.docx',
+                'application/vnd.ms-excel': '.xls',
+                'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet': '.xlsx',
+                'application/vnd.ms-powerpoint': '.ppt',
+                'application/vnd.openxmlformats-officedocument.presentationml.presentation': '.pptx',
+                'text/plain': '.txt',
+                'text/csv': '.csv',
+                'application/zip': '.zip',
+                'application/x-rar-compressed': '.rar',
+            }
+
+            file_extension = mime_to_ext.get(content_type)
+            if not file_extension:
+                # Fallback sur mimetypes.guess_extension
+                file_extension = mimetypes.guess_extension(content_type)
+
+            # Si toujours pas d'extension, utiliser .pdf par défaut
+            if not file_extension:
+                file_extension = '.pdf'
+
+        # Utiliser le titre du document + extension
+        # Nettoyer le titre pour éviter les caractères problématiques
+        safe_title = "".join(c for c in document.titre if c.isalnum() or c in (' ', '-', '_')).strip()
+        filename = f"{safe_title}{file_extension}"
 
         # Créer la réponse avec le fichier
-        with open(file_path, 'rb') as file_handle:
-            response = FileResponse(file_handle, content_type=content_type)
-            response['Content-Disposition'] = f'attachment; filename="{filename}"'
-            return response
+        # FileResponse gère l'ouverture et la fermeture du fichier automatiquement
+        response = FileResponse(open(file_path, 'rb'), content_type=content_type)
+        response['Content-Disposition'] = f'attachment; filename="{filename}"'
+        return response
