@@ -150,18 +150,13 @@ AWS_S3_REGION_NAME = config('AWS_S3_REGION_NAME', default='eu-west-3')
 
 # Configuration des fichiers media selon AWS S3 ou stockage local
 if AWS_ACCESS_KEY_ID and AWS_SECRET_ACCESS_KEY and AWS_STORAGE_BUCKET_NAME:
-    # Utiliser AWS S3 pour le stockage des fichiers media
+    # Utiliser AWS S3 pour le stockage des fichiers media avec custom storage backend
     AWS_S3_CUSTOM_DOMAIN = f'{AWS_STORAGE_BUCKET_NAME}.s3.{AWS_S3_REGION_NAME}.amazonaws.com'
     AWS_S3_OBJECT_PARAMETERS = {
         'CacheControl': 'max-age=86400',
     }
-    AWS_DEFAULT_ACL = 'public-read'
-    # Activer les URLs signées pour sécuriser l'accès aux fichiers
-    AWS_QUERYSTRING_AUTH = True
-    AWS_QUERYSTRING_EXPIRE = 3600  # URLs valides pendant 1 heure
-    DEFAULT_FILE_STORAGE = 'storages.backends.s3boto3.S3Boto3Storage'
-    # Ne pas définir MEDIA_URL avec QUERYSTRING_AUTH=True
-    # Les URLs sont générées dynamiquement par django-storages
+    # Utiliser le custom storage backend qui gère les URLs signées
+    DEFAULT_FILE_STORAGE = 'core.storage_backends.MediaStorage'
 else:
     # Fallback sur stockage local si S3 n'est pas configuré
     DEFAULT_FILE_STORAGE = 'django.core.files.storage.FileSystemStorage'
