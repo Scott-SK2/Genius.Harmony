@@ -12,3 +12,14 @@ python-decouple==3.8
 whitenoise==6.8.2
 dj-database-url==2.2.0
 django-ratelimit==4.1.0
+
+# Odoo Integration
+odoorpc==0.10.1
+
+# Celery + Redis (Async tasks + Cache)
+redis==5.0.1
+celery==5.3.6
+django-redis==5.4.0
+django-celery-beat==2.5.0
+django-celery-results==2.5.1
+flower==2.0.1
