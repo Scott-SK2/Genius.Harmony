@@ -44,6 +44,9 @@ INSTALLED_APPS = [
     'rest_framework',
     'core',
     'corsheaders',
+    # Celery & Redis
+    'django_celery_beat',
+    'django_celery_results',
 ]
 
 MIDDLEWARE = [
@@ -178,3 +181,47 @@ CORS_ALLOWED_ORIGINS = config(
 
 # Allow credentials for JWT authentication
 CORS_ALLOW_CREDENTIALS = True
+
+# ========================================
+# ODOO INTEGRATION CONFIGURATION
+# ========================================
+ODOO_ENABLED = config('ODOO_ENABLED', default=False, cast=bool)
+ODOO_HOST = config('ODOO_HOST', default='')
+ODOO_PORT = config('ODOO_PORT', default=443, cast=int)
+ODOO_PROTOCOL = config('ODOO_PROTOCOL', default='jsonrpc+ssl')
+ODOO_DB = config('ODOO_DB', default='')
+ODOO_USERNAME = config('ODOO_USERNAME', default='')
+ODOO_PASSWORD = config('ODOO_PASSWORD', default='')
+
+# ========================================
+# REDIS CONFIGURATION (Cache + Celery Broker)
+# ========================================
+REDIS_URL = config('REDIS_URL', default='redis://localhost:6379/0')
+
+# Redis as cache backend
+CACHES = {
+    'default': {
+        'BACKEND': 'django_redis.cache.RedisCache',
+        'LOCATION': REDIS_URL,
+        'OPTIONS': {
+            'CLIENT_CLASS': 'django_redis.client.DefaultClient',
+        },
+        'KEY_PREFIX': 'genius_harmony',
+        'TIMEOUT': 300,  # 5 minutes par défaut
+    }
+}
+
+# ========================================
+# CELERY CONFIGURATION (Async Tasks)
+# ========================================
+CELERY_BROKER_URL = REDIS_URL
+CELERY_RESULT_BACKEND = 'django-db'  # Stocke les résultats dans PostgreSQL
+CELERY_ACCEPT_CONTENT = ['json']
+CELERY_TASK_SERIALIZER = 'json'
+CELERY_RESULT_SERIALIZER = 'json'
+CELERY_TIMEZONE = 'UTC'
+CELERY_TASK_TRACK_STARTED = True
+CELERY_TASK_TIME_LIMIT = 30 * 60  # 30 minutes max par task
+
+# Celery Beat (scheduled tasks)
+CELERY_BEAT_SCHEDULER = 'django_celery_beat.schedulers:DatabaseScheduler'

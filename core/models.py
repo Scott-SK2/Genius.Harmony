@@ -179,6 +179,9 @@ class Tache(models.Model):
     # Assignation (plusieurs personnes possibles)
     assigne_a = models.ManyToManyField(User, blank=True, related_name='taches_assignees')
 
+    # Lien Odoo
+    odoo_task_id = models.IntegerField(null=True, blank=True, help_text="ID de la tâche dans Odoo")
+
     # Dates
     deadline = models.DateField(null=True, blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
@@ -228,6 +231,64 @@ class Document(models.Model):
         return f"{self.titre} - {self.projet.titre}"
 
 
+class Notification(models.Model):
+    """
+    Système de notifications pour les utilisateurs
+
+    Types de notifications:
+    - deadline_3days: Tâche avec deadline dans 3 jours
+    - deadline_1day: Tâche avec deadline demain
+    - deadline_today: Tâche avec deadline aujourd'hui
+    - deadline_overdue: Tâche en retard
+    - project_assigned: Nouveau projet assigné
+    - task_assigned: Nouvelle tâche assignée
+    """
+
+    TYPE_CHOICES = [
+        ('deadline_3days', '📅 Deadline dans 3 jours'),
+        ('deadline_1day', '⚠️ Deadline demain'),
+        ('deadline_today', '🔴 Deadline aujourd\'hui'),
+        ('deadline_overdue', '❌ Tâche en retard'),
+        ('project_assigned', '🎯 Nouveau projet assigné'),
+        ('task_assigned', '📋 Nouvelle tâche assignée'),
+    ]
+
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='notifications')
+    type = models.CharField(max_length=20, choices=TYPE_CHOICES)
+    titre = models.CharField(max_length=200)
+    message = models.TextField()
+
+    # Relations optionnelles
+    tache = models.ForeignKey(Tache, on_delete=models.CASCADE, null=True, blank=True)
+    projet = models.ForeignKey(Projet, on_delete=models.CASCADE, null=True, blank=True)
+
+    # État
+    is_read = models.BooleanField(default=False)
+    created_at = models.DateTimeField(auto_now_add=True)
+    read_at = models.DateTimeField(null=True, blank=True)
+
+    class Meta:
+        ordering = ['-created_at']
+        verbose_name = 'Notification'
+        verbose_name_plural = 'Notifications'
+        indexes = [
+            models.Index(fields=['user', '-created_at']),
+            models.Index(fields=['user', 'is_read']),
+        ]
+
+    def __str__(self):
+        status = "✓" if self.is_read else "•"
+        return f"{status} {self.user.username}: {self.titre}"
+
+    def mark_as_read(self):
+        """Marquer la notification comme lue"""
+        from django.utils import timezone
+        if not self.is_read:
+            self.is_read = True
+            self.read_at = timezone.now()
+            self.save()
+
+
 # Signal pour créer automatiquement un profil lors de la création d'un utilisateur
 @receiver(post_save, sender=User)
 def create_or_update_user_profile(sender, instance, created, **kwargs):
@@ -259,3 +320,53 @@ def auto_add_task_assignees_to_project(sender, instance, action, pk_set, **kwarg
         for user in users_to_add:
             if not projet.membres.filter(pk=user.pk).exists():
                 projet.membres.add(user)
+
+
+# ========================================
+# SIGNAUX POUR ODOO SYNC ET NOTIFICATIONS
+# ========================================
+
+@receiver(post_save, sender=Profile)
+def sync_profile_to_odoo(sender, instance, created, **kwargs):
+    """
+    Synchronise automatiquement le profil vers Odoo quand il est modifié
+
+    Déclenché quand l'utilisateur édite son profil (nom, email, téléphone, etc.)
+    """
+    # Éviter les boucles infinies (si on sauvegarde odoo_partner_id)
+    if 'odoo_partner_id' in kwargs.get('update_fields', []):
+        return
+
+    # Import ici pour éviter les imports circulaires
+    from core.tasks import sync_user_to_odoo
+
+    # Lancer la sync en async
+    sync_user_to_odoo.delay(instance.user.id)
+
+
+@receiver(m2m_changed, sender=Tache.assigne_a.through)
+def notify_task_assignment(sender, instance, action, pk_set, **kwargs):
+    """
+    Crée une notification quand un utilisateur est assigné à une tâche
+    """
+    if action == 'post_add' and pk_set:
+        # Import ici pour éviter les imports circulaires
+        from core.tasks import create_task_assigned_notification
+
+        # Créer une notification pour chaque utilisateur assigné
+        for user_id in pk_set:
+            create_task_assigned_notification.delay(instance.id, user_id)
+
+
+@receiver(m2m_changed, sender=Projet.membres.through)
+def notify_project_assignment(sender, instance, action, pk_set, **kwargs):
+    """
+    Crée une notification quand un utilisateur est ajouté à un projet
+    """
+    if action == 'post_add' and pk_set:
+        # Import ici pour éviter les imports circulaires
+        from core.tasks import create_project_assigned_notification
+
+        # Créer une notification pour chaque membre ajouté
+        for user_id in pk_set:
+            create_project_assigned_notification.delay(instance.id, user_id)
