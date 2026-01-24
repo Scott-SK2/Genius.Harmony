@@ -1,6 +1,6 @@
 from rest_framework import serializers
 from django.contrib.auth import get_user_model
-from .models import Profile, Pole, Projet, Tache, Document
+from .models import Profile, Pole, Projet, Tache, Document, Notification
 
 User = get_user_model()
 
@@ -295,3 +295,20 @@ class ProjetCreateUpdateSerializer(serializers.ModelSerializer):
             if validated_data['chef_projet'] != instance.chef_projet:
                 validated_data['chef_projet_status'] = 'pending'
         return super().update(instance, validated_data)
+
+
+# Serializers pour les notifications
+class NotificationSerializer(serializers.ModelSerializer):
+    """Serializer pour les notifications"""
+    tache_titre = serializers.CharField(source='tache.titre', read_only=True)
+    projet_titre = serializers.CharField(source='projet.titre', read_only=True)
+    type_display = serializers.CharField(source='get_type_display', read_only=True)
+
+    class Meta:
+        model = Notification
+        fields = [
+            'id', 'type', 'type_display', 'titre', 'message',
+            'tache', 'tache_titre', 'projet', 'projet_titre',
+            'is_read', 'created_at', 'read_at'
+        ]
+        read_only_fields = ['id', 'user', 'created_at', 'read_at']

@@ -8,6 +8,8 @@ from .views import (
     ProjetListCreateView, ProjetDetailView, ProjetUpdateStatutView, ProjetAcceptChefView, ProjetDeclineChefView,
     TacheListCreateView, TacheDetailView,
     DocumentListCreateView, DocumentDetailView, DocumentDownloadView,
+    NotificationListView, NotificationDetailView,
+    mark_notification_as_read, mark_all_as_read, unread_count, delete_all_read,
 )
 
 urlpatterns = [
@@ -43,4 +45,12 @@ urlpatterns = [
     path('documents/', DocumentListCreateView.as_view(), name='documents-list-create'),
     path('documents/<int:pk>/', DocumentDetailView.as_view(), name='documents-detail'),
     path('documents/<int:pk>/download/', DocumentDownloadView.as_view(), name='documents-download'),
+
+    # Notifications
+    path('notifications/', NotificationListView.as_view(), name='notifications-list'),
+    path('notifications/<int:pk>/', NotificationDetailView.as_view(), name='notifications-detail'),
+    path('notifications/<int:pk>/mark-read/', mark_notification_as_read, name='notifications-mark-read'),
+    path('notifications/mark-all-read/', mark_all_as_read, name='notifications-mark-all-read'),
+    path('notifications/unread-count/', unread_count, name='notifications-unread-count'),
+    path('notifications/delete-all-read/', delete_all_read, name='notifications-delete-all-read'),
 ]

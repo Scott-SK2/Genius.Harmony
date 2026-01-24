@@ -35,6 +35,16 @@ from .documents import (
     DocumentDownloadView
 )
 
+# Notification views
+from .notifications import (
+    NotificationListView,
+    NotificationDetailView,
+    mark_notification_as_read,
+    mark_all_as_read,
+    unread_count,
+    delete_all_read
+)
+
 __all__ = [
     # Auth
     'RegisterView',
@@ -61,4 +71,11 @@ __all__ = [
     'DocumentListCreateView',
     'DocumentDetailView',
     'DocumentDownloadView',
+    # Notifications
+    'NotificationListView',
+    'NotificationDetailView',
+    'mark_notification_as_read',
+    'mark_all_as_read',
+    'unread_count',
+    'delete_all_read',
 ]
