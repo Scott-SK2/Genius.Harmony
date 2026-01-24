@@ -2,6 +2,7 @@ import { Link } from "react-router-dom";
 import { useState } from "react";
 import { useAuth } from "../context/AuthContext";
 import { useTheme } from "../context/ThemeContext";
+import NotificationIcon from "./notifications/NotificationIcon";
 import logo from "../assets/GH long.png";
 
 export default function Navbar() {
@@ -177,6 +178,9 @@ export default function Navbar() {
           >
             {isDark ? "☀️" : "🌙"}
           </button>
+
+          {/* Notifications */}
+          <NotificationIcon theme={theme} />
 
           {/* User info */}
           <Link
