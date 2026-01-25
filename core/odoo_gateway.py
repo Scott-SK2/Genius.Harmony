@@ -51,6 +51,8 @@ class OdooGateway:
     _odoo = None
     _last_call_time = 0
     _min_call_interval = 0.1  # 100ms entre chaque appel = max 10 req/sec
+    _connection_attempted = False
+    _connection_failed = False
 
     def __new__(cls):
         if cls._instance is None:
@@ -58,15 +60,25 @@ class OdooGateway:
         return cls._instance
 
     def __init__(self):
-        if not self._odoo and settings.ODOO_ENABLED:
-            self._connect()
+        # Ne pas se connecter automatiquement lors de l'import
+        # La connexion sera établie lors du premier appel à _ensure_connected()
+        pass
 
     def _connect(self):
         """Établit la connexion à Odoo via XML-RPC"""
+        if self._connection_attempted:
+            if self._connection_failed:
+                raise OdooNotConfiguredError("Odoo connection failed previously")
+            return
+
+        self._connection_attempted = True
+
         if not settings.ODOO_ENABLED:
+            self._connection_failed = True
             raise OdooNotConfiguredError("Odoo is not enabled. Set ODOO_ENABLED=True in settings.")
 
         if not all([settings.ODOO_HOST, settings.ODOO_DB, settings.ODOO_USERNAME, settings.ODOO_PASSWORD]):
+            self._connection_failed = True
             raise OdooNotConfiguredError("Missing Odoo configuration. Check ODOO_* settings.")
 
         try:
@@ -83,8 +95,10 @@ class OdooGateway:
                 settings.ODOO_PASSWORD
             )
             logger.info(f"✅ Connected to Odoo: {settings.ODOO_HOST} (DB: {settings.ODOO_DB})")
+            self._connection_failed = False
         except Exception as e:
             logger.error(f"❌ Odoo connection failed: {e}")
+            self._connection_failed = True
             raise OdooNotConfiguredError(f"Failed to connect to Odoo: {e}")
 
     def _ensure_connected(self):
