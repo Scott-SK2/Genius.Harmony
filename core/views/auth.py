@@ -22,14 +22,21 @@ class RegisterView(generics.CreateAPIView):
     permission_classes = [permissions.AllowAny]
 
     def create(self, request, *args, **kwargs):
-        """Override create to add explicit error logging"""
+        """Override create to add explicit logging"""
+        from rest_framework.exceptions import ValidationError
+
         try:
             logger.info(f"📝 Registration attempt for: {request.data.get('username')}")
             response = super().create(request, *args, **kwargs)
             logger.info(f"✅ Registration successful for: {request.data.get('username')}")
             return response
+        except ValidationError as e:
+            # Validation errors (400) - let Django REST Framework handle them normally
+            logger.warning(f"⚠️ Validation error during registration: {e.detail}")
+            raise  # Re-raise to let DRF handle it
         except Exception as e:
-            logger.error(f"❌ Registration failed: {e}", exc_info=True)
+            # Real server errors (500)
+            logger.error(f"❌ Registration failed with server error: {e}", exc_info=True)
             return Response(
                 {"error": "Une erreur s'est produite lors de l'inscription. Veuillez réessayer."},
                 status=status.HTTP_500_INTERNAL_SERVER_ERROR
