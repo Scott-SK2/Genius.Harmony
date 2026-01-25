@@ -2,6 +2,7 @@ import { Link, useLocation } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 import { useResponsive } from "../hooks/useResponsive";
 import { useState, useEffect, useRef } from "react";
+import NotificationIcon from "./notifications/NotificationIcon";
 import logo from "../assets/GH long.png";
 
 export default function AdminLayout({ children, pageTitle = "Dashboard" }) {
@@ -51,6 +52,34 @@ export default function AdminLayout({ children, pageTitle = "Dashboard" }) {
   });
 
   const isActive = (path) => location.pathname === path;
+
+  // Theme for NotificationIcon (admin purple theme)
+  const adminTheme = {
+    bg: {
+      secondary: "#7c3aed",
+      tertiary: "rgba(255,255,255,0.1)",
+      hover: "rgba(255,255,255,0.2)",
+    },
+    border: {
+      light: "rgba(255,255,255,0.2)",
+      medium: "rgba(255,255,255,0.3)",
+    },
+    text: {
+      primary: "#fff",
+      secondary: "rgba(255,255,255,0.8)",
+      tertiary: "rgba(255,255,255,0.6)",
+      inverse: "#fff",
+    },
+    colors: {
+      primary: "#7c3aed",
+      danger: "#ef4444",
+    },
+    shadow: {
+      sm: "0 1px 2px rgba(0,0,0,0.1)",
+      md: "0 4px 6px rgba(0,0,0,0.2)",
+      lg: "0 10px 15px rgba(0,0,0,0.3)",
+    },
+  };
 
   return (
     <div style={{ display: "flex", flexDirection: "column", backgroundColor: "#1e1b4b", minHeight: "100vh" }}>
@@ -219,8 +248,11 @@ export default function AdminLayout({ children, pageTitle = "Dashboard" }) {
           {pageTitle}
         </h1>
 
-        {/* Right: Profile + Logout */}
+        {/* Right: Notifications + Profile + Logout */}
         <div style={{ display: "flex", alignItems: "center", gap: isMobile ? "0.5rem" : "1.5rem" }}>
+          {/* Notification Icon */}
+          <NotificationIcon theme={adminTheme} />
+
           <Link
             to={`/users/${user?.id}/profile`}
             style={{

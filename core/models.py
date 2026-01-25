@@ -333,6 +333,11 @@ def sync_profile_to_odoo(sender, instance, created, **kwargs):
 
     Déclenché quand l'utilisateur édite son profil (nom, email, téléphone, etc.)
     """
+    # Ne pas sync lors de la création du profil (registration)
+    # Le batch sync s'en chargera plus tard
+    if created:
+        return
+
     # Éviter les boucles infinies (si on sauvegarde odoo_partner_id)
     if 'odoo_partner_id' in kwargs.get('update_fields', []):
         return
@@ -341,7 +346,13 @@ def sync_profile_to_odoo(sender, instance, created, **kwargs):
     from core.tasks import sync_user_to_odoo
 
     # Lancer la sync en async
-    sync_user_to_odoo.delay(instance.user.id)
+    # Si Celery n'est pas connecté, ne pas crasher l'opération
+    try:
+        sync_user_to_odoo.delay(instance.user.id)
+    except Exception as e:
+        import logging
+        logger = logging.getLogger(__name__)
+        logger.warning(f"⚠️ Failed to queue Odoo sync for user {instance.user.id}: {e}")
 
 
 @receiver(m2m_changed, sender=Tache.assigne_a.through)
@@ -352,10 +363,15 @@ def notify_task_assignment(sender, instance, action, pk_set, **kwargs):
     if action == 'post_add' and pk_set:
         # Import ici pour éviter les imports circulaires
         from core.tasks import create_task_assigned_notification
+        import logging
+        logger = logging.getLogger(__name__)
 
         # Créer une notification pour chaque utilisateur assigné
         for user_id in pk_set:
-            create_task_assigned_notification.delay(instance.id, user_id)
+            try:
+                create_task_assigned_notification.delay(instance.id, user_id)
+            except Exception as e:
+                logger.warning(f"⚠️ Failed to queue task assignment notification: {e}")
 
 
 @receiver(m2m_changed, sender=Projet.membres.through)
@@ -366,7 +382,12 @@ def notify_project_assignment(sender, instance, action, pk_set, **kwargs):
     if action == 'post_add' and pk_set:
         # Import ici pour éviter les imports circulaires
         from core.tasks import create_project_assigned_notification
+        import logging
+        logger = logging.getLogger(__name__)
 
         # Créer une notification pour chaque membre ajouté
         for user_id in pk_set:
-            create_project_assigned_notification.delay(instance.id, user_id)
+            try:
+                create_project_assigned_notification.delay(instance.id, user_id)
+            except Exception as e:
+                logger.warning(f"⚠️ Failed to queue project assignment notification: {e}")
