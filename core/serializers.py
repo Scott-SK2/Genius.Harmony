@@ -1,8 +1,11 @@
+import logging
 from rest_framework import serializers
 from django.contrib.auth import get_user_model
 from .models import Profile, Pole, Projet, Tache, Document, Notification
 
 User = get_user_model()
+logger = logging.getLogger(__name__)
+
 
 class AdminUserSerializer(serializers.ModelSerializer):
     class Meta:
@@ -16,6 +19,7 @@ class AdminUserSerializer(serializers.ModelSerializer):
             "date_joined",
         ]
         read_only_fields = ["id", "date_joined", "username"]
+
 
 class RegisterSerializer(serializers.ModelSerializer):
     role = serializers.ChoiceField(choices=Profile.ROLE_CHOICES, write_only=True)
@@ -31,22 +35,37 @@ class RegisterSerializer(serializers.ModelSerializer):
         }
 
     def create(self, validated_data):
-        role = validated_data.pop('role')
-        client_type = validated_data.pop('client_type', '')
+        try:
+            logger.info(f"🔹 Creating user with username: {validated_data.get('username')}")
 
-        password = validated_data.pop('password')
-        user = User(**validated_data)
-        user.set_password(password)
-        user.save()
+            role = validated_data.pop('role')
+            client_type = validated_data.pop('client_type', '')
 
-        # Récupérer le profil créé automatiquement par le SIGNAL
-        profile = user.profile
-        profile.role = role
-        if role in ['artiste', 'client', 'partenaire']:
-            profile.client_type = client_type
-        profile.save()
+            password = validated_data.pop('password')
+            user = User(**validated_data)
+            user.set_password(password)
 
-        return user
+            logger.info(f"🔹 Saving user to database...")
+            user.save()
+            logger.info(f"✅ User saved successfully, ID: {user.id}")
+
+            # Récupérer le profil créé automatiquement par le SIGNAL
+            logger.info(f"🔹 Fetching auto-created profile...")
+            profile = user.profile
+            logger.info(f"✅ Profile found, ID: {profile.id}")
+
+            profile.role = role
+            if role in ['artiste', 'client', 'partenaire']:
+                profile.client_type = client_type
+
+            logger.info(f"🔹 Saving profile with role: {role}")
+            profile.save()
+            logger.info(f"✅ Profile saved successfully")
+
+            return user
+        except Exception as e:
+            logger.error(f"❌ Error in RegisterSerializer.create: {e}", exc_info=True)
+            raise
 
 class PoleSerializer(serializers.ModelSerializer):
     chef_username = serializers.CharField(source='chef.username', read_only=True)
