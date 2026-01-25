@@ -11,6 +11,7 @@ from .views import (
     NotificationListView, NotificationDetailView,
     mark_notification_as_read, mark_all_as_read, unread_count, delete_all_read,
 )
+from .views.odoo_webhooks import odoo_deadline_notification, odoo_task_assigned
 
 urlpatterns = [
     # Authentification
@@ -53,4 +54,8 @@ urlpatterns = [
     path('notifications/mark-all-read/', mark_all_as_read, name='notifications-mark-all-read'),
     path('notifications/unread-count/', unread_count, name='notifications-unread-count'),
     path('notifications/delete-all-read/', delete_all_read, name='notifications-delete-all-read'),
+
+    # Webhooks Odoo (endpoints appelés par Odoo)
+    path('odoo-webhooks/deadline-notification/', odoo_deadline_notification, name='odoo-deadline-notification'),
+    path('odoo-webhooks/task-assigned/', odoo_task_assigned, name='odoo-task-assigned'),
 ]
