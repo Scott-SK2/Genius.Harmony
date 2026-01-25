@@ -65,9 +65,13 @@ export default function Register() {
         state: { message: "Inscription réussie ! Vous pouvez maintenant vous connecter." },
       });
     } catch (err) {
-      console.error("Erreur inscription:", err);
+      console.error("Erreur inscription complète:", err);
+      console.error("Réponse serveur:", err.response);
+
       if (err.response?.data) {
         const errors = err.response.data;
+
+        // Erreurs de validation spécifiques
         if (errors.username) {
           setError(`Nom d'utilisateur : ${errors.username[0]}`);
         } else if (errors.email) {
@@ -78,10 +82,29 @@ export default function Register() {
           setError(`Prénom : ${errors.first_name[0]}`);
         } else if (errors.last_name) {
           setError(`Nom : ${errors.last_name[0]}`);
+        } else if (errors.detail) {
+          // Message d'erreur générique du serveur
+          setError(`Erreur serveur : ${errors.detail}`);
+        } else if (errors.error) {
+          setError(`Erreur : ${errors.error}`);
         } else {
-          setError("Erreur lors de l'inscription. Veuillez réessayer.");
+          // Afficher l'objet d'erreur complet si format inconnu
+          setError(`Erreur serveur (${err.response.status}) : ${JSON.stringify(errors)}`);
         }
+      } else if (err.response?.status) {
+        // Erreur HTTP sans détails
+        if (err.response.status === 500) {
+          setError("Erreur interne du serveur. L'équipe technique a été notifiée. Veuillez réessayer dans quelques instants.");
+        } else if (err.response.status === 503) {
+          setError("Service temporairement indisponible. Veuillez réessayer dans quelques instants.");
+        } else {
+          setError(`Erreur serveur (code ${err.response.status}). Veuillez réessayer.`);
+        }
+      } else if (err.request) {
+        // Requête envoyée mais pas de réponse
+        setError("Impossible de contacter le serveur. Vérifiez votre connexion internet.");
       } else {
+        // Erreur lors de la configuration de la requête
         setError("Erreur lors de l'inscription. Veuillez réessayer.");
       }
     } finally {
