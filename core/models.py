@@ -244,6 +244,7 @@ class Notification(models.Model):
         ('deadline_today', '🔴 Deadline aujourd\'hui'),
         ('deadline_overdue', '❌ Tâche en retard'),
         ('project_assigned', '🎯 Nouveau projet assigné'),
+        ('project_leader_assigned', '👔 Chef de projet assigné'),
         ('task_assigned', '📋 Nouvelle tâche assignée'),
     ]
 
@@ -386,6 +387,33 @@ def notify_project_assignment(sender, instance, action, pk_set, **kwargs):
                 create_project_assigned_notification.delay(instance.id, user_id)
             except Exception as e:
                 logger.warning(f"⚠️ Failed to queue project assignment notification: {e}")
+
+
+@receiver(post_save, sender=Projet)
+def notify_chef_projet_assignment(sender, instance, created, **kwargs):
+    """
+    Crée une notification quand un chef de projet est assigné à un projet
+
+    Déclenché quand le champ chef_projet est modifié
+    Note: Utilise une vérification dans la tâche Celery pour éviter les doublons (24h)
+    """
+    import logging
+    logger = logging.getLogger(__name__)
+
+    # Seulement si un chef de projet est défini
+    if instance.chef_projet:
+        # Vérifier si update_fields est spécifié et ne contient pas chef_projet
+        update_fields = kwargs.get('update_fields')
+        if update_fields is not None and 'chef_projet' not in update_fields:
+            return
+
+        # Import ici pour éviter les imports circulaires
+        from core.tasks import create_project_leader_notification
+
+        try:
+            create_project_leader_notification.delay(instance.id, instance.chef_projet.id)
+        except Exception as e:
+            logger.warning(f"⚠️ Failed to queue chef projet notification: {e}")
 
 
 @receiver(pre_delete, sender=User)
