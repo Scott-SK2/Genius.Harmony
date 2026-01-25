@@ -57,9 +57,11 @@ export default function NotificationItem({ notification, onMarkAsRead, onDelete,
 
   // Obtenir le lien vers la ressource
   const getLink = () => {
-    if (notification.tache) {
-      return `/projets/${notification.tache.projet || notification.projet?.id}`;
+    // Si c'est une notification de tâche, utiliser le projet de la tâche
+    if (notification.tache && notification.tache_projet_id) {
+      return `/projets/${notification.tache_projet_id}`;
     }
+    // Si c'est une notification de projet, utiliser l'ID du projet
     if (notification.projet) {
       return `/projets/${notification.projet}`;
     }
@@ -82,6 +84,13 @@ export default function NotificationItem({ notification, onMarkAsRead, onDelete,
     e.preventDefault();
     e.stopPropagation();
     onDelete(notification.id);
+  };
+
+  const handleClick = () => {
+    // Marquer comme lue lors du clic sur la notification
+    if (!notification.is_read) {
+      onMarkAsRead(notification.id);
+    }
   };
 
   const content = (
@@ -225,7 +234,11 @@ export default function NotificationItem({ notification, onMarkAsRead, onDelete,
   // Wrapper avec Link si on a une destination
   if (link) {
     return (
-      <Link to={link} style={{ textDecoration: 'none', display: 'block' }}>
+      <Link
+        to={link}
+        onClick={handleClick}
+        style={{ textDecoration: 'none', display: 'block' }}
+      >
         {content}
       </Link>
     );

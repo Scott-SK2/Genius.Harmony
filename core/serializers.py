@@ -320,6 +320,7 @@ class ProjetCreateUpdateSerializer(serializers.ModelSerializer):
 class NotificationSerializer(serializers.ModelSerializer):
     """Serializer pour les notifications"""
     tache_titre = serializers.CharField(source='tache.titre', read_only=True)
+    tache_projet_id = serializers.IntegerField(source='tache.projet.id', read_only=True, allow_null=True)
     projet_titre = serializers.CharField(source='projet.titre', read_only=True)
     type_display = serializers.CharField(source='get_type_display', read_only=True)
 
@@ -327,7 +328,8 @@ class NotificationSerializer(serializers.ModelSerializer):
         model = Notification
         fields = [
             'id', 'type', 'type_display', 'titre', 'message',
-            'tache', 'tache_titre', 'projet', 'projet_titre',
+            'tache', 'tache_titre', 'tache_projet_id',
+            'projet', 'projet_titre',
             'is_read', 'created_at', 'read_at'
         ]
         read_only_fields = ['id', 'user', 'created_at', 'read_at']

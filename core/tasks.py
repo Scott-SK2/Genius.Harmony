@@ -331,7 +331,12 @@ def check_deadline_notifications():
         ).select_related('projet').prefetch_related('assigne_a')
 
         for tache in taches_3days:
-            for user in tache.assigne_a.all():
+            # Récupérer les destinataires : assignés + chef de projet
+            destinataires = set(tache.assigne_a.all())
+            if tache.projet.chef:
+                destinataires.add(tache.projet.chef)
+
+            for user in destinataires:
                 # Vérifier si notification déjà créée
                 if not Notification.objects.filter(
                     user=user,
@@ -342,8 +347,8 @@ def check_deadline_notifications():
                     Notification.objects.create(
                         user=user,
                         type='deadline_3days',
-                        titre=f"Deadline dans 3 jours: {tache.titre}",
-                        message=f"La tâche '{tache.titre}' du projet '{tache.projet.titre}' a une deadline le {tache.deadline.strftime('%d/%m/%Y')}.",
+                        titre=f"Deadline dans 3 jours",
+                        message=f"{tache.titre} • {tache.deadline.strftime('%d/%m/%Y')}",
                         tache=tache,
                         projet=tache.projet
                     )
@@ -356,7 +361,12 @@ def check_deadline_notifications():
         ).select_related('projet').prefetch_related('assigne_a')
 
         for tache in taches_tomorrow:
-            for user in tache.assigne_a.all():
+            # Récupérer les destinataires : assignés + chef de projet
+            destinataires = set(tache.assigne_a.all())
+            if tache.projet.chef:
+                destinataires.add(tache.projet.chef)
+
+            for user in destinataires:
                 if not Notification.objects.filter(
                     user=user,
                     tache=tache,
@@ -366,8 +376,8 @@ def check_deadline_notifications():
                     Notification.objects.create(
                         user=user,
                         type='deadline_1day',
-                        titre=f"⚠️ Deadline demain: {tache.titre}",
-                        message=f"URGENT: La tâche '{tache.titre}' du projet '{tache.projet.titre}' a une deadline demain ({tache.deadline.strftime('%d/%m/%Y')}).",
+                        titre=f"Deadline demain",
+                        message=f"{tache.titre} • Échéance demain",
                         tache=tache,
                         projet=tache.projet
                     )
@@ -380,7 +390,12 @@ def check_deadline_notifications():
         ).select_related('projet').prefetch_related('assigne_a')
 
         for tache in taches_today:
-            for user in tache.assigne_a.all():
+            # Récupérer les destinataires : assignés + chef de projet
+            destinataires = set(tache.assigne_a.all())
+            if tache.projet.chef:
+                destinataires.add(tache.projet.chef)
+
+            for user in destinataires:
                 if not Notification.objects.filter(
                     user=user,
                     tache=tache,
@@ -390,8 +405,8 @@ def check_deadline_notifications():
                     Notification.objects.create(
                         user=user,
                         type='deadline_today',
-                        titre=f"🔴 Deadline AUJOURD'HUI: {tache.titre}",
-                        message=f"URGENT: La tâche '{tache.titre}' du projet '{tache.projet.titre}' doit être terminée aujourd'hui!",
+                        titre=f"Deadline AUJOURD'HUI",
+                        message=f"{tache.titre} • À terminer aujourd'hui",
                         tache=tache,
                         projet=tache.projet
                     )
@@ -404,7 +419,12 @@ def check_deadline_notifications():
         ).select_related('projet').prefetch_related('assigne_a')
 
         for tache in taches_overdue:
-            for user in tache.assigne_a.all():
+            # Récupérer les destinataires : assignés + chef de projet
+            destinataires = set(tache.assigne_a.all())
+            if tache.projet.chef:
+                destinataires.add(tache.projet.chef)
+
+            for user in destinataires:
                 # Pour les tâches en retard, créer une notification par jour
                 if not Notification.objects.filter(
                     user=user,
@@ -416,8 +436,8 @@ def check_deadline_notifications():
                     Notification.objects.create(
                         user=user,
                         type='deadline_overdue',
-                        titre=f"❌ Tâche en retard: {tache.titre}",
-                        message=f"La tâche '{tache.titre}' du projet '{tache.projet.titre}' est en retard de {days_overdue} jour(s) (deadline: {tache.deadline.strftime('%d/%m/%Y')}).",
+                        titre=f"Tâche en retard",
+                        message=f"{tache.titre} • Retard de {days_overdue} jour(s)",
                         tache=tache,
                         projet=tache.projet
                     )
@@ -448,11 +468,12 @@ def create_task_assigned_notification(tache_id, user_id):
             tache=tache,
             type='task_assigned'
         ).exists():
+            deadline_text = tache.deadline.strftime('%d/%m') if tache.deadline else 'Sans deadline'
             Notification.objects.create(
                 user=user,
                 type='task_assigned',
-                titre=f"Nouvelle tâche assignée: {tache.titre}",
-                message=f"Vous avez été assigné(e) à la tâche '{tache.titre}' du projet '{tache.projet.titre}'. Deadline: {tache.deadline.strftime('%d/%m/%Y') if tache.deadline else 'Non définie'}.",
+                titre=f"Nouvelle tâche assignée",
+                message=f"{tache.titre} • {deadline_text}",
                 tache=tache,
                 projet=tache.projet
             )
@@ -484,8 +505,8 @@ def create_project_assigned_notification(projet_id, user_id):
             Notification.objects.create(
                 user=user,
                 type='project_assigned',
-                titre=f"Nouveau projet assigné: {projet.titre}",
-                message=f"Vous avez été ajouté(e) au projet '{projet.titre}' ({projet.get_type_display()}). Statut: {projet.get_statut_display()}.",
+                titre=f"Nouveau projet assigné",
+                message=f"{projet.titre} • {projet.get_type_display()}",
                 projet=projet
             )
             logger.info(f"🎯 Created project assignment notification for user {user.username} - project {projet.titre}")
