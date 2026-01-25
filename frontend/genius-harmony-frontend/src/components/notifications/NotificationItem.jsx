@@ -86,6 +86,13 @@ export default function NotificationItem({ notification, onMarkAsRead, onDelete,
     onDelete(notification.id);
   };
 
+  const handleClick = () => {
+    // Marquer comme lue lors du clic sur la notification
+    if (!notification.is_read) {
+      onMarkAsRead(notification.id);
+    }
+  };
+
   const content = (
     <div
       onMouseEnter={() => setIsHovered(true)}
@@ -227,7 +234,11 @@ export default function NotificationItem({ notification, onMarkAsRead, onDelete,
   // Wrapper avec Link si on a une destination
   if (link) {
     return (
-      <Link to={link} style={{ textDecoration: 'none', display: 'block' }}>
+      <Link
+        to={link}
+        onClick={handleClick}
+        style={{ textDecoration: 'none', display: 'block' }}
+      >
         {content}
       </Link>
     );
