@@ -196,25 +196,45 @@ ODOO_PASSWORD = config('ODOO_PASSWORD', default='')
 # ========================================
 # REDIS CONFIGURATION (Cache + Celery Broker)
 # ========================================
-REDIS_URL = config('REDIS_URL', default='redis://localhost:6379/0')
+REDIS_URL = config('REDIS_URL', default='')
 
-# Redis as cache backend
-CACHES = {
-    'default': {
-        'BACKEND': 'django_redis.cache.RedisCache',
-        'LOCATION': REDIS_URL,
-        'OPTIONS': {
-            'CLIENT_CLASS': 'django_redis.client.DefaultClient',
-        },
-        'KEY_PREFIX': 'genius_harmony',
-        'TIMEOUT': 300,  # 5 minutes par défaut
+# Cache configuration with fallback
+# Use Redis if configured, otherwise fall back to local memory cache
+if REDIS_URL and (REDIS_URL.startswith('redis://') or REDIS_URL.startswith('rediss://')):
+    CACHES = {
+        'default': {
+            'BACKEND': 'django_redis.cache.RedisCache',
+            'LOCATION': REDIS_URL,
+            'OPTIONS': {
+                'CLIENT_CLASS': 'django_redis.client.DefaultClient',
+            },
+            'KEY_PREFIX': 'genius_harmony',
+            'TIMEOUT': 300,  # 5 minutes par défaut
+        }
     }
-}
+    print("✅ [INFO] Using Redis cache")
+else:
+    # Fallback to local memory cache if Redis is not configured
+    CACHES = {
+        'default': {
+            'BACKEND': 'django.core.cache.backends.locmem.LocMemCache',
+            'LOCATION': 'genius-harmony-cache',
+            'TIMEOUT': 300,
+        }
+    }
+    print("⚠️ [WARNING] Redis not configured, using local memory cache (not suitable for production)")
 
 # ========================================
 # CELERY CONFIGURATION (Async Tasks)
 # ========================================
-CELERY_BROKER_URL = REDIS_URL
+# Only configure Celery if Redis URL is valid
+if REDIS_URL and (REDIS_URL.startswith('redis://') or REDIS_URL.startswith('rediss://')):
+    CELERY_BROKER_URL = REDIS_URL
+    print("✅ [INFO] Celery broker configured with Redis")
+else:
+    CELERY_BROKER_URL = None
+    print("⚠️ [WARNING] Celery broker not configured - async tasks will be disabled")
+
 CELERY_RESULT_BACKEND = 'django-db'  # Stocke les résultats dans PostgreSQL
 CELERY_ACCEPT_CONTENT = ['json']
 CELERY_TASK_SERIALIZER = 'json'
