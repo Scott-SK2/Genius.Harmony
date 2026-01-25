@@ -57,9 +57,11 @@ export default function NotificationItem({ notification, onMarkAsRead, onDelete,
 
   // Obtenir le lien vers la ressource
   const getLink = () => {
-    if (notification.tache) {
-      return `/projets/${notification.tache.projet || notification.projet?.id}`;
+    // Si c'est une notification de tâche, utiliser le projet de la tâche
+    if (notification.tache && notification.tache_projet_id) {
+      return `/projets/${notification.tache_projet_id}`;
     }
+    // Si c'est une notification de projet, utiliser l'ID du projet
     if (notification.projet) {
       return `/projets/${notification.projet}`;
     }
