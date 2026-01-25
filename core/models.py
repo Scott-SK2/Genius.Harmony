@@ -1,6 +1,6 @@
 from django.db import models
 from django.contrib.auth import get_user_model
-from django.db.models.signals import post_save, post_delete, m2m_changed
+from django.db.models.signals import post_save, pre_delete, m2m_changed
 from django.dispatch import receiver
 
 User = get_user_model()
@@ -87,12 +87,6 @@ class Profile(models.Model):
 def create_user_profile(sender, instance, created, **kwargs):
     if created:
         Profile.objects.create(user=instance, role='membre')
-
-
-@receiver(post_save, sender=User)
-def save_user_profile(sender, instance, **kwargs):
-    if hasattr(instance, 'profile'):
-        instance.profile.save()
 
 
 class Projet(models.Model):
@@ -394,29 +388,41 @@ def notify_project_assignment(sender, instance, action, pk_set, **kwargs):
                 logger.warning(f"⚠️ Failed to queue project assignment notification: {e}")
 
 
-@receiver(post_delete, sender=User)
+@receiver(pre_delete, sender=User)
 def delete_user_from_odoo(sender, instance, **kwargs):
     """
     Supprime automatiquement le contact Odoo quand un utilisateur est supprimé
 
-    Déclenché quand un admin supprime un utilisateur de l'app
+    Déclenché AVANT qu'un admin supprime un utilisateur de l'app
+    Utilise pre_delete pour avoir accès au profil avant sa suppression en cascade
     """
     import logging
     logger = logging.getLogger(__name__)
 
-    # Vérifier si l'utilisateur avait un profil avec un ID Odoo
+    # Vérifier si l'utilisateur a un profil avec un ID Odoo
     try:
         profile = instance.profile
         if profile and profile.odoo_partner_id:
+            odoo_partner_id = profile.odoo_partner_id
+
             # Import ici pour éviter les imports circulaires
             from core.tasks import delete_user_from_odoo_task
+            from django.conf import settings
 
-            # Lancer la suppression en async
+            # Essayer d'abord en async via Celery
             try:
-                delete_user_from_odoo_task.delay(profile.odoo_partner_id)
-                logger.info(f"🗑️ Queued Odoo deletion for partner ID {profile.odoo_partner_id}")
-            except Exception as e:
-                logger.warning(f"⚠️ Failed to queue Odoo deletion: {e}")
+                delete_user_from_odoo_task.delay(odoo_partner_id)
+                logger.info(f"🗑️ Queued Odoo deletion for partner ID {odoo_partner_id}")
+            except Exception as celery_error:
+                # Si Celery n'est pas disponible, essayer en synchrone
+                logger.warning(f"⚠️ Celery unavailable, attempting sync deletion: {celery_error}")
+                if settings.ODOO_ENABLED:
+                    try:
+                        from core.odoo_gateway import odoo_gateway
+                        odoo_gateway.delete_partner(odoo_partner_id)
+                        logger.info(f"✅ Deleted Odoo partner {odoo_partner_id} (sync)")
+                    except Exception as sync_error:
+                        logger.error(f"❌ Failed to delete from Odoo: {sync_error}")
     except Profile.DoesNotExist:
         # L'utilisateur n'avait pas de profil
-        pass
+        logger.debug(f"User {instance.username} has no profile, skipping Odoo deletion")
