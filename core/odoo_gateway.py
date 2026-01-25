@@ -231,6 +231,23 @@ class OdooGateway:
         # Invalider le cache
         cache.delete(f"odoo:partner:{odoo_partner_id}")
 
+    def delete_partner(self, odoo_partner_id):
+        """
+        Supprime un contact Odoo
+
+        Args:
+            odoo_partner_id: int - ID Odoo du partner à supprimer
+        """
+        self._ensure_connected()
+        Partner = self._odoo.env['res.partner']
+
+        # Supprimer le partner dans Odoo
+        self._call_with_retry(Partner.unlink, [odoo_partner_id])
+        logger.info(f"✅ Deleted Odoo partner {odoo_partner_id}")
+
+        # Invalider le cache
+        cache.delete(f"odoo:partner:{odoo_partner_id}")
+
     def get_partner(self, odoo_partner_id, use_cache=True):
         """
         Récupère un contact Odoo (avec cache Redis 5 min)

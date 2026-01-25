@@ -80,6 +80,32 @@ def sync_user_to_odoo(self, user_id):
         raise self.retry(exc=e, countdown=2 ** self.request.retries * 60)
 
 
+@shared_task(bind=True, max_retries=3)
+def delete_user_from_odoo_task(self, odoo_partner_id):
+    """
+    Supprime un contact partner dans Odoo
+
+    Args:
+        odoo_partner_id: ID du partner Odoo à supprimer
+
+    Returns:
+        bool: True si supprimé avec succès
+    """
+    try:
+        odoo_gateway.delete_partner(odoo_partner_id)
+        logger.info(f"✅ Deleted Odoo partner {odoo_partner_id}")
+        return True
+
+    except OdooNotConfiguredError:
+        logger.warning("⚠️ Odoo not configured, skipping deletion")
+        return False
+
+    except Exception as e:
+        logger.error(f"❌ Failed to delete partner {odoo_partner_id} from Odoo: {e}")
+        # Retry avec backoff exponentiel
+        raise self.retry(exc=e, countdown=2 ** self.request.retries * 60)
+
+
 # ========================================
 # PROJECT SYNCHRONIZATION
 # ========================================
