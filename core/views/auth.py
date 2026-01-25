@@ -13,11 +13,10 @@ from ..serializers import RegisterSerializer
 logger = logging.getLogger(__name__)
 
 
-@method_decorator(ratelimit(key='ip', rate='5/h', method='POST'), name='dispatch')
 class RegisterView(generics.CreateAPIView):
     """
-    User registration endpoint with rate limiting
-    Limited to 5 registrations per hour per IP
+    User registration endpoint
+    Note: Rate limiting temporarily disabled until Redis is properly configured
     """
     serializer_class = RegisterSerializer
     permission_classes = [permissions.AllowAny]
