@@ -339,7 +339,8 @@ def sync_profile_to_odoo(sender, instance, created, **kwargs):
         return
 
     # Éviter les boucles infinies (si on sauvegarde odoo_partner_id)
-    if 'odoo_partner_id' in kwargs.get('update_fields', []):
+    update_fields = kwargs.get('update_fields')
+    if update_fields and 'odoo_partner_id' in update_fields:
         return
 
     # Import ici pour éviter les imports circulaires
