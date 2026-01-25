@@ -1,6 +1,6 @@
 from django.db import models
 from django.contrib.auth import get_user_model
-from django.db.models.signals import post_save, m2m_changed
+from django.db.models.signals import post_save, post_delete, m2m_changed
 from django.dispatch import receiver
 
 User = get_user_model()
@@ -391,3 +391,31 @@ def notify_project_assignment(sender, instance, action, pk_set, **kwargs):
                 create_project_assigned_notification.delay(instance.id, user_id)
             except Exception as e:
                 logger.warning(f"⚠️ Failed to queue project assignment notification: {e}")
+
+
+@receiver(post_delete, sender=User)
+def delete_user_from_odoo(sender, instance, **kwargs):
+    """
+    Supprime automatiquement le contact Odoo quand un utilisateur est supprimé
+
+    Déclenché quand un admin supprime un utilisateur de l'app
+    """
+    import logging
+    logger = logging.getLogger(__name__)
+
+    # Vérifier si l'utilisateur avait un profil avec un ID Odoo
+    try:
+        profile = instance.profile
+        if profile and profile.odoo_partner_id:
+            # Import ici pour éviter les imports circulaires
+            from core.tasks import delete_user_from_odoo_task
+
+            # Lancer la suppression en async
+            try:
+                delete_user_from_odoo_task.delay(profile.odoo_partner_id)
+                logger.info(f"🗑️ Queued Odoo deletion for partner ID {profile.odoo_partner_id}")
+            except Exception as e:
+                logger.warning(f"⚠️ Failed to queue Odoo deletion: {e}")
+    except Profile.DoesNotExist:
+        # L'utilisateur n'avait pas de profil
+        pass
