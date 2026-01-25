@@ -513,3 +513,40 @@ def create_project_assigned_notification(projet_id, user_id):
 
     except Exception as e:
         logger.error(f"❌ Failed to create project assignment notification: {e}")
+
+
+@shared_task
+def create_project_leader_notification(projet_id, user_id):
+    """
+    Crée une notification quand un utilisateur est assigné comme chef de projet
+
+    Args:
+        projet_id: ID du projet
+        user_id: ID du chef de projet
+    """
+    try:
+        projet = Projet.objects.get(id=projet_id)
+        user = User.objects.get(id=user_id)
+
+        # Vérifier si notification déjà créée récemment (dernières 24h)
+        from django.utils import timezone
+        from datetime import timedelta
+        recent_time = timezone.now() - timedelta(hours=24)
+
+        if not Notification.objects.filter(
+            user=user,
+            projet=projet,
+            type='project_leader_assigned',
+            created_at__gte=recent_time
+        ).exists():
+            Notification.objects.create(
+                user=user,
+                type='project_leader_assigned',
+                titre=f"Chef de projet assigné",
+                message=f"{projet.titre} • Vous êtes chef de projet",
+                projet=projet
+            )
+            logger.info(f"👔 Created project leader notification for user {user.username} - project {projet.titre}")
+
+    except Exception as e:
+        logger.error(f"❌ Failed to create project leader notification: {e}")

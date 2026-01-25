@@ -22,6 +22,7 @@ export default function NotificationItem({ notification, onMarkAsRead, onDelete,
       'deadline_overdue': '❌',
       'task_assigned': '📋',
       'project_assigned': '🎯',
+      'project_leader_assigned': '👔',
     };
     return emojiMap[type] || '📢';
   };
@@ -35,6 +36,7 @@ export default function NotificationItem({ notification, onMarkAsRead, onDelete,
       'deadline_overdue': '#dc2626', // dark red
       'task_assigned': '#8b5cf6', // purple
       'project_assigned': '#10b981', // green
+      'project_leader_assigned': '#0ea5e9', // sky blue
     };
     return colorMap[type] || theme.colors.primary;
   };

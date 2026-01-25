@@ -193,6 +193,10 @@ ODOO_DB = config('ODOO_DB', default='')
 ODOO_USERNAME = config('ODOO_USERNAME', default='')
 ODOO_PASSWORD = config('ODOO_PASSWORD', default='')
 
+# Token secret pour sécuriser les webhooks Odoo → Django
+# Générer avec: python -c "import secrets; print(secrets.token_urlsafe(32))"
+ODOO_WEBHOOK_SECRET = config('ODOO_WEBHOOK_SECRET', default='')
+
 # ========================================
 # REDIS CONFIGURATION (Cache + Celery Broker)
 # ========================================
