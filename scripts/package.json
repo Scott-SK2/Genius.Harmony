@@ -1,0 +1,25 @@
+{
+  "name": "genius-harmony-media-tools",
+  "version": "1.0.0",
+  "description": "Outils de compression et upload de médias pour Genius.Harmony",
+  "main": "upload-to-cloudinary.js",
+  "scripts": {
+    "upload": "node upload-to-cloudinary.js",
+    "compress:video": "bash compress-videos.sh",
+    "compress:images": "bash optimize-images.sh",
+    "help": "echo 'Commandes disponibles:\n  npm run upload          - Uploader vers Cloudinary (mode interactif)\n  npm run compress:video  - Compresser les vidéos\n  npm run compress:images - Optimiser les images'"
+  },
+  "keywords": [
+    "cloudinary",
+    "video",
+    "image",
+    "compression",
+    "optimization"
+  ],
+  "author": "Genius.Harmony",
+  "license": "MIT",
+  "dependencies": {
+    "cloudinary": "^1.41.0"
+  },
+  "devDependencies": {}
+}
