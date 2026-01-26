@@ -1,0 +1,542 @@
+import { useState, useRef } from "react";
+import { useNavigate } from "react-router-dom";
+import { useAuth } from "../context/AuthContext";
+import { useTheme } from "../context/ThemeContext";
+import { useResponsive } from "../hooks/useResponsive";
+
+export default function UniversePage() {
+  const { user } = useAuth();
+  const { theme } = useTheme();
+  const { isMobile } = useResponsive();
+  const navigate = useNavigate();
+  const [hoveredCard, setHoveredCard] = useState(null);
+
+  // Données des sections (à remplacer par des appels API plus tard)
+  const sections = [
+    {
+      id: 1,
+      title: "Cinéma / Tournages",
+      emoji: "🎬",
+      color: "#FF6B6B",
+      items: [
+        {
+          id: 1,
+          title: "Berceau des Anges",
+          type: "video",
+          thumbnail: "/thumbnails/berceau-des-anges.jpg",
+          src: "/videos/berceau-des-anges-trailer.mp4",
+        },
+        {
+          id: 2,
+          title: "Sauf à Gaza",
+          type: "image",
+          src: "/images/sauf-a-gaza.jpg",
+        },
+        {
+          id: 3,
+          title: "Celui qui plantait des tomates",
+          type: "video",
+          thumbnail: "/thumbnails/tomates.jpg",
+          src: "/videos/tomates-trailer.mp4",
+        },
+        {
+          id: 4,
+          title: "Une MAISON pas très HANTEE",
+          type: "image",
+          src: "/images/maison-hantee.jpg",
+        },
+        {
+          id: 5,
+          title: "Exfiltration",
+          type: "video",
+          thumbnail: "/thumbnails/exfiltration.jpg",
+          src: "/videos/exfiltration-trailer.mp4",
+        },
+      ],
+    },
+    {
+      id: 2,
+      title: "Événements",
+      emoji: "🎉",
+      color: "#4ECDC4",
+      items: [
+        {
+          id: 1,
+          title: "WoSmen 2025",
+          type: "image",
+          src: "/images/wosmen-2025.jpg",
+        },
+        {
+          id: 2,
+          title: "Hacking The Game 2025",
+          type: "video",
+          thumbnail: "/thumbnails/htg-2025.jpg",
+          src: "/videos/htg-2025-recap.mp4",
+        },
+        {
+          id: 3,
+          title: "Hacking The Game 2024",
+          type: "image",
+          src: "/images/htg-2024.jpg",
+        },
+        {
+          id: 4,
+          title: "Hacking The Game 2023",
+          type: "image",
+          src: "/images/htg-2023.jpg",
+        },
+      ],
+    },
+    {
+      id: 3,
+      title: "Musique",
+      emoji: "🎵",
+      color: "#FFD93D",
+      items: [
+        {
+          id: 1,
+          title: "Kaeloo",
+          type: "audio",
+          thumbnail: "/thumbnails/kaeloo.jpg",
+          src: "/audio/kaeloo-track.mp3",
+          artist: "Kaeloo",
+        },
+        {
+          id: 2,
+          title: "Track 2",
+          type: "audio",
+          thumbnail: "/thumbnails/track2.jpg",
+          src: "/audio/track2.mp3",
+        },
+      ],
+    },
+    {
+      id: 4,
+      title: "Coulisses / Vie du collectif",
+      emoji: "📸",
+      color: "#A8E6CF",
+      items: [
+        {
+          id: 1,
+          title: "Backstage tournage",
+          type: "image",
+          src: "/images/backstage-1.jpg",
+        },
+        {
+          id: 2,
+          title: "Behind the scenes",
+          type: "video",
+          thumbnail: "/thumbnails/bts-1.jpg",
+          src: "/videos/bts-1.mp4",
+        },
+        {
+          id: 3,
+          title: "Coulisses événement",
+          type: "image",
+          src: "/images/backstage-2.jpg",
+        },
+      ],
+    },
+  ];
+
+  const handleCardClick = (item) => {
+    console.log("Clicked item:", item);
+    // Ouvrir modal ou naviguer vers détail
+  };
+
+  const handleNavigateToDashboard = () => {
+    navigate("/dashboard");
+  };
+
+  return (
+    <div style={styles.container}>
+      {/* Header fixe */}
+      <header style={styles.header}>
+        <div style={styles.headerContent}>
+          <h1 style={styles.logo}>
+            <span style={{ color: "#8B5CF6" }}>Genius</span>
+            <span style={{ color: "#ffffff" }}>.Harmony</span>
+          </h1>
+          <div style={styles.headerRight}>
+            <input
+              type="search"
+              placeholder="Rechercher..."
+              style={styles.searchInput}
+            />
+            <button
+              onClick={() => navigate("/profile")}
+              style={styles.iconButton}
+            >
+              👤
+            </button>
+            <button
+              onClick={() => navigate("/notifications")}
+              style={styles.iconButton}
+            >
+              🔔
+            </button>
+          </div>
+        </div>
+      </header>
+
+      {/* Contenu principal */}
+      <main style={styles.main}>
+        {sections.map((section) => (
+          <Section
+            key={section.id}
+            section={section}
+            isMobile={isMobile}
+            hoveredCard={hoveredCard}
+            setHoveredCard={setHoveredCard}
+            onCardClick={handleCardClick}
+          />
+        ))}
+
+        {/* Bouton pour aller au dashboard */}
+        <div style={styles.dashboardButtonContainer}>
+          <button
+            onClick={handleNavigateToDashboard}
+            style={styles.dashboardButton}
+          >
+            Accéder à mon espace →
+          </button>
+        </div>
+      </main>
+    </div>
+  );
+}
+
+// Composant Section réutilisable
+function Section({ section, isMobile, hoveredCard, setHoveredCard, onCardClick }) {
+  const scrollContainerRef = useRef(null);
+
+  const scroll = (direction) => {
+    const container = scrollContainerRef.current;
+    if (container) {
+      const scrollAmount = direction === "left" ? -300 : 300;
+      container.scrollBy({ left: scrollAmount, behavior: "smooth" });
+    }
+  };
+
+  return (
+    <section style={styles.section}>
+      {/* Titre de section */}
+      <div style={styles.sectionHeader}>
+        <h2 style={styles.sectionTitle}>
+          <span style={{ marginRight: "0.5rem" }}>{section.emoji}</span>
+          <span>SECTION {section.id}</span>
+          <span style={{ margin: "0 0.5rem", color: "#666" }}>—</span>
+          <span>{section.title}</span>
+        </h2>
+        {!isMobile && (
+          <div style={styles.scrollButtons}>
+            <button
+              onClick={() => scroll("left")}
+              style={styles.scrollButton}
+            >
+              ←
+            </button>
+            <button
+              onClick={() => scroll("right")}
+              style={styles.scrollButton}
+            >
+              →
+            </button>
+          </div>
+        )}
+      </div>
+
+      {/* Container de cartes scrollable */}
+      <div
+        ref={scrollContainerRef}
+        style={styles.cardsContainer}
+      >
+        {section.items.map((item) => (
+          <Card
+            key={item.id}
+            item={item}
+            sectionColor={section.color}
+            isMobile={isMobile}
+            isHovered={hoveredCard === `${section.id}-${item.id}`}
+            onHover={() => setHoveredCard(`${section.id}-${item.id}`)}
+            onLeave={() => setHoveredCard(null)}
+            onClick={() => onCardClick(item)}
+          />
+        ))}
+      </div>
+    </section>
+  );
+}
+
+// Composant Card réutilisable
+function Card({ item, sectionColor, isMobile, isHovered, onHover, onLeave, onClick }) {
+  const cardStyle = {
+    ...styles.card,
+    ...(isMobile ? styles.cardMobile : {}),
+    ...(isHovered ? styles.cardHovered : {}),
+  };
+
+  return (
+    <div
+      style={cardStyle}
+      onMouseEnter={onHover}
+      onMouseLeave={onLeave}
+      onClick={onClick}
+    >
+      {/* Thumbnail ou media preview */}
+      {item.type === "video" && (
+        <video
+          src={item.src}
+          poster={item.thumbnail}
+          style={styles.media}
+          muted
+          loop
+          onMouseEnter={(e) => e.target.play()}
+          onMouseLeave={(e) => e.target.pause()}
+        />
+      )}
+      {item.type === "image" && (
+        <img
+          src={item.src}
+          alt={item.title}
+          style={styles.media}
+        />
+      )}
+      {item.type === "audio" && (
+        <div style={styles.audioCard}>
+          <img
+            src={item.thumbnail}
+            alt={item.title}
+            style={styles.media}
+          />
+          <div style={styles.audioIcon}>🎵</div>
+        </div>
+      )}
+
+      {/* Overlay avec titre */}
+      <div style={styles.cardOverlay}>
+        <div style={styles.cardContent}>
+          <h3 style={styles.cardTitle}>{item.title}</h3>
+          {item.artist && (
+            <p style={styles.cardSubtitle}>{item.artist}</p>
+          )}
+          {item.type === "video" && (
+            <span style={styles.playIcon}>▶</span>
+          )}
+          {item.type === "audio" && (
+            <span style={styles.playIcon}>🎧</span>
+          )}
+        </div>
+      </div>
+
+      {/* Indicateur de type */}
+      <div
+        style={{
+          ...styles.typeIndicator,
+          backgroundColor: sectionColor,
+        }}
+      >
+        {item.type === "video" && "📹"}
+        {item.type === "image" && "🖼️"}
+        {item.type === "audio" && "🎵"}
+      </div>
+    </div>
+  );
+}
+
+const styles = {
+  container: {
+    minHeight: "100vh",
+    backgroundColor: "#0A0A0F",
+    color: "#ffffff",
+  },
+  header: {
+    position: "sticky",
+    top: 0,
+    background: "rgba(0, 0, 0, 0.8)",
+    backdropFilter: "blur(10px)",
+    WebkitBackdropFilter: "blur(10px)",
+    borderBottom: "1px solid rgba(255, 255, 255, 0.1)",
+    zIndex: 100,
+    padding: "1rem 2rem",
+  },
+  headerContent: {
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "space-between",
+    maxWidth: "1400px",
+    margin: "0 auto",
+  },
+  logo: {
+    fontSize: "24px",
+    fontWeight: 600,
+    margin: 0,
+  },
+  headerRight: {
+    display: "flex",
+    alignItems: "center",
+    gap: "1rem",
+  },
+  searchInput: {
+    background: "rgba(255, 255, 255, 0.1)",
+    border: "1px solid rgba(255, 255, 255, 0.2)",
+    borderRadius: "8px",
+    padding: "0.5rem 1rem",
+    color: "#ffffff",
+    fontSize: "14px",
+    outline: "none",
+  },
+  iconButton: {
+    background: "transparent",
+    border: "none",
+    fontSize: "20px",
+    cursor: "pointer",
+    padding: "0.5rem",
+    transition: "transform 0.2s ease",
+  },
+  main: {
+    padding: "2rem 0",
+  },
+  section: {
+    marginBottom: "3rem",
+    padding: "0 2rem",
+  },
+  sectionHeader: {
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "space-between",
+    marginBottom: "1rem",
+  },
+  sectionTitle: {
+    fontSize: "24px",
+    fontWeight: 600,
+    margin: 0,
+    display: "flex",
+    alignItems: "center",
+  },
+  scrollButtons: {
+    display: "flex",
+    gap: "0.5rem",
+  },
+  scrollButton: {
+    background: "rgba(255, 255, 255, 0.1)",
+    border: "1px solid rgba(255, 255, 255, 0.2)",
+    color: "#ffffff",
+    width: "40px",
+    height: "40px",
+    borderRadius: "50%",
+    cursor: "pointer",
+    fontSize: "18px",
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "center",
+    transition: "all 0.2s ease",
+  },
+  cardsContainer: {
+    display: "flex",
+    gap: "1rem",
+    overflowX: "auto",
+    scrollSnapType: "x mandatory",
+    paddingBottom: "1rem",
+    scrollbarWidth: "thin",
+    scrollbarColor: "rgba(255, 255, 255, 0.3) transparent",
+  },
+  card: {
+    position: "relative",
+    width: "280px",
+    height: "160px",
+    borderRadius: "12px",
+    overflow: "hidden",
+    cursor: "pointer",
+    flexShrink: 0,
+    scrollSnapAlign: "start",
+    transition: "all 0.3s ease",
+    boxShadow: "0 4px 12px rgba(0, 0, 0, 0.3)",
+  },
+  cardMobile: {
+    width: "220px",
+    height: "130px",
+  },
+  cardHovered: {
+    transform: "scale(1.05)",
+    boxShadow: "0 8px 24px rgba(0, 0, 0, 0.5)",
+    zIndex: 10,
+  },
+  media: {
+    width: "100%",
+    height: "100%",
+    objectFit: "cover",
+  },
+  audioCard: {
+    position: "relative",
+    width: "100%",
+    height: "100%",
+  },
+  audioIcon: {
+    position: "absolute",
+    top: "50%",
+    left: "50%",
+    transform: "translate(-50%, -50%)",
+    fontSize: "48px",
+    opacity: 0.8,
+  },
+  cardOverlay: {
+    position: "absolute",
+    bottom: 0,
+    left: 0,
+    right: 0,
+    background: "linear-gradient(to top, rgba(0,0,0,0.9), transparent)",
+    padding: "1rem",
+    transform: "translateY(0)",
+    transition: "transform 0.3s ease",
+  },
+  cardContent: {
+    position: "relative",
+  },
+  cardTitle: {
+    fontSize: "14px",
+    fontWeight: 600,
+    margin: 0,
+    marginBottom: "0.25rem",
+    color: "#ffffff",
+  },
+  cardSubtitle: {
+    fontSize: "12px",
+    margin: 0,
+    color: "#a0a0a0",
+  },
+  playIcon: {
+    position: "absolute",
+    right: "0.5rem",
+    top: "50%",
+    transform: "translateY(-50%)",
+    fontSize: "20px",
+  },
+  typeIndicator: {
+    position: "absolute",
+    top: "0.5rem",
+    right: "0.5rem",
+    padding: "0.25rem 0.5rem",
+    borderRadius: "6px",
+    fontSize: "14px",
+    backdropFilter: "blur(10px)",
+    WebkitBackdropFilter: "blur(10px)",
+  },
+  dashboardButtonContainer: {
+    display: "flex",
+    justifyContent: "center",
+    padding: "3rem 0",
+  },
+  dashboardButton: {
+    background: "linear-gradient(90deg, #8B5CF6 0%, #6366F1 100%)",
+    border: "none",
+    color: "#ffffff",
+    fontSize: "18px",
+    fontWeight: 600,
+    padding: "1rem 2rem",
+    borderRadius: "12px",
+    cursor: "pointer",
+    transition: "all 0.3s ease",
+    boxShadow: "0 8px 16px rgba(139, 92, 246, 0.3)",
+  },
+};
