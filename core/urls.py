@@ -9,6 +9,7 @@ from .views import (
     TacheListCreateView, TacheDetailView,
     DocumentListCreateView, DocumentDetailView, DocumentDownloadView,
 )
+from .views.odoo_webhooks import odoo_deadline_notification, odoo_task_assigned
 
 urlpatterns = [
     # Authentification
@@ -43,4 +44,8 @@ urlpatterns = [
     path('documents/', DocumentListCreateView.as_view(), name='documents-list-create'),
     path('documents/<int:pk>/', DocumentDetailView.as_view(), name='documents-detail'),
     path('documents/<int:pk>/download/', DocumentDownloadView.as_view(), name='documents-download'),
+
+    # Webhooks Odoo (endpoints appelés par Odoo)
+    path('odoo-webhooks/deadline-notification/', odoo_deadline_notification, name='odoo-deadline-notification'),
+    path('odoo-webhooks/task-assigned/', odoo_task_assigned, name='odoo-task-assigned'),
 ]
