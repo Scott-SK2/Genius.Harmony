@@ -1,6 +1,6 @@
 from django.db import models
 from django.contrib.auth import get_user_model
-from django.db.models.signals import post_save, m2m_changed
+from django.db.models.signals import post_save, pre_delete, m2m_changed
 from django.dispatch import receiver
 
 User = get_user_model()
@@ -89,12 +89,6 @@ def create_user_profile(sender, instance, created, **kwargs):
         Profile.objects.create(user=instance, role='membre')
 
 
-@receiver(post_save, sender=User)
-def save_user_profile(sender, instance, **kwargs):
-    if hasattr(instance, 'profile'):
-        instance.profile.save()
-
-
 class Projet(models.Model):
     TYPE_CHOICES = [
         ('film', 'Film'),
@@ -179,6 +173,9 @@ class Tache(models.Model):
     # Assignation (plusieurs personnes possibles)
     assigne_a = models.ManyToManyField(User, blank=True, related_name='taches_assignees')
 
+    # Lien Odoo
+    odoo_task_id = models.IntegerField(null=True, blank=True, help_text="ID de la tâche dans Odoo")
+
     # Dates
     deadline = models.DateField(null=True, blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
@@ -228,6 +225,65 @@ class Document(models.Model):
         return f"{self.titre} - {self.projet.titre}"
 
 
+class Notification(models.Model):
+    """
+    Système de notifications pour les utilisateurs
+
+    Types de notifications:
+    - deadline_3days: Tâche avec deadline dans 3 jours
+    - deadline_1day: Tâche avec deadline demain
+    - deadline_today: Tâche avec deadline aujourd'hui
+    - deadline_overdue: Tâche en retard
+    - project_assigned: Nouveau projet assigné
+    - task_assigned: Nouvelle tâche assignée
+    """
+
+    TYPE_CHOICES = [
+        ('deadline_3days', '📅 Deadline dans 3 jours'),
+        ('deadline_1day', '⚠️ Deadline demain'),
+        ('deadline_today', '🔴 Deadline aujourd\'hui'),
+        ('deadline_overdue', '❌ Tâche en retard'),
+        ('project_assigned', '🎯 Nouveau projet assigné'),
+        ('project_leader_assigned', '👔 Chef de projet assigné'),
+        ('task_assigned', '📋 Nouvelle tâche assignée'),
+    ]
+
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='notifications')
+    type = models.CharField(max_length=30, choices=TYPE_CHOICES)
+    titre = models.CharField(max_length=200)
+    message = models.TextField()
+
+    # Relations optionnelles
+    tache = models.ForeignKey(Tache, on_delete=models.CASCADE, null=True, blank=True)
+    projet = models.ForeignKey(Projet, on_delete=models.CASCADE, null=True, blank=True)
+
+    # État
+    is_read = models.BooleanField(default=False)
+    created_at = models.DateTimeField(auto_now_add=True)
+    read_at = models.DateTimeField(null=True, blank=True)
+
+    class Meta:
+        ordering = ['-created_at']
+        verbose_name = 'Notification'
+        verbose_name_plural = 'Notifications'
+        indexes = [
+            models.Index(fields=['user', '-created_at']),
+            models.Index(fields=['user', 'is_read']),
+        ]
+
+    def __str__(self):
+        status = "✓" if self.is_read else "•"
+        return f"{status} {self.user.username}: {self.titre}"
+
+    def mark_as_read(self):
+        """Marquer la notification comme lue"""
+        from django.utils import timezone
+        if not self.is_read:
+            self.is_read = True
+            self.read_at = timezone.now()
+            self.save()
+
+
 # Signal pour créer automatiquement un profil lors de la création d'un utilisateur
 @receiver(post_save, sender=User)
 def create_or_update_user_profile(sender, instance, created, **kwargs):
@@ -259,3 +315,142 @@ def auto_add_task_assignees_to_project(sender, instance, action, pk_set, **kwarg
         for user in users_to_add:
             if not projet.membres.filter(pk=user.pk).exists():
                 projet.membres.add(user)
+
+
+# ========================================
+# SIGNAUX POUR ODOO SYNC ET NOTIFICATIONS
+# ========================================
+
+@receiver(post_save, sender=Profile)
+def sync_profile_to_odoo(sender, instance, created, **kwargs):
+    """
+    Synchronise automatiquement le profil vers Odoo quand il est modifié
+
+    Déclenché quand l'utilisateur édite son profil (nom, email, téléphone, etc.)
+    """
+    # Ne pas sync lors de la création du profil (registration)
+    # Le batch sync s'en chargera plus tard
+    if created:
+        return
+
+    # Éviter les boucles infinies (si on sauvegarde odoo_partner_id)
+    update_fields = kwargs.get('update_fields')
+    if update_fields and 'odoo_partner_id' in update_fields:
+        return
+
+    # Import ici pour éviter les imports circulaires
+    from core.tasks import sync_user_to_odoo
+
+    # Lancer la sync en async
+    # Si Celery n'est pas connecté, ne pas crasher l'opération
+    try:
+        sync_user_to_odoo.delay(instance.user.id)
+    except Exception as e:
+        import logging
+        logger = logging.getLogger(__name__)
+        logger.warning(f"⚠️ Failed to queue Odoo sync for user {instance.user.id}: {e}")
+
+
+@receiver(m2m_changed, sender=Tache.assigne_a.through)
+def notify_task_assignment(sender, instance, action, pk_set, **kwargs):
+    """
+    Crée une notification quand un utilisateur est assigné à une tâche
+    """
+    if action == 'post_add' and pk_set:
+        # Import ici pour éviter les imports circulaires
+        from core.tasks import create_task_assigned_notification
+        import logging
+        logger = logging.getLogger(__name__)
+
+        # Créer une notification pour chaque utilisateur assigné
+        for user_id in pk_set:
+            try:
+                create_task_assigned_notification.delay(instance.id, user_id)
+            except Exception as e:
+                logger.warning(f"⚠️ Failed to queue task assignment notification: {e}")
+
+
+@receiver(m2m_changed, sender=Projet.membres.through)
+def notify_project_assignment(sender, instance, action, pk_set, **kwargs):
+    """
+    Crée une notification quand un utilisateur est ajouté à un projet
+    """
+    if action == 'post_add' and pk_set:
+        # Import ici pour éviter les imports circulaires
+        from core.tasks import create_project_assigned_notification
+        import logging
+        logger = logging.getLogger(__name__)
+
+        # Créer une notification pour chaque membre ajouté
+        for user_id in pk_set:
+            try:
+                create_project_assigned_notification.delay(instance.id, user_id)
+            except Exception as e:
+                logger.warning(f"⚠️ Failed to queue project assignment notification: {e}")
+
+
+@receiver(post_save, sender=Projet)
+def notify_chef_projet_assignment(sender, instance, created, **kwargs):
+    """
+    Crée une notification quand un chef de projet est assigné à un projet
+
+    Déclenché quand le champ chef_projet est modifié
+    Note: Utilise une vérification dans la tâche Celery pour éviter les doublons (24h)
+    """
+    import logging
+    logger = logging.getLogger(__name__)
+
+    # Seulement si un chef de projet est défini
+    if instance.chef_projet:
+        # Vérifier si update_fields est spécifié et ne contient pas chef_projet
+        update_fields = kwargs.get('update_fields')
+        if update_fields is not None and 'chef_projet' not in update_fields:
+            return
+
+        # Import ici pour éviter les imports circulaires
+        from core.tasks import create_project_leader_notification
+
+        try:
+            create_project_leader_notification.delay(instance.id, instance.chef_projet.id)
+        except Exception as e:
+            logger.warning(f"⚠️ Failed to queue chef projet notification: {e}")
+
+
+@receiver(pre_delete, sender=User)
+def delete_user_from_odoo(sender, instance, **kwargs):
+    """
+    Supprime automatiquement le contact Odoo quand un utilisateur est supprimé
+
+    Déclenché AVANT qu'un admin supprime un utilisateur de l'app
+    Utilise pre_delete pour avoir accès au profil avant sa suppression en cascade
+    """
+    import logging
+    logger = logging.getLogger(__name__)
+
+    # Vérifier si l'utilisateur a un profil avec un ID Odoo
+    try:
+        profile = instance.profile
+        if profile and profile.odoo_partner_id:
+            odoo_partner_id = profile.odoo_partner_id
+
+            # Import ici pour éviter les imports circulaires
+            from core.tasks import delete_user_from_odoo_task
+            from django.conf import settings
+
+            # Essayer d'abord en async via Celery
+            try:
+                delete_user_from_odoo_task.delay(odoo_partner_id)
+                logger.info(f"🗑️ Queued Odoo deletion for partner ID {odoo_partner_id}")
+            except Exception as celery_error:
+                # Si Celery n'est pas disponible, essayer en synchrone
+                logger.warning(f"⚠️ Celery unavailable, attempting sync deletion: {celery_error}")
+                if settings.ODOO_ENABLED:
+                    try:
+                        from core.odoo_gateway import odoo_gateway
+                        odoo_gateway.delete_partner(odoo_partner_id)
+                        logger.info(f"✅ Deleted Odoo partner {odoo_partner_id} (sync)")
+                    except Exception as sync_error:
+                        logger.error(f"❌ Failed to delete from Odoo: {sync_error}")
+    except Profile.DoesNotExist:
+        # L'utilisateur n'avait pas de profil
+        logger.debug(f"User {instance.username} has no profile, skipping Odoo deletion")

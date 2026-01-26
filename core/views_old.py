@@ -47,7 +47,7 @@ class MeView(APIView):
         photo_url = None
         if profile and profile.photo:
             photo_url = profile.photo.url
-            # Si l'URL n'est pas déjà absolue (Cloudinary), construire l'URL complète
+            # Construire l'URL absolue pour les fichiers locaux
             if not photo_url.startswith(('http://', 'https://')):
                 photo_url = request.build_absolute_uri(photo_url)
 
@@ -185,9 +185,9 @@ class UserUploadPhotoView(APIView):
             return Response({"detail": "Utilisateur introuvable"}, status=status.HTTP_404_NOT_FOUND)
 
         # Vérifier que l'utilisateur peut modifier cette photo
-        # Soit c'est son propre profil, soit c'est un admin
+        # Soit c'est son propre profil, soit c'est un admin ou super_admin
         profile = getattr(request.user, 'profile', None)
-        if request.user.id != pk and (not profile or profile.role != 'admin'):
+        if request.user.id != pk and (not profile or profile.role not in ['admin', 'super_admin']):
             return Response(
                 {"detail": "Vous n'avez pas la permission de modifier cette photo"},
                 status=status.HTTP_403_FORBIDDEN
@@ -201,9 +201,22 @@ class UserUploadPhotoView(APIView):
                 status=status.HTTP_400_BAD_REQUEST
             )
 
-        # Enregistrer la photo
-        user.profile.photo = photo
-        user.profile.save()
+        # Enregistrer la photo avec gestion d'erreur détaillée
+        try:
+            print(f"[DEBUG] Uploading photo: {photo.name}, size: {photo.size} bytes")
+            user.profile.photo = photo
+            user.profile.save()
+            print(f"[DEBUG] Photo saved successfully. URL: {user.profile.photo.url}")
+        except Exception as e:
+            # Capturer toute erreur et la logger
+            import traceback
+            error_details = traceback.format_exc()
+            print(f"[ERROR] Failed to upload photo:")
+            print(error_details)
+            return Response(
+                {"detail": f"Erreur lors de l'upload: {str(e)}"},
+                status=status.HTTP_500_INTERNAL_SERVER_ERROR
+            )
 
         # Retourner les données mises à jour
         serializer = UserProfileSerializer(user, context={'request': request})
@@ -228,7 +241,7 @@ class UserProfileDetailView(APIView):
         photo_url = None
         if profile and profile.photo:
             photo_url = profile.photo.url
-            # Si l'URL n'est pas déjà absolue (Cloudinary), construire l'URL complète
+            # Construire l'URL absolue pour les fichiers locaux
             if not photo_url.startswith(('http://', 'https://')):
                 photo_url = request.build_absolute_uri(photo_url)
 
@@ -419,10 +432,11 @@ class ProjetListCreateView(generics.ListCreateAPIView):
         # Les projets créés par l'utilisateur (tous les statuts)
         projets_crees = Q(created_by=user)
 
-        # TOUS les projets publics (en_cours, en_revision, termine, annule) sont visibles par TOUS
+        # Tous les projets publics (en_cours, en_revision, termine, annule) sont visibles par tous
+        # Cela permet aux membres de voir la liste complète mais ne peuvent accéder qu'aux projets assignés
         projets_publics = Q(statut__in=['en_cours', 'en_revision', 'termine', 'annule'])
 
-        # Tous les utilisateurs : projets créés + TOUS les projets publics
+        # Retourner les projets créés (tous statuts) + tous les projets publics
         return queryset.filter(projets_crees | projets_publics).distinct()
 
     def perform_create(self, serializer):
@@ -972,7 +986,20 @@ class DocumentListCreateView(generics.ListCreateAPIView):
 
     def perform_create(self, serializer):
         # Associer l'utilisateur connecté comme uploadeur
-        serializer.save(uploade_par=self.request.user)
+        try:
+            fichier = self.request.FILES.get('fichier')
+            if fichier:
+                print(f"[DEBUG] Uploading document: {fichier.name}, size: {fichier.size} bytes")
+            document = serializer.save(uploade_par=self.request.user)
+            if document.fichier:
+                print(f"[DEBUG] Document saved successfully. URL: {document.fichier.url}")
+        except Exception as e:
+            # Capturer toute erreur et la logger
+            import traceback
+            error_details = traceback.format_exc()
+            print(f"[ERROR] Failed to upload document:")
+            print(error_details)
+            raise  # Re-raise pour que DRF gère l'erreur
 
 
 class DocumentDetailView(generics.RetrieveUpdateDestroyAPIView):
@@ -1006,7 +1033,15 @@ class DocumentDownloadView(APIView):
                 status=status.HTTP_404_NOT_FOUND
             )
 
-        # Obtenir le chemin du fichier
+        # Obtenir l'URL du fichier
+        fichier_url = document.fichier.url
+
+        # Si l'URL est absolue (service externe), rediriger vers cette URL
+        if fichier_url.startswith(('http://', 'https://')):
+            from django.http import HttpResponseRedirect
+            return HttpResponseRedirect(fichier_url)
+
+        # Sinon, c'est un fichier local - le servir directement depuis Render Disk
         file_path = document.fichier.path
 
         if not os.path.exists(file_path):

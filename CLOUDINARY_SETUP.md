@@ -28,6 +28,8 @@ Le code a maintenant été **COMPLÈTEMENT** configuré pour utiliser Cloudinary
 
 ### 2. ✅ Configuration Django (`genius_harmony/settings.py`)
 - Cloudinary ajouté à `INSTALLED_APPS` avant `django.contrib.staticfiles`
+- **Import des modules cloudinary** pour initialisation du SDK
+- **Appel explicite à `cloudinary.config()`** avec les credentials (CRITIQUE!)
 - Configuration `CLOUDINARY_STORAGE` avec variables d'environnement
 - `DEFAULT_FILE_STORAGE` configuré conditionnellement :
   - **Si Cloudinary configuré** → `cloudinary_storage.storage.MediaCloudinaryStorage`

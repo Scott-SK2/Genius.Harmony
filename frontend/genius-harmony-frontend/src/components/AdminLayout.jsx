@@ -1,11 +1,14 @@
 import { Link, useLocation } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
+import { useResponsive } from "../hooks/useResponsive";
 import { useState, useEffect, useRef } from "react";
+import NotificationIcon from "./notifications/NotificationIcon";
 import logo from "../assets/GH long.png";
 
 export default function AdminLayout({ children, pageTitle = "Dashboard" }) {
   const { user, logout } = useAuth();
   const location = useLocation();
+  const { isMobile, isSmallScreen } = useResponsive();
   const [showMenu, setShowMenu] = useState(false);
   const menuRef = useRef(null);
 
@@ -50,17 +53,45 @@ export default function AdminLayout({ children, pageTitle = "Dashboard" }) {
 
   const isActive = (path) => location.pathname === path;
 
+  // Theme for NotificationIcon (admin purple theme)
+  const adminTheme = {
+    bg: {
+      secondary: "#7c3aed",
+      tertiary: "rgba(255,255,255,0.1)",
+      hover: "rgba(255,255,255,0.2)",
+    },
+    border: {
+      light: "rgba(255,255,255,0.2)",
+      medium: "rgba(255,255,255,0.3)",
+    },
+    text: {
+      primary: "#fff",
+      secondary: "rgba(255,255,255,0.8)",
+      tertiary: "rgba(255,255,255,0.6)",
+      inverse: "#fff",
+    },
+    colors: {
+      primary: "#7c3aed",
+      danger: "#ef4444",
+    },
+    shadow: {
+      sm: "0 1px 2px rgba(0,0,0,0.1)",
+      md: "0 4px 6px rgba(0,0,0,0.2)",
+      lg: "0 10px 15px rgba(0,0,0,0.3)",
+    },
+  };
+
   return (
     <div style={{ display: "flex", flexDirection: "column", backgroundColor: "#1e1b4b", minHeight: "100vh" }}>
       {/* Top Header */}
       <header
         style={{
           backgroundColor: "#7c3aed",
-          height: "70px",
+          height: isMobile ? "60px" : "70px",
           display: "flex",
           alignItems: "center",
           justifyContent: "space-between",
-          padding: "0 2rem",
+          padding: isMobile ? "0 0.5rem" : isSmallScreen ? "0 1rem" : "0 2rem",
           position: "fixed",
           top: 0,
           left: 0,
@@ -87,7 +118,7 @@ export default function AdminLayout({ children, pageTitle = "Dashboard" }) {
               src={logo}
               alt="Genius Harmony Logo"
               style={{
-                height: "40px",
+                height: isMobile ? "28px" : "40px",
                 objectFit: "contain"
               }}
             />
@@ -166,6 +197,7 @@ export default function AdminLayout({ children, pageTitle = "Dashboard" }) {
                   padding: "0.875rem 1.5rem",
                   color: "#fff",
                   textDecoration: "none",
+                  borderBottom: isSmallScreen ? "1px solid #4c1d95" : "none",
                   transition: "background-color 0.2s",
                 }}
                 onMouseEnter={(e) => (e.target.style.backgroundColor = "#4c1d95")}
@@ -173,17 +205,54 @@ export default function AdminLayout({ children, pageTitle = "Dashboard" }) {
               >
                 👥 Utilisateurs
               </Link>
+              {isSmallScreen && (
+                <button
+                  onClick={() => {
+                    setShowMenu(false);
+                    logout();
+                  }}
+                  style={{
+                    display: "block",
+                    width: "100%",
+                    padding: "0.875rem 1.5rem",
+                    color: "#fff",
+                    backgroundColor: "transparent",
+                    border: "none",
+                    textAlign: "left",
+                    cursor: "pointer",
+                    transition: "background-color 0.2s",
+                    fontSize: "1rem",
+                  }}
+                  onMouseEnter={(e) => (e.target.style.backgroundColor = "#4c1d95")}
+                  onMouseLeave={(e) => (e.target.style.backgroundColor = "transparent")}
+                >
+                  ⏻ Déconnexion
+                </button>
+              )}
             </div>
           )}
         </div>
 
         {/* Center: Page Title */}
-        <h1 style={{ color: "#fff", margin: 0, fontSize: "1.5rem", fontWeight: "600" }}>
+        <h1 style={{
+          color: "#fff",
+          margin: 0,
+          fontSize: isMobile ? "0.9rem" : isSmallScreen ? "1.1rem" : "1.5rem",
+          fontWeight: "600",
+          textAlign: "center",
+          flex: 1,
+          overflow: "hidden",
+          textOverflow: "ellipsis",
+          whiteSpace: isMobile ? "nowrap" : "normal"
+        }}>
           {pageTitle}
         </h1>
 
-        {/* Right: Profile + Logout */}
-        <div style={{ display: "flex", alignItems: "center", gap: "1.5rem" }}>
+        {/* Right: Notifications + Profile + Logout */}
+        <div style={{ display: "flex", alignItems: "center", gap: isMobile ? "0.5rem" : "1.5rem" }}>
+          {/* Notification Icon */}
+          <NotificationIcon theme={adminTheme} />
+
           <Link
             to={`/users/${user?.id}/profile`}
             style={{
@@ -202,14 +271,14 @@ export default function AdminLayout({ children, pageTitle = "Dashboard" }) {
           >
             <div
               style={{
-                width: "40px",
-                height: "40px",
+                width: isMobile ? "32px" : "40px",
+                height: isMobile ? "32px" : "40px",
                 borderRadius: "50%",
                 backgroundColor: "rgba(255,255,255,0.2)",
                 display: "flex",
                 alignItems: "center",
                 justifyContent: "center",
-                fontSize: "1.2rem",
+                fontSize: isMobile ? "1rem" : "1.2rem",
                 overflow: "hidden",
                 border: "2px solid rgba(255,255,255,0.3)",
               }}
@@ -228,41 +297,52 @@ export default function AdminLayout({ children, pageTitle = "Dashboard" }) {
                 "👤"
               )}
             </div>
-            <div>
-              <div style={{ color: "#fff", fontSize: "0.9rem", fontWeight: "500" }}>
-                {user?.username}
+            {!isMobile && (
+              <div>
+                <div style={{ color: "#fff", fontSize: "0.9rem", fontWeight: "500" }}>
+                  {user?.username}
+                </div>
+                <div style={{ color: "rgba(255,255,255,0.7)", fontSize: "0.75rem" }}>
+                  {user?.role}
+                </div>
               </div>
-              <div style={{ color: "rgba(255,255,255,0.7)", fontSize: "0.75rem" }}>
-                {user?.role}
-              </div>
-            </div>
+            )}
           </Link>
-          <button
-            onClick={logout}
-            style={{
-              backgroundColor: "rgba(255,255,255,0.2)",
-              color: "#fff",
-              border: "none",
-              padding: "0.5rem 1rem",
-              borderRadius: "6px",
-              cursor: "pointer",
-              fontSize: "0.9rem",
-              fontWeight: "500",
-              display: "flex",
-              alignItems: "center",
-              gap: "0.5rem",
-              transition: "background-color 0.2s",
-            }}
-            onMouseEnter={(e) => (e.target.style.backgroundColor = "rgba(255,255,255,0.3)")}
-            onMouseLeave={(e) => (e.target.style.backgroundColor = "rgba(255,255,255,0.2)")}
-          >
-            ⏻ Déconnexion
-          </button>
+          {!isSmallScreen && (
+            <button
+              onClick={logout}
+              style={{
+                backgroundColor: "rgba(255,255,255,0.2)",
+                color: "#fff",
+                border: "none",
+                padding: "0.5rem 1rem",
+                borderRadius: "6px",
+                cursor: "pointer",
+                fontSize: "0.9rem",
+                fontWeight: "500",
+                display: "flex",
+                alignItems: "center",
+                gap: "0.5rem",
+                transition: "background-color 0.2s",
+              }}
+              onMouseEnter={(e) => (e.target.style.backgroundColor = "rgba(255,255,255,0.3)")}
+              onMouseLeave={(e) => (e.target.style.backgroundColor = "rgba(255,255,255,0.2)")}
+            >
+              ⏻ Déconnexion
+            </button>
+          )}
         </div>
       </header>
 
       {/* Main content */}
-      <main style={{ marginTop: "70px", flex: 1, padding: "2rem 3rem", width: "100%", maxWidth: "100%", boxSizing: "border-box" }}>
+      <main style={{
+        marginTop: isMobile ? "60px" : "70px",
+        flex: 1,
+        padding: isMobile ? "1rem" : isSmallScreen ? "1.5rem" : "2rem 3rem",
+        width: "100%",
+        maxWidth: "100%",
+        boxSizing: "border-box"
+      }}>
         {children}
       </main>
     </div>

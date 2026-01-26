@@ -40,12 +40,13 @@ INSTALLED_APPS = [
     'django.contrib.contenttypes',
     'django.contrib.sessions',
     'django.contrib.messages',
-    'cloudinary_storage',  # Cloudinary pour le stockage des fichiers
     'django.contrib.staticfiles',
-    'cloudinary',  # Cloudinary
     'rest_framework',
     'core',
     'corsheaders',
+    # Celery & Redis
+    'django_celery_beat',
+    'django_celery_results',
 ]
 
 MIDDLEWARE = [
@@ -143,24 +144,22 @@ STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
 # https://docs.djangoproject.com/en/6.0/ref/settings/#default-auto-field
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
-# Cloudinary Configuration pour stockage persistant des fichiers
-CLOUDINARY_STORAGE = {
-    'CLOUD_NAME': config('CLOUDINARY_CLOUD_NAME', default=''),
-    'API_KEY': config('CLOUDINARY_API_KEY', default=''),
-    'API_SECRET': config('CLOUDINARY_API_SECRET', default=''),
-}
+# Configuration du stockage des fichiers media avec Render Disk
+# Render Disk est monté à /opt/render/project/src/media pour persistance
+import os
 
-# Configuration des fichiers media selon Cloudinary ou stockage local
-if CLOUDINARY_STORAGE['CLOUD_NAME']:
-    # Utiliser Cloudinary pour le stockage des fichiers media
-    DEFAULT_FILE_STORAGE = 'cloudinary_storage.storage.MediaCloudinaryStorage'
-    # IMPORTANT: Ne pas définir MEDIA_URL quand Cloudinary est actif
-    # Cloudinary génère ses propres URLs (https://res.cloudinary.com/...)
+# Détecter si on est sur Render avec un disk monté
+RENDER_DISK_PATH = '/opt/render/project/src/media'
+if os.path.exists(RENDER_DISK_PATH):
+    MEDIA_ROOT = RENDER_DISK_PATH
+    print(f"✅ [INFO] Using Render Disk for persistent media storage: {MEDIA_ROOT}")
 else:
-    # Fallback sur stockage local si Cloudinary n'est pas configuré
-    DEFAULT_FILE_STORAGE = 'django.core.files.storage.FileSystemStorage'
-    MEDIA_URL = '/media/'
+    # Développement local
     MEDIA_ROOT = BASE_DIR / 'media'
+    print(f"[INFO] Using local media storage: {MEDIA_ROOT}")
+
+MEDIA_URL = '/media/'
+DEFAULT_FILE_STORAGE = 'django.core.files.storage.FileSystemStorage'
 
 REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': (
@@ -182,3 +181,121 @@ CORS_ALLOWED_ORIGINS = config(
 
 # Allow credentials for JWT authentication
 CORS_ALLOW_CREDENTIALS = True
+
+# ========================================
+# ODOO INTEGRATION CONFIGURATION
+# ========================================
+ODOO_ENABLED = config('ODOO_ENABLED', default=False, cast=bool)
+ODOO_HOST = config('ODOO_HOST', default='')
+ODOO_PORT = config('ODOO_PORT', default=443, cast=int)
+ODOO_PROTOCOL = config('ODOO_PROTOCOL', default='jsonrpc+ssl')
+ODOO_DB = config('ODOO_DB', default='')
+ODOO_USERNAME = config('ODOO_USERNAME', default='')
+ODOO_PASSWORD = config('ODOO_PASSWORD', default='')
+
+# Token secret pour sécuriser les webhooks Odoo → Django
+# Générer avec: python -c "import secrets; print(secrets.token_urlsafe(32))"
+ODOO_WEBHOOK_SECRET = config('ODOO_WEBHOOK_SECRET', default='')
+
+# ========================================
+# REDIS CONFIGURATION (Cache + Celery Broker)
+# ========================================
+REDIS_URL = config('REDIS_URL', default='')
+
+# Cache configuration with fallback
+# Use Redis if configured, otherwise fall back to local memory cache
+if REDIS_URL and (REDIS_URL.startswith('redis://') or REDIS_URL.startswith('rediss://')):
+    CACHES = {
+        'default': {
+            'BACKEND': 'django_redis.cache.RedisCache',
+            'LOCATION': REDIS_URL,
+            'OPTIONS': {
+                'CLIENT_CLASS': 'django_redis.client.DefaultClient',
+            },
+            'KEY_PREFIX': 'genius_harmony',
+            'TIMEOUT': 300,  # 5 minutes par défaut
+        }
+    }
+    print("✅ [INFO] Using Redis cache")
+else:
+    # Fallback to local memory cache if Redis is not configured
+    CACHES = {
+        'default': {
+            'BACKEND': 'django.core.cache.backends.locmem.LocMemCache',
+            'LOCATION': 'genius-harmony-cache',
+            'TIMEOUT': 300,
+        }
+    }
+    print("⚠️ [WARNING] Redis not configured, using local memory cache (not suitable for production)")
+
+# ========================================
+# CELERY CONFIGURATION (Async Tasks)
+# ========================================
+# Only configure Celery if Redis URL is valid
+if REDIS_URL and (REDIS_URL.startswith('redis://') or REDIS_URL.startswith('rediss://')):
+    CELERY_BROKER_URL = REDIS_URL
+    print("✅ [INFO] Celery broker configured with Redis")
+else:
+    CELERY_BROKER_URL = None
+    print("⚠️ [WARNING] Celery broker not configured - async tasks will be disabled")
+
+CELERY_RESULT_BACKEND = 'django-db'  # Stocke les résultats dans PostgreSQL
+CELERY_ACCEPT_CONTENT = ['json']
+CELERY_TASK_SERIALIZER = 'json'
+CELERY_RESULT_SERIALIZER = 'json'
+CELERY_TIMEZONE = 'UTC'
+CELERY_TASK_TRACK_STARTED = True
+CELERY_TASK_TIME_LIMIT = 30 * 60  # 30 minutes max par task
+
+# Celery Beat (scheduled tasks)
+CELERY_BEAT_SCHEDULER = 'django_celery_beat.schedulers:DatabaseScheduler'
+
+# ========================================
+# LOGGING CONFIGURATION
+# ========================================
+LOGGING = {
+    'version': 1,
+    'disable_existing_loggers': False,
+    'formatters': {
+        'verbose': {
+            'format': '[{levelname}] {asctime} {module} {message}',
+            'style': '{',
+        },
+        'simple': {
+            'format': '[{levelname}] {message}',
+            'style': '{',
+        },
+    },
+    'handlers': {
+        'console': {
+            'class': 'logging.StreamHandler',
+            'formatter': 'verbose',
+        },
+    },
+    'root': {
+        'handlers': ['console'],
+        'level': 'INFO',
+    },
+    'loggers': {
+        'django': {
+            'handlers': ['console'],
+            'level': 'INFO',
+            'propagate': False,
+        },
+        'django.request': {
+            'handlers': ['console'],
+            'level': 'ERROR',
+            'propagate': False,
+        },
+        'core': {
+            'handlers': ['console'],
+            'level': 'INFO',
+            'propagate': False,
+        },
+        'celery': {
+            'handlers': ['console'],
+            'level': 'INFO',
+            'propagate': False,
+        },
+    },
+}

@@ -31,7 +31,12 @@ ENV/
 *.log
 db.sqlite3
 db.sqlite3-journal
-media/
+# Ignore uploaded media files but keep directory structure
+media/*
+!media/.gitignore
+!media/profile_photos/
+media/profile_photos/*
+!media/profile_photos/.gitkeep
 staticfiles/
 
 # IDE

@@ -1,8 +1,11 @@
+import logging
 from rest_framework import serializers
 from django.contrib.auth import get_user_model
-from .models import Profile, Pole, Projet, Tache, Document
+from .models import Profile, Pole, Projet, Tache, Document, Notification
 
 User = get_user_model()
+logger = logging.getLogger(__name__)
+
 
 class AdminUserSerializer(serializers.ModelSerializer):
     class Meta:
@@ -17,34 +20,52 @@ class AdminUserSerializer(serializers.ModelSerializer):
         ]
         read_only_fields = ["id", "date_joined", "username"]
 
+
 class RegisterSerializer(serializers.ModelSerializer):
     role = serializers.ChoiceField(choices=Profile.ROLE_CHOICES, write_only=True)
     client_type = serializers.CharField(required=False, allow_blank=True, write_only=True)
 
     class Meta:
         model = User
-        fields = ['username', 'email', 'password', 'role', 'client_type']
+        fields = ['username', 'email', 'password', 'first_name', 'last_name', 'role', 'client_type']
         extra_kwargs = {
             'password': {'write_only': True},
+            'first_name': {'required': True},
+            'last_name': {'required': True},
         }
 
     def create(self, validated_data):
-        role = validated_data.pop('role')
-        client_type = validated_data.pop('client_type', '')
+        try:
+            logger.info(f"🔹 Creating user with username: {validated_data.get('username')}")
 
-        password = validated_data.pop('password')
-        user = User(**validated_data)
-        user.set_password(password)
-        user.save()
+            role = validated_data.pop('role')
+            client_type = validated_data.pop('client_type', '')
 
-        # Récupérer le profil créé automatiquement par le SIGNAL
-        profile = user.profile
-        profile.role = role
-        if role in ['artiste', 'client', 'partenaire']:
-            profile.client_type = client_type
-        profile.save()
+            password = validated_data.pop('password')
+            user = User(**validated_data)
+            user.set_password(password)
 
-        return user
+            logger.info(f"🔹 Saving user to database...")
+            user.save()
+            logger.info(f"✅ User saved successfully, ID: {user.id}")
+
+            # Récupérer le profil créé automatiquement par le SIGNAL
+            logger.info(f"🔹 Fetching auto-created profile...")
+            profile = user.profile
+            logger.info(f"✅ Profile found, ID: {profile.id}")
+
+            profile.role = role
+            if role in ['artiste', 'client', 'partenaire']:
+                profile.client_type = client_type
+
+            logger.info(f"🔹 Saving profile with role: {role}")
+            profile.save()
+            logger.info(f"✅ Profile saved successfully")
+
+            return user
+        except Exception as e:
+            logger.error(f"❌ Error in RegisterSerializer.create: {e}", exc_info=True)
+            raise
 
 class PoleSerializer(serializers.ModelSerializer):
     chef_username = serializers.CharField(source='chef.username', read_only=True)
@@ -82,15 +103,15 @@ class UserProfileSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = User
-        fields = ['id', 'username', 'email', 'role', 'pole', 'pole_name', 'membre_specialite', 'description', 'photo', 'photo_url', 'phone', 'website', 'instagram', 'twitter', 'tiktok']
+        fields = ['id', 'username', 'email', 'first_name', 'last_name', 'role', 'pole', 'pole_name', 'membre_specialite', 'description', 'photo', 'photo_url', 'phone', 'website', 'instagram', 'twitter', 'tiktok']
 
     def get_photo_url(self, obj):
         if hasattr(obj, 'profile') and obj.profile.photo:
             photo_url = obj.profile.photo.url
-            # Si l'URL est déjà absolue (Cloudinary), la retourner telle quelle
+            # Si l'URL est déjà absolue, la retourner telle quelle
             if photo_url.startswith(('http://', 'https://')):
                 return photo_url
-            # Sinon, construire l'URL absolue (stockage local)
+            # Sinon, construire l'URL absolue (Render Disk)
             request = self.context.get('request')
             if request:
                 return request.build_absolute_uri(photo_url)
@@ -99,6 +120,14 @@ class UserProfileSerializer(serializers.ModelSerializer):
 
     def update(self, instance, validated_data):
         profile_data = validated_data.pop('profile', {})
+
+        # Mettre à jour les champs du User (first_name, last_name)
+        if 'first_name' in validated_data:
+            instance.first_name = validated_data['first_name']
+        if 'last_name' in validated_data:
+            instance.last_name = validated_data['last_name']
+
+        # Mettre à jour les champs du Profile
         role = profile_data.get('role')
         pole = profile_data.get('pole')
         membre_specialite = profile_data.get('membre_specialite')
@@ -194,10 +223,10 @@ class DocumentSerializer(serializers.ModelSerializer):
     def get_fichier_url(self, obj):
         if obj.fichier:
             fichier_url = obj.fichier.url
-            # Si l'URL est déjà absolue (Cloudinary), la retourner telle quelle
+            # Si l'URL est déjà absolue, la retourner telle quelle
             if fichier_url.startswith(('http://', 'https://')):
                 return fichier_url
-            # Sinon, construire l'URL absolue (stockage local)
+            # Sinon, construire l'URL absolue (Render Disk)
             request = self.context.get('request')
             if request:
                 return request.build_absolute_uri(fichier_url)
@@ -220,7 +249,7 @@ class ProjetListSerializer(serializers.ModelSerializer):
         fields = [
             'id', 'titre', 'type', 'statut', 'pole', 'pole_name',
             'client', 'client_username', 'chef_projet', 'chef_projet_username', 'chef_projet_status',
-            'created_by', 'created_by_username',
+            'created_by', 'created_by_username', 'membres',
             'nombre_taches', 'nombre_membres', 'date_debut', 'date_fin_prevue',
             'created_at', 'updated_at'
         ]
@@ -285,3 +314,22 @@ class ProjetCreateUpdateSerializer(serializers.ModelSerializer):
             if validated_data['chef_projet'] != instance.chef_projet:
                 validated_data['chef_projet_status'] = 'pending'
         return super().update(instance, validated_data)
+
+
+# Serializers pour les notifications
+class NotificationSerializer(serializers.ModelSerializer):
+    """Serializer pour les notifications"""
+    tache_titre = serializers.CharField(source='tache.titre', read_only=True)
+    tache_projet_id = serializers.IntegerField(source='tache.projet.id', read_only=True, allow_null=True)
+    projet_titre = serializers.CharField(source='projet.titre', read_only=True)
+    type_display = serializers.CharField(source='get_type_display', read_only=True)
+
+    class Meta:
+        model = Notification
+        fields = [
+            'id', 'type', 'type_display', 'titre', 'message',
+            'tache', 'tache_titre', 'tache_projet_id',
+            'projet', 'projet_titre',
+            'is_read', 'created_at', 'read_at'
+        ]
+        read_only_fields = ['id', 'user', 'created_at', 'read_at']

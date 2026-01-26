@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 import { useTheme } from "../context/ThemeContext";
+import { useResponsive } from "../hooks/useResponsive";
 import { fetchProjets } from "../api/projets";
 import FormProjet from "../components/FormProjet";
 
@@ -27,6 +28,7 @@ const STATUT_LABELS = {
 export default function ProjetsList() {
   const { token, user } = useAuth();
   const { theme } = useTheme();
+  const { isMobile, isSmallScreen } = useResponsive();
   const [projets, setProjets] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -97,33 +99,44 @@ export default function ProjetsList() {
 
   const canCreateProjet = user?.role === "admin" || user?.role === "super_admin" || user?.role === "chef_pole";
 
+  // Vérifier si l'utilisateur est assigné à un projet
+  const isUserAssigned = (projet) => {
+    const estMembre = projet.membres?.includes(user?.id);
+    const estChef = projet.chef_projet === user?.id;
+    const estClient = projet.client === user?.id;
+    const estCreateur = projet.created_by === user?.id;
+    return estMembre || estChef || estClient || estCreateur;
+  };
+
   return (
     <div style={{ width: "100%" }}>
       <div
         style={{
           display: "flex",
+          flexDirection: isMobile ? "column" : "row",
           justifyContent: "space-between",
-          alignItems: "center",
-          marginBottom: "2rem",
+          alignItems: isMobile ? "stretch" : "center",
+          marginBottom: isMobile ? "1.5rem" : "2rem",
+          gap: isMobile ? "1rem" : "0",
         }}
       >
         <div>
-          <p style={{ margin: 0, color: "#c4b5fd", fontSize: "1.05rem" }}>
-            Liste des projets auxquels vous avez accès
+          <p style={{ margin: 0, color: "#c4b5fd", fontSize: isMobile ? "0.9rem" : "1.05rem" }}>
+            Tous les projets • Vous pouvez accéder uniquement aux projets où vous êtes assigné
           </p>
         </div>
         {canCreateProjet && (
           <button
             onClick={() => setShowFormProjet(true)}
             style={{
-              padding: "0.75rem 1.5rem",
+              padding: isMobile ? "0.75rem 1rem" : "0.75rem 1.5rem",
               backgroundColor: theme.colors.secondary,
               color: theme.text.inverse,
               border: "none",
               borderRadius: "8px",
               cursor: "pointer",
               fontWeight: "600",
-              fontSize: "1rem",
+              fontSize: isMobile ? "0.95rem" : "1rem",
               transition: "all 0.2s",
               boxShadow: theme.shadow.md,
             }}
@@ -155,10 +168,104 @@ export default function ProjetsList() {
         >
           <div style={{ fontSize: "4rem", marginBottom: "1rem" }}>📂</div>
           <p style={{ margin: 0, color: "#c4b5fd", fontSize: "1.1rem" }}>
-            Aucun projet trouvé. Vous n'avez accès à aucun projet pour le moment.
+            Aucun projet trouvé.
           </p>
         </div>
+      ) : isSmallScreen ? (
+        // Vue en cartes pour mobile et tablette
+        <div style={{ display: "grid", gap: "1rem" }}>
+          {projets.map((projet) => (
+            <Link
+              key={projet.id}
+              to={`/projets/${projet.id}`}
+              style={{
+                backgroundColor: "#2d1b69",
+                borderRadius: "12px",
+                padding: isMobile ? "1rem" : "1.25rem",
+                border: "1px solid #4c1d95",
+                transition: "all 0.2s",
+                textDecoration: "none",
+                display: "block",
+              }}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.borderColor = "#7c3aed";
+                e.currentTarget.style.transform = "translateY(-2px)";
+                e.currentTarget.style.boxShadow = "0 4px 16px rgba(124, 58, 237, 0.3)";
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.borderColor = "#4c1d95";
+                e.currentTarget.style.transform = "translateY(0)";
+                e.currentTarget.style.boxShadow = "none";
+              }}
+            >
+              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "start", marginBottom: "1rem" }}>
+                <div style={{ flex: 1 }}>
+                  <h3 style={{ margin: 0, marginBottom: "0.5rem", color: theme.colors.secondary, fontSize: isMobile ? "1.1rem" : "1.2rem", fontWeight: "600" }}>
+                    {projet.titre}
+                    {isUserAssigned(projet) && (
+                      <span
+                        style={{
+                          display: "inline-block",
+                          marginLeft: "0.5rem",
+                          padding: "0.25rem 0.6rem",
+                          backgroundColor: "#10b98120",
+                          color: "#10b981",
+                          borderRadius: "6px",
+                          fontSize: "0.75rem",
+                          fontWeight: "600",
+                          border: "1px solid #10b98140",
+                        }}
+                      >
+                        ✓ Assigné
+                      </span>
+                    )}
+                  </h3>
+                  <div style={{ color: "#c4b5fd", fontSize: "0.85rem" }}>
+                    {TYPE_LABELS[projet.type] || projet.type}
+                  </div>
+                </div>
+                <span
+                  style={{
+                    padding: "0.4rem 0.75rem",
+                    borderRadius: "6px",
+                    fontSize: "0.8rem",
+                    fontWeight: "600",
+                    backgroundColor: `${STATUT_COLORS[projet.statut] || "#a78bfa"}20`,
+                    color: STATUT_COLORS[projet.statut] || "#a78bfa",
+                    border: `1px solid ${STATUT_COLORS[projet.statut] || "#a78bfa"}40`,
+                    whiteSpace: "nowrap",
+                  }}
+                >
+                  {STATUT_LABELS[projet.statut] || projet.statut}
+                </span>
+              </div>
+
+              <div style={{ display: "grid", gridTemplateColumns: isMobile ? "1fr" : "repeat(2, 1fr)", gap: "0.75rem", fontSize: "0.85rem", color: "#c4b5fd" }}>
+                <div>
+                  <span style={{ color: "#a78bfa" }}>🎯 Pôle:</span> {projet.pole_name || "—"}
+                </div>
+                <div>
+                  <span style={{ color: "#a78bfa" }}>👤 Client:</span> {projet.client_username || "—"}
+                </div>
+                <div>
+                  <span style={{ color: "#a78bfa" }}>👨‍💼 Chef:</span> {projet.chef_projet_username || "—"}
+                </div>
+                <div style={{ display: "flex", gap: "1rem" }}>
+                  <span>
+                    <span style={{ color: "#a78bfa" }}>📋 Tâches:</span>{" "}
+                    <span style={{ fontWeight: "600", color: "#fff" }}>{projet.nombre_taches || 0}</span>
+                  </span>
+                  <span>
+                    <span style={{ color: "#a78bfa" }}>👥 Membres:</span>{" "}
+                    <span style={{ fontWeight: "600", color: "#fff" }}>{projet.nombre_membres || 0}</span>
+                  </span>
+                </div>
+              </div>
+            </Link>
+          ))}
+        </div>
       ) : (
+        // Vue en tableau pour desktop
         <div
           style={{
             backgroundColor: "#2d1b69",
@@ -282,22 +389,41 @@ export default function ProjetsList() {
                   }}
                 >
                   <td style={{ padding: "1rem" }}>
-                    <Link
-                      to={`/projets/${projet.id}`}
-                      style={{
-                        color: theme.colors.secondary,
-                        textDecoration: "none",
-                        fontWeight: "600",
-                      }}
-                      onMouseEnter={(e) => {
-                        e.target.style.textDecoration = "underline";
-                      }}
-                      onMouseLeave={(e) => {
-                        e.target.style.textDecoration = "none";
-                      }}
-                    >
-                      {projet.titre}
-                    </Link>
+                    <div style={{ display: "flex", alignItems: "center", gap: "0.75rem" }}>
+                      <Link
+                        to={`/projets/${projet.id}`}
+                        style={{
+                          color: theme.colors.secondary,
+                          textDecoration: "none",
+                          fontWeight: "600",
+                        }}
+                        onMouseEnter={(e) => {
+                          e.target.style.textDecoration = "underline";
+                        }}
+                        onMouseLeave={(e) => {
+                          e.target.style.textDecoration = "none";
+                        }}
+                      >
+                        {projet.titre}
+                      </Link>
+                      {isUserAssigned(projet) && (
+                        <span
+                          style={{
+                            display: "inline-block",
+                            padding: "0.25rem 0.6rem",
+                            backgroundColor: "#10b98120",
+                            color: "#10b981",
+                            borderRadius: "6px",
+                            fontSize: "0.75rem",
+                            fontWeight: "600",
+                            border: "1px solid #10b98140",
+                          }}
+                          title="Vous êtes assigné à ce projet"
+                        >
+                          ✓ Assigné
+                        </span>
+                      )}
+                    </div>
                   </td>
                   <td style={{ padding: "1rem" }}>
                     <span style={{ fontSize: "0.9rem", color: "#c4b5fd" }}>

@@ -2,6 +2,7 @@ import { useState } from "react";
 import { Link, useNavigate, useLocation } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 import { useTheme } from "../context/ThemeContext";
+import { useResponsive } from "../hooks/useResponsive";
 import logo from "../assets/GH long.png";
 
 export default function Login() {
@@ -13,6 +14,7 @@ export default function Login() {
   const navigate = useNavigate();
   const location = useLocation();
   const { theme, isDark, toggleTheme } = useTheme();
+  const { isMobile } = useResponsive();
 
   // Message de succès depuis la page d'inscription
   const successMessage = location.state?.message;
@@ -48,19 +50,19 @@ export default function Login() {
         position: "relative",
       }}
     >
-      {/* Theme toggle */}
+      {/* Theme toggle - Responsive */}
       <button
         onClick={toggleTheme}
         style={{
           position: "absolute",
-          top: "2rem",
-          right: "2rem",
+          top: isMobile ? "1rem" : "2rem",
+          right: isMobile ? "1rem" : "2rem",
           background: "none",
           border: `1px solid ${theme.border.medium}`,
           borderRadius: "8px",
-          padding: "0.5rem 0.75rem",
+          padding: isMobile ? "0.4rem 0.6rem" : "0.5rem 0.75rem",
           cursor: "pointer",
-          fontSize: "1.2rem",
+          fontSize: isMobile ? "1rem" : "1.2rem",
           backgroundColor: theme.bg.secondary,
         }}
         title={isDark ? "Mode clair" : "Mode sombre"}
@@ -71,7 +73,7 @@ export default function Login() {
       <div
         style={{
           backgroundColor: theme.bg.secondary,
-          padding: "3rem",
+          padding: isMobile ? "2rem 1.5rem" : "3rem",
           borderRadius: "16px",
           boxShadow: theme.shadow.xl,
           width: "100%",
@@ -80,13 +82,13 @@ export default function Login() {
         }}
       >
         {/* Logo */}
-        <div style={{ textAlign: "center", marginBottom: "2rem" }}>
+        <div style={{ textAlign: "center", marginBottom: isMobile ? "1.5rem" : "2rem" }}>
           <div style={{ marginBottom: "1rem", display: "flex", justifyContent: "center" }}>
             <img
               src={logo}
               alt="Genius Harmony Logo"
               style={{
-                height: "80px",
+                height: isMobile ? "60px" : "80px",
                 objectFit: "contain"
               }}
             />
@@ -95,7 +97,7 @@ export default function Login() {
             style={{
               margin: 0,
               color: theme.text.primary,
-              fontSize: "2rem",
+              fontSize: isMobile ? "1.5rem" : "2rem",
               marginBottom: "0.5rem",
             }}
           >

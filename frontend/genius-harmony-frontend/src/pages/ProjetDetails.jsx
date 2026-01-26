@@ -2,11 +2,13 @@ import { useEffect, useState } from "react";
 import { useParams, Link, useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 import { useTheme } from "../context/ThemeContext";
+import { useResponsive } from "../hooks/useResponsive";
 import { API_BASE_URL } from "../config";
 
 import { fetchProjetDetails, updateProjetStatut, deleteProjet } from "../api/projets";
 import { updateTache } from "../api/taches";
 import FormTache from "../components/FormTache";
+import FormProjet from "../components/FormProjet";
 import UploadDocument from "../components/UploadDocument";
 import ConfirmModal from "../components/ConfirmModal";
 import SuccessModal from "../components/SuccessModal";
@@ -47,6 +49,7 @@ export default function ProjetDetails() {
   const { id } = useParams();
   const { token, user } = useAuth();
   const { theme } = useTheme();
+  const { isMobile, isSmallScreen } = useResponsive();
   const navigate = useNavigate();
 
   const [projet, setProjet] = useState(null);
@@ -64,6 +67,7 @@ export default function ProjetDetails() {
   const [showDeleteDocModal, setShowDeleteDocModal] = useState(false);
   const [documentToDelete, setDocumentToDelete] = useState(null);
   const [successModal, setSuccessModal] = useState({ isOpen: false, title: "", message: "", type: "success" });
+  const [showEditProjet, setShowEditProjet] = useState(false);
 
   const loadProjet = async () => {
     if (!token || !id) return;
@@ -188,6 +192,16 @@ export default function ProjetDetails() {
 
     // Chef de projet peut gérer son projet
     if (projet.chef_projet === user.id) return true;
+
+    return false;
+  };
+
+  // Fonction pour vérifier si l'utilisateur peut modifier le projet
+  const canEditProjet = () => {
+    if (!projet || !user) return false;
+
+    // Super Admin, Admin et Chef de pôle peuvent modifier
+    if (user.role === 'super_admin' || user.role === 'admin' || user.role === 'chef_pole') return true;
 
     return false;
   };
@@ -475,6 +489,26 @@ export default function ProjetDetails() {
       });
 
       // Recharger le projet pour obtenir les tâches à jour
+      await loadProjet();
+    } catch (err) {
+      console.error("Erreur update tache:", err);
+      setError("Impossible de déplacer la tâche");
+    }
+  };
+
+  // Fonction pour déplacer une tâche avec des boutons (pour mobile)
+  const handleMoveTache = async (tache, nouveauStatut) => {
+    if (!canDragTask(tache)) return;
+
+    // Si le statut n'a pas changé, ne rien faire
+    if (tache.statut === nouveauStatut) return;
+
+    try {
+      await updateTache(token, tache.id, {
+        statut: nouveauStatut,
+      });
+
+      // Recharger le projet
       await loadProjet();
     } catch (err) {
       console.error("Erreur update tache:", err);
@@ -774,12 +808,47 @@ export default function ProjetDetails() {
             </span>
           )}
 
+          {/* Bouton de modification - réservé aux super_admin, admin et chef_pole */}
+          {canEditProjet() && (
+            <button
+              onClick={() => setShowEditProjet(true)}
+              style={{
+                marginLeft: user?.role === 'super_admin' ? "auto" : "auto",
+                padding: "0.75rem 1.5rem",
+                backgroundColor: theme.colors.secondary,
+                color: theme.text.inverse,
+                border: "none",
+                borderRadius: "8px",
+                cursor: "pointer",
+                fontWeight: "600",
+                fontSize: "0.9rem",
+                transition: "all 0.2s",
+                display: "flex",
+                alignItems: "center",
+                gap: "0.5rem",
+                boxShadow: theme.shadow.md,
+              }}
+              onMouseEnter={(e) => {
+                e.target.style.backgroundColor = theme.colors.orangeLight;
+                e.target.style.transform = "translateY(-2px)";
+                e.target.style.boxShadow = theme.shadow.lg;
+              }}
+              onMouseLeave={(e) => {
+                e.target.style.backgroundColor = theme.colors.secondary;
+                e.target.style.transform = "translateY(0)";
+                e.target.style.boxShadow = theme.shadow.md;
+              }}
+            >
+              ✏️ Modifier le projet
+            </button>
+          )}
+
           {/* Bouton de suppression - réservé au super_admin */}
           {user?.role === 'super_admin' && (
             <button
               onClick={handleDeleteProjet}
               style={{
-                marginLeft: "auto",
+                marginLeft: canEditProjet() ? "0.75rem" : "auto",
                 padding: "0.75rem 1.5rem",
                 backgroundColor: "rgba(239, 68, 68, 0.1)",
                 color: "#ef4444",
@@ -1119,11 +1188,11 @@ export default function ProjetDetails() {
           </div>
         ) : (
           <>
-            {/* Statistiques */}
+            {/* Statistiques - Responsive */}
             <div
               style={{
                 display: "grid",
-                gridTemplateColumns: "repeat(3, 1fr)",
+                gridTemplateColumns: isMobile ? "1fr" : "repeat(3, 1fr)",
                 gap: "1rem",
                 marginBottom: "2rem",
               }}
@@ -1183,13 +1252,13 @@ export default function ProjetDetails() {
               })}
             </div>
 
-            {/* Board Kanban */}
+            {/* Board Kanban - Responsive */}
             <div
               style={{
                 display: "grid",
-                gridTemplateColumns: "repeat(3, 1fr)",
-                gap: "1.5rem",
-                minHeight: "400px",
+                gridTemplateColumns: isMobile ? "1fr" : "repeat(3, 1fr)",
+                gap: isMobile ? "1rem" : "1.5rem",
+                minHeight: isMobile ? "auto" : "400px",
               }}
             >
               {[
@@ -1365,6 +1434,66 @@ export default function ProjetDetails() {
                                   >
                                     ✏️ Modifier
                                   </button>
+                                </div>
+                              )}
+
+                              {/* Boutons de déplacement sur mobile */}
+                              {isSmallScreen && isDraggable && (
+                                <div style={{ marginTop: "0.75rem", display: "flex", gap: "0.5rem" }}>
+                                  {tache.statut !== "a_faire" && (
+                                    <button
+                                      onClick={() => handleMoveTache(tache, tache.statut === "en_cours" ? "a_faire" : "en_cours")}
+                                      style={{
+                                        flex: 1,
+                                        padding: "0.5rem 0.75rem",
+                                        backgroundColor: "transparent",
+                                        color: "#a78bfa",
+                                        border: "1px solid #a78bfa",
+                                        borderRadius: "8px",
+                                        fontSize: "0.8rem",
+                                        fontWeight: "600",
+                                        cursor: "pointer",
+                                        transition: "all 0.2s",
+                                      }}
+                                      onMouseEnter={(e) => {
+                                        e.target.style.backgroundColor = "#a78bfa";
+                                        e.target.style.color = "#fff";
+                                      }}
+                                      onMouseLeave={(e) => {
+                                        e.target.style.backgroundColor = "transparent";
+                                        e.target.style.color = "#a78bfa";
+                                      }}
+                                    >
+                                      ← Précédent
+                                    </button>
+                                  )}
+                                  {tache.statut !== "termine" && (
+                                    <button
+                                      onClick={() => handleMoveTache(tache, tache.statut === "a_faire" ? "en_cours" : "termine")}
+                                      style={{
+                                        flex: 1,
+                                        padding: "0.5rem 0.75rem",
+                                        backgroundColor: "transparent",
+                                        color: "#10b981",
+                                        border: "1px solid #10b981",
+                                        borderRadius: "8px",
+                                        fontSize: "0.8rem",
+                                        fontWeight: "600",
+                                        cursor: "pointer",
+                                        transition: "all 0.2s",
+                                      }}
+                                      onMouseEnter={(e) => {
+                                        e.target.style.backgroundColor = "#10b981";
+                                        e.target.style.color = "#fff";
+                                      }}
+                                      onMouseLeave={(e) => {
+                                        e.target.style.backgroundColor = "transparent";
+                                        e.target.style.color = "#10b981";
+                                      }}
+                                    >
+                                      Suivant →
+                                    </button>
+                                  )}
                                 </div>
                               )}
 
@@ -1767,6 +1896,13 @@ export default function ProjetDetails() {
         onClose={() => setShowUploadDoc(false)}
         projetId={parseInt(id)}
         onSuccess={loadProjet}
+      />
+
+      <FormProjet
+        isOpen={showEditProjet}
+        onClose={() => setShowEditProjet(false)}
+        onSuccess={loadProjet}
+        projet={projet}
       />
 
       {/* Modale de confirmation de suppression de projet */}

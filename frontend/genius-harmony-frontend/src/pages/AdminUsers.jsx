@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 import { useTheme } from "../context/ThemeContext";
+import { useResponsive } from "../hooks/useResponsive";
 import { fetchUsers, updateUser, deleteUser } from "../api/users";
 
 const ROLE_LABELS = {
@@ -59,6 +60,7 @@ const SPECIALITE_OPTIONS = [
 export default function AdminUsers() {
   const { token, user } = useAuth();
   const { theme } = useTheme();
+  const { isMobile, isSmallScreen } = useResponsive();
   const [users, setUsers] = useState([]);
   const [savingId, setSavingId] = useState(null);
 
@@ -146,7 +148,207 @@ export default function AdminUsers() {
             Aucun utilisateur trouvé.
           </p>
         </div>
+      ) : isSmallScreen ? (
+        // Vue en cartes pour mobile et tablette
+        <div style={{ display: "grid", gap: "1rem" }}>
+          {users.map((u) => (
+            <div
+              key={u.id}
+              style={{
+                backgroundColor: "#2d1b69",
+                borderRadius: "12px",
+                padding: isMobile ? "1rem" : "1.5rem",
+                border: "1px solid #4c1d95",
+                transition: "all 0.2s",
+              }}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.borderColor = "#7c3aed";
+                e.currentTarget.style.transform = "translateY(-2px)";
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.borderColor = "#4c1d95";
+                e.currentTarget.style.transform = "translateY(0)";
+              }}
+            >
+              {/* En-tête avec photo et nom */}
+              <div style={{ display: "flex", alignItems: "center", gap: "1rem", marginBottom: "1rem", paddingBottom: "1rem", borderBottom: "1px solid #4c1d95" }}>
+                <div
+                  style={{
+                    width: isMobile ? "56px" : "64px",
+                    height: isMobile ? "56px" : "64px",
+                    borderRadius: "50%",
+                    overflow: "hidden",
+                    border: "2px solid #4c1d95",
+                    backgroundColor: "#1e1b4b",
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    flexShrink: 0,
+                  }}
+                >
+                  {u.photo_url ? (
+                    <img
+                      src={u.photo_url}
+                      alt={u.username}
+                      style={{
+                        width: "100%",
+                        height: "100%",
+                        objectFit: "cover",
+                      }}
+                    />
+                  ) : (
+                    <span style={{ fontSize: isMobile ? "28px" : "32px", color: "#a78bfa" }}>👤</span>
+                  )}
+                </div>
+                <div style={{ flex: 1, minWidth: 0 }}>
+                  <div style={{ color: "#fff", fontWeight: "600", fontSize: isMobile ? "1.1rem" : "1.2rem", marginBottom: "0.25rem" }}>
+                    {u.username}
+                  </div>
+                  <div style={{ color: "#c4b5fd", fontSize: isMobile ? "0.85rem" : "0.9rem", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
+                    {u.email}
+                  </div>
+                </div>
+              </div>
+
+              {/* Informations */}
+              <div style={{ marginBottom: "1rem" }}>
+                {/* Rôle */}
+                <div style={{ marginBottom: "0.75rem" }}>
+                  <div style={{ color: "#a78bfa", fontSize: "0.85rem", marginBottom: "0.5rem", fontWeight: "500" }}>
+                    Rôle
+                  </div>
+                  {canEdit ? (
+                    <select
+                      value={u.role || ""}
+                      onChange={(e) => handleChangeRole(u.id, e.target.value)}
+                      disabled={savingId === u.id}
+                      style={{
+                        width: "100%",
+                        padding: "0.75rem",
+                        borderRadius: "8px",
+                        border: "1px solid #4c1d95",
+                        backgroundColor: "#1e1b4b",
+                        color: "#fff",
+                        fontSize: "0.95rem",
+                        cursor: "pointer",
+                      }}
+                    >
+                      <option value="">—</option>
+                      {ROLE_OPTIONS.map((r) => (
+                        <option key={r} value={r}>
+                          {ROLE_LABELS[r]}
+                        </option>
+                      ))}
+                    </select>
+                  ) : (
+                    <div style={{ color: "#fff", fontSize: "0.95rem", padding: "0.75rem", backgroundColor: "#1e1b4b", borderRadius: "8px" }}>
+                      {ROLE_LABELS[u.role] || "—"}
+                    </div>
+                  )}
+                </div>
+
+                {/* Spécialité (si membre ou chef_pole) */}
+                {(u.role === 'membre' || u.role === 'chef_pole') && (
+                  <div>
+                    <div style={{ color: "#a78bfa", fontSize: "0.85rem", marginBottom: "0.5rem", fontWeight: "500" }}>
+                      Spécialité
+                    </div>
+                    {canEdit ? (
+                      <select
+                        value={u.membre_specialite || ""}
+                        onChange={(e) => handleChangeSpecialite(u.id, e.target.value)}
+                        disabled={savingId === u.id}
+                        style={{
+                          width: "100%",
+                          padding: "0.75rem",
+                          borderRadius: "8px",
+                          border: "1px solid #4c1d95",
+                          backgroundColor: "#1e1b4b",
+                          color: "#fff",
+                          fontSize: "0.95rem",
+                          cursor: "pointer",
+                        }}
+                      >
+                        {SPECIALITE_OPTIONS.map((s) => (
+                          <option key={s} value={s}>
+                            {SPECIALITE_LABELS[s]}
+                          </option>
+                        ))}
+                      </select>
+                    ) : (
+                      <div style={{ color: "#fff", fontSize: "0.95rem", padding: "0.75rem", backgroundColor: "#1e1b4b", borderRadius: "8px" }}>
+                        {SPECIALITE_LABELS[u.membre_specialite] || SPECIALITE_LABELS[""]}
+                      </div>
+                    )}
+                  </div>
+                )}
+              </div>
+
+              {/* Actions */}
+              <div style={{ display: "flex", flexDirection: isMobile ? "column" : "row", gap: "0.5rem" }}>
+                <Link
+                  to={`/users/${u.id}/profile`}
+                  style={{
+                    flex: 1,
+                    padding: "0.75rem",
+                    backgroundColor: theme.colors.secondary,
+                    color: theme.text.inverse,
+                    borderRadius: "8px",
+                    textDecoration: "none",
+                    fontSize: "0.95rem",
+                    fontWeight: "600",
+                    textAlign: "center",
+                    transition: "all 0.2s",
+                  }}
+                  onMouseEnter={(e) => {
+                    e.target.style.backgroundColor = theme.colors.orangeLight;
+                    e.target.style.transform = "translateY(-2px)";
+                  }}
+                  onMouseLeave={(e) => {
+                    e.target.style.backgroundColor = theme.colors.secondary;
+                    e.target.style.transform = "translateY(0)";
+                  }}
+                >
+                  👁️ Voir le profil
+                </Link>
+                {canEdit && (
+                  <button
+                    onClick={() => handleDeleteUser(u.id, u.username)}
+                    disabled={savingId === u.id}
+                    style={{
+                      flex: 1,
+                      padding: "0.75rem",
+                      backgroundColor: "#f87171",
+                      color: "#fff",
+                      borderRadius: "8px",
+                      border: "none",
+                      fontSize: "0.95rem",
+                      fontWeight: "600",
+                      cursor: savingId === u.id ? "wait" : "pointer",
+                      transition: "all 0.2s",
+                    }}
+                    onMouseEnter={(e) => {
+                      if (savingId !== u.id) {
+                        e.target.style.backgroundColor = "#ef4444";
+                        e.target.style.transform = "translateY(-2px)";
+                      }
+                    }}
+                    onMouseLeave={(e) => {
+                      if (savingId !== u.id) {
+                        e.target.style.backgroundColor = "#f87171";
+                        e.target.style.transform = "translateY(0)";
+                      }
+                    }}
+                  >
+                    🗑️ Supprimer
+                  </button>
+                )}
+              </div>
+            </div>
+          ))}
+        </div>
       ) : (
+        // Vue en tableau pour desktop
         <div
           style={{
             backgroundColor: "#2d1b69",
@@ -172,7 +374,7 @@ export default function AdminUsers() {
                     fontWeight: "500",
                   }}
                 >
-                  ID
+                  Photo
                 </th>
                 <th
                   style={{
@@ -246,8 +448,41 @@ export default function AdminUsers() {
                     e.currentTarget.style.backgroundColor = "transparent";
                   }}
                 >
-                  <td style={{ padding: "1rem", color: "#a78bfa" }}>
-                    #{u.id}
+                  <td style={{ padding: "1rem" }}>
+                    <div
+                      style={{
+                        width: "48px",
+                        height: "48px",
+                        borderRadius: "50%",
+                        overflow: "hidden",
+                        border: "2px solid #4c1d95",
+                        backgroundColor: "#1e1b4b",
+                        display: "flex",
+                        alignItems: "center",
+                        justifyContent: "center",
+                      }}
+                    >
+                      {u.photo_url ? (
+                        <img
+                          src={u.photo_url}
+                          alt={u.username}
+                          style={{
+                            width: "100%",
+                            height: "100%",
+                            objectFit: "cover",
+                          }}
+                          onError={(e) => {
+                            // Image par défaut si erreur de chargement
+                            e.target.style.display = "none";
+                            e.target.parentElement.innerHTML = "👤";
+                            e.target.parentElement.style.fontSize = "24px";
+                            e.target.parentElement.style.color = "#a78bfa";
+                          }}
+                        />
+                      ) : (
+                        <span style={{ fontSize: "24px", color: "#a78bfa" }}>👤</span>
+                      )}
+                    </div>
                   </td>
                   <td style={{ padding: "1rem", color: "#fff", fontWeight: "500" }}>
                     {u.username}

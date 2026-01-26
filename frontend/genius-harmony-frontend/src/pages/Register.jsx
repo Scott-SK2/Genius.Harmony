@@ -2,6 +2,7 @@ import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { register } from "../api/auth";
 import { useTheme } from "../context/ThemeContext";
+import { useResponsive } from "../hooks/useResponsive";
 import logo from "../assets/GH long.png";
 
 const ROLE_OPTIONS = [
@@ -16,11 +17,14 @@ const ROLE_OPTIONS = [
 export default function Register() {
   const navigate = useNavigate();
   const { theme, isDark, toggleTheme } = useTheme();
+  const { isMobile } = useResponsive();
   const [formData, setFormData] = useState({
     username: "",
     email: "",
     password: "",
     password2: "",
+    first_name: "",
+    last_name: "",
     role: "membre",
   });
   const [error, setError] = useState("");
@@ -51,6 +55,8 @@ export default function Register() {
         username: formData.username,
         email: formData.email,
         password: formData.password,
+        first_name: formData.first_name,
+        last_name: formData.last_name,
         role: formData.role,
       });
 
@@ -59,19 +65,46 @@ export default function Register() {
         state: { message: "Inscription réussie ! Vous pouvez maintenant vous connecter." },
       });
     } catch (err) {
-      console.error("Erreur inscription:", err);
+      console.error("Erreur inscription complète:", err);
+      console.error("Réponse serveur:", err.response);
+
       if (err.response?.data) {
         const errors = err.response.data;
+
+        // Erreurs de validation spécifiques
         if (errors.username) {
           setError(`Nom d'utilisateur : ${errors.username[0]}`);
         } else if (errors.email) {
           setError(`Email : ${errors.email[0]}`);
         } else if (errors.password) {
           setError(`Mot de passe : ${errors.password[0]}`);
+        } else if (errors.first_name) {
+          setError(`Prénom : ${errors.first_name[0]}`);
+        } else if (errors.last_name) {
+          setError(`Nom : ${errors.last_name[0]}`);
+        } else if (errors.detail) {
+          // Message d'erreur générique du serveur
+          setError(`Erreur serveur : ${errors.detail}`);
+        } else if (errors.error) {
+          setError(`Erreur : ${errors.error}`);
         } else {
-          setError("Erreur lors de l'inscription. Veuillez réessayer.");
+          // Afficher l'objet d'erreur complet si format inconnu
+          setError(`Erreur serveur (${err.response.status}) : ${JSON.stringify(errors)}`);
         }
+      } else if (err.response?.status) {
+        // Erreur HTTP sans détails
+        if (err.response.status === 500) {
+          setError("Erreur interne du serveur. L'équipe technique a été notifiée. Veuillez réessayer dans quelques instants.");
+        } else if (err.response.status === 503) {
+          setError("Service temporairement indisponible. Veuillez réessayer dans quelques instants.");
+        } else {
+          setError(`Erreur serveur (code ${err.response.status}). Veuillez réessayer.`);
+        }
+      } else if (err.request) {
+        // Requête envoyée mais pas de réponse
+        setError("Impossible de contacter le serveur. Vérifiez votre connexion internet.");
       } else {
+        // Erreur lors de la configuration de la requête
         setError("Erreur lors de l'inscription. Veuillez réessayer.");
       }
     } finally {
@@ -91,19 +124,19 @@ export default function Register() {
         position: "relative",
       }}
     >
-      {/* Theme toggle */}
+      {/* Theme toggle - Responsive */}
       <button
         onClick={toggleTheme}
         style={{
           position: "absolute",
-          top: "2rem",
-          right: "2rem",
+          top: isMobile ? "1rem" : "2rem",
+          right: isMobile ? "1rem" : "2rem",
           background: "none",
           border: `1px solid ${theme.border.medium}`,
           borderRadius: "8px",
-          padding: "0.5rem 0.75rem",
+          padding: isMobile ? "0.4rem 0.6rem" : "0.5rem 0.75rem",
           cursor: "pointer",
-          fontSize: "1.2rem",
+          fontSize: isMobile ? "1rem" : "1.2rem",
           backgroundColor: theme.bg.secondary,
         }}
         title={isDark ? "Mode clair" : "Mode sombre"}
@@ -114,7 +147,7 @@ export default function Register() {
       <div
         style={{
           backgroundColor: theme.bg.secondary,
-          padding: "3rem",
+          padding: isMobile ? "2rem 1.5rem" : "3rem",
           borderRadius: "16px",
           boxShadow: theme.shadow.xl,
           width: "100%",
@@ -123,13 +156,13 @@ export default function Register() {
         }}
       >
         {/* Logo */}
-        <div style={{ textAlign: "center", marginBottom: "2rem" }}>
+        <div style={{ textAlign: "center", marginBottom: isMobile ? "1.5rem" : "2rem" }}>
           <div style={{ marginBottom: "1rem", display: "flex", justifyContent: "center" }}>
             <img
               src={logo}
               alt="Genius Harmony Logo"
               style={{
-                height: "80px",
+                height: isMobile ? "60px" : "80px",
                 objectFit: "contain"
               }}
             />
@@ -138,7 +171,7 @@ export default function Register() {
             style={{
               margin: 0,
               color: theme.text.primary,
-              fontSize: "2rem",
+              fontSize: isMobile ? "1.5rem" : "2rem",
               marginBottom: "0.5rem",
             }}
           >
@@ -177,7 +210,7 @@ export default function Register() {
                 color: theme.text.primary,
               }}
             >
-              Nom d'utilisateur *
+              Nom d'utilisateur (Pseudo) *
             </label>
             <input
               type="text"
@@ -194,7 +227,69 @@ export default function Register() {
                 backgroundColor: theme.bg.tertiary,
                 color: theme.text.primary,
               }}
-              placeholder="votre-nom"
+              placeholder="votre-pseudo"
+            />
+          </div>
+
+          {/* Prénom */}
+          <div style={{ marginBottom: "1.5rem" }}>
+            <label
+              style={{
+                display: "block",
+                marginBottom: "0.5rem",
+                fontWeight: "500",
+                color: theme.text.primary,
+              }}
+            >
+              Prénom *
+            </label>
+            <input
+              type="text"
+              name="first_name"
+              value={formData.first_name}
+              onChange={handleChange}
+              required
+              style={{
+                width: "100%",
+                padding: "0.75rem",
+                borderRadius: "8px",
+                border: `1px solid ${theme.border.medium}`,
+                fontSize: "1rem",
+                backgroundColor: theme.bg.tertiary,
+                color: theme.text.primary,
+              }}
+              placeholder="Jean"
+            />
+          </div>
+
+          {/* Nom */}
+          <div style={{ marginBottom: "1.5rem" }}>
+            <label
+              style={{
+                display: "block",
+                marginBottom: "0.5rem",
+                fontWeight: "500",
+                color: theme.text.primary,
+              }}
+            >
+              Nom *
+            </label>
+            <input
+              type="text"
+              name="last_name"
+              value={formData.last_name}
+              onChange={handleChange}
+              required
+              style={{
+                width: "100%",
+                padding: "0.75rem",
+                borderRadius: "8px",
+                border: `1px solid ${theme.border.medium}`,
+                fontSize: "1rem",
+                backgroundColor: theme.bg.tertiary,
+                color: theme.text.primary,
+              }}
+              placeholder="Dupont"
             />
           </div>
 
