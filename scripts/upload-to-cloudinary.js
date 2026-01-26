@@ -17,12 +17,14 @@ const fs = require('fs');
 const path = require('path');
 const readline = require('readline');
 
+// Charger les variables d'environnement depuis .env
+require('dotenv').config();
+
 // Configuration Cloudinary
-// Remplace par tes vraies credentials ou utilise des variables d'environnement
 cloudinary.config({
-  cloud_name: process.env.CLOUDINARY_CLOUD_NAME || 'genius-harmony',
-  api_key: process.env.CLOUDINARY_API_KEY || 'YOUR_API_KEY',
-  api_secret: process.env.CLOUDINARY_API_SECRET || 'YOUR_API_SECRET',
+  cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
+  api_key: process.env.CLOUDINARY_API_KEY,
+  api_secret: process.env.CLOUDINARY_API_SECRET,
 });
 
 // Couleurs pour les logs
@@ -56,7 +58,10 @@ async function uploadFile(filePath, resourceType, folder) {
     console.log(`${colors.green}✅ Success: ${result.secure_url}${colors.reset}`);
     return result;
   } catch (error) {
-    console.error(`${colors.red}❌ Error uploading ${fileName}: ${error.message}${colors.reset}`);
+    console.error(`${colors.red}❌ Error uploading ${fileName}: ${error.message || error.error?.message || 'Unknown error'}${colors.reset}`);
+    if (error.error?.code === 'EAI_AGAIN') {
+      console.error(`${colors.yellow}💡 Network error - make sure you have internet access${colors.reset}`);
+    }
     return null;
   }
 }
