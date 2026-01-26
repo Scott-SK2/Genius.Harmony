@@ -344,15 +344,63 @@ function Card({ item, sectionColor, isMobile, isHovered, onHover, onLeave, onCli
     ...(isHovered ? styles.cardHovered : {}),
   };
 
-  return (
-    <div
-      style={cardStyle}
-      onMouseEnter={onHover}
-      onMouseLeave={onLeave}
-      onClick={onClick}
-    >
-      {/* Thumbnail ou media preview */}
-      {item.type === "video" && (
+  /**
+   * Fonction pour extraire l'ID YouTube depuis une URL
+   */
+  const getYouTubeId = (url) => {
+    if (!url) return null;
+    const regExp = /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|&v=)([^#&?]*).*/;
+    const match = url.match(regExp);
+    return (match && match[2].length === 11) ? match[2] : null;
+  };
+
+  /**
+   * Fonction pour extraire l'ID Vimeo depuis une URL
+   */
+  const getVimeoId = (url) => {
+    if (!url) return null;
+    const regExp = /vimeo.com\/(\d+)/;
+    const match = url.match(regExp);
+    return match ? match[1] : null;
+  };
+
+  /**
+   * Rendre le média selon le type
+   */
+  const renderMedia = () => {
+    // YouTube embed
+    if (item.type === "youtube") {
+      const videoId = item.youtubeId || getYouTubeId(item.src);
+      return (
+        <iframe
+          src={`https://www.youtube.com/embed/${videoId}`}
+          style={styles.media}
+          frameBorder="0"
+          allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+          allowFullScreen
+          title={item.title}
+        />
+      );
+    }
+
+    // Vimeo embed
+    if (item.type === "vimeo") {
+      const videoId = item.vimeoId || getVimeoId(item.src);
+      return (
+        <iframe
+          src={`https://player.vimeo.com/video/${videoId}`}
+          style={styles.media}
+          frameBorder="0"
+          allow="autoplay; fullscreen; picture-in-picture"
+          allowFullScreen
+          title={item.title}
+        />
+      );
+    }
+
+    // Vidéo locale ou Cloudinary
+    if (item.type === "video") {
+      return (
         <video
           src={item.src}
           poster={item.thumbnail}
@@ -362,15 +410,23 @@ function Card({ item, sectionColor, isMobile, isHovered, onHover, onLeave, onCli
           onMouseEnter={(e) => e.target.play()}
           onMouseLeave={(e) => e.target.pause()}
         />
-      )}
-      {item.type === "image" && (
+      );
+    }
+
+    // Image
+    if (item.type === "image") {
+      return (
         <img
           src={item.src}
           alt={item.title}
           style={styles.media}
         />
-      )}
-      {item.type === "audio" && (
+      );
+    }
+
+    // Audio
+    if (item.type === "audio") {
+      return (
         <div style={styles.audioCard}>
           <img
             src={item.thumbnail}
@@ -379,7 +435,21 @@ function Card({ item, sectionColor, isMobile, isHovered, onHover, onLeave, onCli
           />
           <div style={styles.audioIcon}>🎵</div>
         </div>
-      )}
+      );
+    }
+
+    return null;
+  };
+
+  return (
+    <div
+      style={cardStyle}
+      onMouseEnter={onHover}
+      onMouseLeave={onLeave}
+      onClick={onClick}
+    >
+      {/* Thumbnail ou media preview */}
+      {renderMedia()}
 
       {/* Overlay avec titre */}
       <div style={styles.cardOverlay}>
@@ -388,7 +458,10 @@ function Card({ item, sectionColor, isMobile, isHovered, onHover, onLeave, onCli
           {item.artist && (
             <p style={styles.cardSubtitle}>{item.artist}</p>
           )}
-          {item.type === "video" && (
+          {item.description && (
+            <p style={styles.cardDescription}>{item.description}</p>
+          )}
+          {(item.type === "video" || item.type === "youtube" || item.type === "vimeo") && (
             <span style={styles.playIcon}>▶</span>
           )}
           {item.type === "audio" && (
@@ -572,6 +645,15 @@ const styles = {
     fontSize: "12px",
     margin: 0,
     color: "#a0a0a0",
+  },
+  cardDescription: {
+    fontSize: "11px",
+    margin: 0,
+    marginTop: "0.25rem",
+    color: "#808080",
+    overflow: "hidden",
+    textOverflow: "ellipsis",
+    whiteSpace: "nowrap",
   },
   playIcon: {
     position: "absolute",
