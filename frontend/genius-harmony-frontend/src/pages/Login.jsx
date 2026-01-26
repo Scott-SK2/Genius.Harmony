@@ -29,7 +29,7 @@ export default function Login() {
 
       // Redirection selon le rôle
       if (user.role === "admin" || user.role === "super_admin") navigate("/admin/dashboard");
-      else navigate("/dashboard");
+      else navigate("/welcome");
     } catch (err) {
       console.error("Erreur login:", err.response?.data || err.message);
       setError(err.response?.data?.detail || "Identifiants incorrects");

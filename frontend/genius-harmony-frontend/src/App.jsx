@@ -3,6 +3,8 @@ import { AuthProvider } from "./context/AuthContext";
 import { ThemeProvider } from "./context/ThemeContext";
 import Login from "./pages/Login";
 import Register from "./pages/Register";
+import WelcomePage from "./pages/WelcomePage";
+import UniversePage from "./pages/UniversePage";
 import AdminDashboard from "./pages/AdminDashboard";
 import GenericDashboard from "./pages/GenericDashboard";
 import ProtectedRoute from "./components/ProtectedRoute";
@@ -26,6 +28,24 @@ function App() {
             {/* Pages publiques */}
             <Route path="/login" element={<Login />} />
             <Route path="/register" element={<Register />} />
+
+            {/* Pages d'accueil personnalisées */}
+            <Route
+              path="/welcome"
+              element={
+                <ProtectedRoute>
+                  <WelcomePage />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/universe"
+              element={
+                <ProtectedRoute>
+                  <UniversePage />
+                </ProtectedRoute>
+              }
+            />
 
             {/* Dashboard générique pour tout utilisateur connecté */}
             <Route
