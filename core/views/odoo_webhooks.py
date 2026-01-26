@@ -23,12 +23,23 @@ def verify_odoo_token(request):
     Vérifie que la requête vient bien d'Odoo
 
     Utilise un token secret partagé entre Odoo et Django
+    Accepte le token soit dans le header Authorization, soit dans le query parameter ?token=...
     """
+    # Essayer d'abord le header Authorization
     token = request.headers.get('Authorization', '').replace('Bearer ', '')
+
+    # Si pas dans le header, essayer le query parameter
+    if not token:
+        token = request.GET.get('token', '')
+
     expected_token = settings.ODOO_WEBHOOK_SECRET
 
     if not expected_token:
         logger.warning("⚠️ ODOO_WEBHOOK_SECRET not configured")
+        return False
+
+    if not token:
+        logger.warning("⚠️ No token provided (neither in header nor query param)")
         return False
 
     return token == expected_token
