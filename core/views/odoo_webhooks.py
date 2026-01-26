@@ -23,12 +23,23 @@ def verify_odoo_token(request):
     Vérifie que la requête vient bien d'Odoo
 
     Utilise un token secret partagé entre Odoo et Django
+    Accepte le token soit dans le header Authorization, soit dans le query parameter ?token=...
     """
+    # Essayer d'abord le header Authorization
     token = request.headers.get('Authorization', '').replace('Bearer ', '')
+
+    # Si pas dans le header, essayer le query parameter
+    if not token:
+        token = request.GET.get('token', '')
+
     expected_token = settings.ODOO_WEBHOOK_SECRET
 
     if not expected_token:
         logger.warning("⚠️ ODOO_WEBHOOK_SECRET not configured")
+        return False
+
+    if not token:
+        logger.warning("⚠️ No token provided (neither in header nor query param)")
         return False
 
     return token == expected_token
@@ -40,13 +51,9 @@ def odoo_deadline_notification(request):
     """
     Reçoit les notifications de deadline depuis Odoo
 
-    Payload attendu:
-    {
-        "task_id": 123,           # ID Odoo de la tâche
-        "type": "deadline_3days", # Type de notification
-        "users": [1, 2, 3],       # IDs Odoo des utilisateurs assignés
-        "project_manager": 5      # ID Odoo du chef de projet
-    }
+    Supporte deux formats :
+    1. Format personnalisé : {"task_id": 123, "type": "deadline_3days", "users": [...]}
+    2. Format Odoo Studio : {"_id": 123, "_model": "project.task"} + ?type=deadline_3days en query param
     """
     # Vérifier le token de sécurité
     if not verify_odoo_token(request):
@@ -58,10 +65,33 @@ def odoo_deadline_notification(request):
 
     try:
         data = request.data
-        odoo_task_id = data.get('task_id')
-        notification_type = data.get('type')
-        odoo_user_ids = data.get('users', [])
-        odoo_manager_id = data.get('project_manager')
+
+        # Détecter le format : personnalisé ou Odoo Studio
+        if 'task_id' in data:
+            # Format personnalisé
+            odoo_task_id = data.get('task_id')
+            notification_type = data.get('type')
+            odoo_user_ids = data.get('users', [])
+            odoo_manager_id = data.get('project_manager')
+        else:
+            # Format Odoo Studio par défaut
+            odoo_task_id = data.get('_id') or data.get('id')
+            notification_type = request.GET.get('type', 'deadline_notification')
+
+            # Récupérer la tâche depuis Odoo pour obtenir les utilisateurs
+            from core.odoo_gateway import odoo_gateway
+            try:
+                odoo_task = odoo_gateway._odoo.env['project.task'].browse([odoo_task_id])
+                if odoo_task.exists():
+                    odoo_user_ids = odoo_task.user_ids.mapped('partner_id').ids
+                    odoo_manager_id = odoo_task.project_id.user_id.partner_id.id if odoo_task.project_id.user_id else None
+                else:
+                    odoo_user_ids = []
+                    odoo_manager_id = None
+            except Exception as e:
+                logger.warning(f"⚠️ Could not fetch task details from Odoo: {e}")
+                odoo_user_ids = []
+                odoo_manager_id = None
 
         logger.info(f"📥 Received deadline notification from Odoo: task {odoo_task_id}, type {notification_type}")
 
