@@ -365,6 +365,18 @@ function Card({ item, sectionColor, isMobile, isHovered, onHover, onLeave, onCli
   };
 
   /**
+   * Fonction pour extraire l'URI Spotify depuis une URL
+   * Exemple: https://open.spotify.com/track/3n3Ppam7vgaVa1iaRUc9Lp
+   * Retourne: track/3n3Ppam7vgaVa1iaRUc9Lp
+   */
+  const getSpotifyUri = (url) => {
+    if (!url) return null;
+    const regExp = /spotify\.com\/(track|album|playlist)\/([a-zA-Z0-9]+)/;
+    const match = url.match(regExp);
+    return match ? `${match[1]}/${match[2]}` : null;
+  };
+
+  /**
    * Rendre le média selon le type
    */
   const renderMedia = () => {
@@ -393,6 +405,21 @@ function Card({ item, sectionColor, isMobile, isHovered, onHover, onLeave, onCli
           frameBorder="0"
           allow="autoplay; fullscreen; picture-in-picture"
           allowFullScreen
+          title={item.title}
+        />
+      );
+    }
+
+    // Spotify embed
+    if (item.type === "spotify") {
+      const spotifyUri = item.spotifyUri || getSpotifyUri(item.src);
+      return (
+        <iframe
+          src={`https://open.spotify.com/embed/${spotifyUri}?utm_source=generator&theme=0`}
+          style={styles.media}
+          frameBorder="0"
+          allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture"
+          loading="lazy"
           title={item.title}
         />
       );
