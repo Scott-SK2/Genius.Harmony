@@ -21,51 +21,38 @@ export default function UniversePage() {
       items: [
         {
           id: 1,
-          title: "Berceau des Anges",
+          title: "Casting Berceau des Anges",
           type: "video",
-          thumbnail: "/thumbnails/berceau-des-anges.jpg",
-          src: "/videos/berceau-des-anges-trailer.mp4",
-          description: "Court-métrage - Quartier Court",
+          src: "https://res.cloudinary.com/djvkp74yf/video/upload/v1769471625/WhatsApp_Vid%C3%A9o_2024-12-29_%C3%A0_21.59.27_7ab9c447_nnfxid.mp4",
+          description: "Coulisses du casting",
         },
         {
           id: 2,
-          title: "Sauf à Gaza",
-          type: "video",
-          thumbnail: "/thumbnails/sauf-a-gaza.jpg",
-          src: "/videos/sauf-a-gaza-trailer.mp4",
+          title: "Celui qui plantait des tomates",
+          type: "youtube",
+          youtubeId: "Kb_yOq8npqM",
           description: "Court-métrage - Quartier Court",
         },
         {
           id: 3,
-          title: "Celui qui plantait des tomates",
-          type: "video",
-          thumbnail: "/thumbnails/tomates.jpg",
-          src: "/videos/tomates-trailer.mp4",
+          title: "Celui qui pensait comme un psychopathe",
+          type: "youtube",
+          youtubeId: "wn9OhTFKV1c",
           description: "Court-métrage - Quartier Court",
         },
         {
           id: 4,
-          title: "Une MAISON pas très HANTÉE",
-          type: "video",
-          thumbnail: "/thumbnails/maison-hantee.jpg",
-          src: "/videos/maison-hantee-trailer.mp4",
-          description: "Court-métrage comédie",
+          title: "Une MAISON (pas très) HANTÉE",
+          type: "youtube",
+          youtubeId: "MfT44bKGZKQ",
+          description: "Court-métrage - BIFFF",
         },
         {
           id: 5,
           title: "Exfiltration",
-          type: "video",
-          thumbnail: "/thumbnails/exfiltration.jpg",
-          src: "/videos/exfiltration-trailer.mp4",
+          type: "youtube",
+          youtubeId: "dLIcW45ZNgU",
           description: "Court-métrage action",
-        },
-        {
-          id: 6,
-          title: "Celui qui pensait comme un psychopathe",
-          type: "video",
-          thumbnail: "/thumbnails/psychopathe.jpg",
-          src: "/videos/psychopathe-trailer.mp4",
-          description: "Court-métrage thriller",
         },
       ],
     },
@@ -77,46 +64,59 @@ export default function UniversePage() {
       items: [
         {
           id: 1,
-          title: "WoSmen 2025",
+          title: "Hacking The Game",
           type: "image",
-          src: "/images/wosmen-2025.jpg",
-          description: "Événement 100% féminin - Mars 2025",
+          src: "https://res.cloudinary.com/djvkp74yf/image/upload/v1769473317/Affiche_HackingThe_Game_edition_2_utybdg.jpg",
+          description: "Affiche officielle - Édition 2",
         },
         {
           id: 2,
-          title: "Hacking The Game 2025",
-          type: "video",
-          thumbnail: "/thumbnails/htg-2025.jpg",
-          src: "/videos/htg-2025-recap.mp4",
-          description: "Diffusion courts-métrages + Networking",
+          title: "Hacking The Game",
+          type: "image",
+          src: "https://res.cloudinary.com/djvkp74yf/image/upload/v1769473521/image00078_x6b25v.jpg",
+          description: "Ambiance événement",
         },
         {
           id: 3,
-          title: "Hacking The Game 2024",
+          title: "Hacking The Game",
           type: "image",
-          src: "/images/htg-2024.jpg",
-          description: "Édition 2024 - Prestations scéniques",
+          src: "https://res.cloudinary.com/djvkp74yf/image/upload/v1769473498/image00063_vzqchn.jpg",
+          description: "Participants et networking",
         },
         {
           id: 4,
-          title: "Hacking The Game 2023",
+          title: "Hacking The Game",
           type: "image",
-          src: "/images/htg-2023.jpg",
-          description: "Première édition - Brussels",
+          src: "https://res.cloudinary.com/djvkp74yf/image/upload/v1769473496/image00062_ezgbpk.jpg",
+          description: "Prestations scéniques",
         },
         {
           id: 5,
-          title: "Partenariat BIFFF",
+          title: "Je suis le Kongo",
           type: "image",
-          src: "/images/bifff-partnership.jpg",
-          description: "Brussels International Fantastic Film Festival",
+          src: "https://res.cloudinary.com/djvkp74yf/image/upload/v1769470595/DSC02249_p5gdqu.jpg",
+          description: "Groupe de discussion",
         },
         {
           id: 6,
-          title: "Collaboration Lezarts-Urbains",
+          title: "Je suis le Kongo",
           type: "image",
-          src: "/images/lezarts-urbains.jpg",
-          description: "Art urbain & culture émergente",
+          src: "https://res.cloudinary.com/djvkp74yf/image/upload/v1769471105/DSC02027_puv9tq.jpg",
+          description: "Échanges culturels",
+        },
+        {
+          id: 7,
+          title: "Je suis le Kongo",
+          type: "image",
+          src: "https://res.cloudinary.com/djvkp74yf/image/upload/v1769470870/DSC02346_u0sp3q.jpg",
+          description: "Projet communautaire",
+        },
+        {
+          id: 8,
+          title: "Je suis le Kongo",
+          type: "image",
+          src: "https://res.cloudinary.com/djvkp74yf/image/upload/v1769470965/DSC02361_fcujj4.jpg",
+          description: "Rencontres et débats",
         },
       ],
     },
@@ -128,80 +128,78 @@ export default function UniversePage() {
       items: [
         {
           id: 1,
-          title: "Kaeloo - Single",
-          type: "audio",
-          thumbnail: "/thumbnails/kaeloo.jpg",
-          src: "/audio/kaeloo-single.mp3",
+          title: "Vodka",
+          type: "spotify",
+          spotifyUri: "track/1bfVnEe6G8BLQ7VITocWVy",
           artist: "Kaeloo",
-          description: "En production - Management GH",
+          description: "Single - Management Genius.Harmony",
         },
         {
           id: 2,
-          title: "Kaeloo - Album Teaser",
-          type: "video",
-          thumbnail: "/thumbnails/kaeloo-album.jpg",
-          src: "/videos/kaeloo-album-teaser.mp4",
+          title: "Maladie d'amour",
+          type: "spotify",
+          spotifyUri: "track/5IXnkWW2gz0oJ3iW2H5bAI",
           artist: "Kaeloo",
-          description: "Teaser album à venir",
+          description: "Single - Management Genius.Harmony",
         },
         {
           id: 3,
-          title: "Production musicale",
-          type: "image",
-          src: "/images/music-production.jpg",
-          description: "Studio & production artistique",
+          title: "Doucement",
+          type: "spotify",
+          spotifyUri: "track/2TlurdSYnfNUpj17Hwrm5h",
+          artist: "Kaeloo",
+          description: "Single - Management Genius.Harmony",
         },
         {
           id: 4,
-          title: "Management d'artistes",
-          type: "image",
-          src: "/images/artist-management.jpg",
-          description: "Musiciens, acteurs, modèles",
+          title: "Fuego",
+          type: "spotify",
+          spotifyUri: "track/19RPyuKEPz3hPxieI9M467",
+          artist: "Kaeloo",
+          description: "Single - Management Genius.Harmony",
         },
       ],
     },
     {
       id: 4,
-      title: "Coulisses / Vie du collectif",
+      title: "Backstage / Coulisses",
       emoji: "📸",
       color: "#A8E6CF",
       items: [
         {
           id: 1,
-          title: "Backstage tournage",
-          type: "image",
-          src: "/images/backstage-cinema.jpg",
-          description: "En coulisses sur nos tournages",
+          title: "BDA - Behind The Scenes 1",
+          type: "video",
+          src: "https://res.cloudinary.com/djvkp74yf/video/upload/v1769472661/Snapchat-523409813_uixehm.mp4",
+          description: "Coulisses tournage",
         },
         {
           id: 2,
-          title: "Behind The Scenes - HTG",
+          title: "BDA - Behind The Scenes 2",
           type: "video",
-          thumbnail: "/thumbnails/bts-htg.jpg",
-          src: "/videos/bts-htg.mp4",
-          description: "Préparation événement",
+          src: "https://res.cloudinary.com/djvkp74yf/video/upload/v1769472666/Snapchat-503447761_dec50a.mp4",
+          description: "Moments backstage",
         },
         {
           id: 3,
-          title: "L'équipe Genius.Harmony",
-          type: "image",
-          src: "/images/team-gh.jpg",
-          description: "Le collectif au complet",
+          title: "BDA - Behind The Scenes 3",
+          type: "video",
+          src: "https://res.cloudinary.com/djvkp74yf/video/upload/v1769472671/Snapchat-346902583_qyrkz0.mp4",
+          description: "Préparation événement",
         },
         {
           id: 4,
-          title: "Studio sessions",
+          title: "BDA - Behind The Scenes 4",
           type: "video",
-          thumbnail: "/thumbnails/studio-session.jpg",
-          src: "/videos/studio-session.mp4",
-          description: "Sessions d'enregistrement",
+          src: "https://res.cloudinary.com/djvkp74yf/video/upload/v1769472681/Snapchat-701793968_imqqr6.mp4",
+          description: "En coulisses",
         },
         {
           id: 5,
-          title: "Networking Brussels",
-          type: "image",
-          src: "/images/networking.jpg",
-          description: "Événements networking",
+          title: "BDA - Behind The Scenes 5",
+          type: "video",
+          src: "https://res.cloudinary.com/djvkp74yf/video/upload/v1769472673/Snapchat-653594586_zvwiql.mp4",
+          description: "Vie du collectif",
         },
       ],
     },
@@ -365,6 +363,18 @@ function Card({ item, sectionColor, isMobile, isHovered, onHover, onLeave, onCli
   };
 
   /**
+   * Fonction pour extraire l'URI Spotify depuis une URL
+   * Exemple: https://open.spotify.com/track/3n3Ppam7vgaVa1iaRUc9Lp
+   * Retourne: track/3n3Ppam7vgaVa1iaRUc9Lp
+   */
+  const getSpotifyUri = (url) => {
+    if (!url) return null;
+    const regExp = /spotify\.com\/(track|album|playlist)\/([a-zA-Z0-9]+)/;
+    const match = url.match(regExp);
+    return match ? `${match[1]}/${match[2]}` : null;
+  };
+
+  /**
    * Rendre le média selon le type
    */
   const renderMedia = () => {
@@ -393,6 +403,21 @@ function Card({ item, sectionColor, isMobile, isHovered, onHover, onLeave, onCli
           frameBorder="0"
           allow="autoplay; fullscreen; picture-in-picture"
           allowFullScreen
+          title={item.title}
+        />
+      );
+    }
+
+    // Spotify embed
+    if (item.type === "spotify") {
+      const spotifyUri = item.spotifyUri || getSpotifyUri(item.src);
+      return (
+        <iframe
+          src={`https://open.spotify.com/embed/${spotifyUri}?utm_source=generator&theme=0`}
+          style={styles.media}
+          frameBorder="0"
+          allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture"
+          loading="lazy"
           title={item.title}
         />
       );
