@@ -388,6 +388,7 @@ function Card({ item, sectionColor, isMobile, isHovered, onHover, onLeave, onCli
           frameBorder="0"
           allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
           allowFullScreen
+          loading="lazy"
           title={item.title}
         />
       );
@@ -403,6 +404,7 @@ function Card({ item, sectionColor, isMobile, isHovered, onHover, onLeave, onCli
           frameBorder="0"
           allow="autoplay; fullscreen; picture-in-picture"
           allowFullScreen
+          loading="lazy"
           title={item.title}
         />
       );
@@ -425,13 +427,19 @@ function Card({ item, sectionColor, isMobile, isHovered, onHover, onLeave, onCli
 
     // Vidéo locale ou Cloudinary
     if (item.type === "video") {
+      // Optimiser URL Cloudinary si c'est une vidéo Cloudinary
+      const optimizedSrc = item.src.includes('cloudinary.com')
+        ? item.src.replace('/upload/', '/upload/q_auto,f_auto/')
+        : item.src;
+
       return (
         <video
-          src={item.src}
+          src={optimizedSrc}
           poster={item.thumbnail}
           style={styles.media}
           muted
           loop
+          preload="none"
           onMouseEnter={(e) => e.target.play()}
           onMouseLeave={(e) => e.target.pause()}
         />
@@ -440,11 +448,17 @@ function Card({ item, sectionColor, isMobile, isHovered, onHover, onLeave, onCli
 
     // Image
     if (item.type === "image") {
+      // Optimiser URL Cloudinary si c'est une image Cloudinary
+      const optimizedSrc = item.src.includes('cloudinary.com')
+        ? item.src.replace('/upload/', '/upload/w_400,h_300,c_fill,q_auto,f_auto/')
+        : item.src;
+
       return (
         <img
-          src={item.src}
+          src={optimizedSrc}
           alt={item.title}
           style={styles.media}
+          loading="lazy"
         />
       );
     }
@@ -457,6 +471,7 @@ function Card({ item, sectionColor, isMobile, isHovered, onHover, onLeave, onCli
             src={item.thumbnail}
             alt={item.title}
             style={styles.media}
+            loading="lazy"
           />
           <div style={styles.audioIcon}>🎵</div>
         </div>
