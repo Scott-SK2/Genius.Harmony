@@ -210,10 +210,6 @@ export default function UniversePage() {
     // Ouvrir modal ou naviguer vers détail
   };
 
-  const handleNavigateToDashboard = () => {
-    navigate("/dashboard");
-  };
-
   return (
     <div style={styles.container}>
       {/* Header fixe */}
@@ -257,16 +253,6 @@ export default function UniversePage() {
             onCardClick={handleCardClick}
           />
         ))}
-
-        {/* Bouton pour aller au dashboard */}
-        <div style={styles.dashboardButtonContainer}>
-          <button
-            onClick={handleNavigateToDashboard}
-            style={styles.dashboardButton}
-          >
-            Accéder à mon espace →
-          </button>
-        </div>
       </main>
     </div>
   );
@@ -711,22 +697,5 @@ const styles = {
     fontSize: "14px",
     backdropFilter: "blur(10px)",
     WebkitBackdropFilter: "blur(10px)",
-  },
-  dashboardButtonContainer: {
-    display: "flex",
-    justifyContent: "center",
-    padding: "3rem 0",
-  },
-  dashboardButton: {
-    background: "linear-gradient(90deg, #8B5CF6 0%, #6366F1 100%)",
-    border: "none",
-    color: "#ffffff",
-    fontSize: "18px",
-    fontWeight: 600,
-    padding: "1rem 2rem",
-    borderRadius: "12px",
-    cursor: "pointer",
-    transition: "all 0.3s ease",
-    boxShadow: "0 8px 16px rgba(139, 92, 246, 0.3)",
   },
 };

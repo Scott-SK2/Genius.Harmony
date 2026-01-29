@@ -102,15 +102,18 @@ export default function WelcomePage() {
           ...styles.bottomMenu,
           ...(isMobile ? styles.bottomMenuMobile : {}),
         }}>
-          <button
-            onClick={() => alert("En utilisant Genius.Harmony, vous acceptez nos conditions d'utilisation. Pour toute question, contactez-nous.")}
+          <a
+            href="/documents/conditions-utilisation.md"
+            target="_blank"
+            rel="noopener noreferrer"
             style={{
               ...styles.menuButton,
               ...(isMobile ? styles.menuTextMobile : {}),
+              textDecoration: "none",
             }}
           >
             CGU
-          </button>
+          </a>
           <span style={{
             ...styles.menuSeparator,
             ...(isMobile ? styles.menuTextMobile : {}),
