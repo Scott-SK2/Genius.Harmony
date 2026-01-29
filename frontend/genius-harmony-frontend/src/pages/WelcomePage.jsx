@@ -100,25 +100,27 @@ export default function WelcomePage() {
         {/* Menu discret en bas */}
         <div style={styles.bottomMenu}>
           <button
-            onClick={() => navigate("/profile")}
+            onClick={() => alert("En utilisant Genius.Harmony, vous acceptez nos conditions d'utilisation. Pour toute question, contactez-nous.")}
             style={styles.menuButton}
           >
-            Profil
+            Conditions d'utilisation
           </button>
           <span style={styles.menuSeparator}>•</span>
-          <button
-            onClick={() => navigate("/projets")}
-            style={styles.menuButton}
+          <a
+            href="mailto:contact@genius-harmony.com"
+            style={styles.menuLink}
           >
-            Projets
-          </button>
+            contact@genius-harmony.com
+          </a>
           <span style={styles.menuSeparator}>•</span>
-          <button
-            onClick={() => navigate("/notifications")}
-            style={styles.menuButton}
+          <a
+            href="https://www.instagram.com/geniusharmony"
+            target="_blank"
+            rel="noopener noreferrer"
+            style={styles.menuLink}
           >
-            Notifications
-          </button>
+            insta: @geniusharmony
+          </a>
         </div>
       </div>
     </div>
@@ -142,7 +144,7 @@ const styles = {
     width: "100%",
     height: "100%",
     objectFit: "cover",
-    filter: "blur(10px) brightness(0.4)",
+    filter: "blur(10px) brightness(0.7)",
     zIndex: 0,
   },
   fallbackImage: {
@@ -159,7 +161,7 @@ const styles = {
     left: 0,
     width: "100%",
     height: "100%",
-    backgroundColor: "rgba(0, 0, 0, 0.6)",
+    backgroundColor: "rgba(0, 0, 0, 0.3)",
     zIndex: 1,
   },
   content: {
@@ -227,6 +229,14 @@ const styles = {
     cursor: "pointer",
     transition: "color 0.3s ease",
     fontWeight: 400,
+  },
+  menuLink: {
+    color: "rgba(255, 255, 255, 0.6)",
+    fontSize: "14px",
+    textDecoration: "none",
+    transition: "color 0.3s ease",
+    fontWeight: 400,
+    cursor: "pointer",
   },
   menuSeparator: {
     color: "rgba(255, 255, 255, 0.3)",
