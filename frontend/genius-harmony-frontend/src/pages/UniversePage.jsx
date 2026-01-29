@@ -217,7 +217,10 @@ export default function UniversePage() {
   return (
     <div style={styles.container}>
       {/* Contenu principal */}
-      <main style={styles.main}>
+      <main style={{
+        ...styles.main,
+        ...(isMobile ? styles.mainMobile : {}),
+      }}>
         {sections.map((section) => (
           <Section
             key={section.id}
@@ -255,7 +258,10 @@ function Section({ section, isMobile, hoveredCard, setHoveredCard, onCardClick }
   };
 
   return (
-    <section style={styles.section}>
+    <section style={{
+      ...styles.section,
+      ...(isMobile ? styles.sectionMobile : {}),
+    }}>
       {/* Titre de section */}
       <div style={styles.sectionHeader}>
         <h2 style={styles.sectionTitle}>
@@ -653,9 +659,25 @@ const styles = {
   main: {
     padding: "2rem 0",
   },
+  mainMobile: {
+    display: "flex",
+    flexDirection: "row",
+    overflowX: "auto",
+    overflowY: "hidden",
+    padding: "1rem 0",
+    scrollSnapType: "x mandatory",
+    WebkitOverflowScrolling: "touch",
+  },
   section: {
     marginBottom: "3rem",
     padding: "0 2rem",
+  },
+  sectionMobile: {
+    minWidth: "100vw",
+    marginBottom: 0,
+    padding: "0 1rem",
+    scrollSnapAlign: "start",
+    flexShrink: 0,
   },
   sectionHeader: {
     display: "flex",
