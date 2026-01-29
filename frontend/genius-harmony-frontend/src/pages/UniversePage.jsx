@@ -10,6 +10,7 @@ export default function UniversePage() {
   const { isMobile } = useResponsive();
   const navigate = useNavigate();
   const [hoveredCard, setHoveredCard] = useState(null);
+  const [modalItem, setModalItem] = useState(null);
 
   // Données des sections - Contenu réel de Genius Harmony
   const sections = [
@@ -206,8 +207,11 @@ export default function UniversePage() {
   ];
 
   const handleCardClick = (item) => {
-    console.log("Clicked item:", item);
-    // Ouvrir modal ou naviguer vers détail
+    setModalItem(item);
+  };
+
+  const handleCloseModal = () => {
+    setModalItem(null);
   };
 
   return (
@@ -225,6 +229,15 @@ export default function UniversePage() {
           />
         ))}
       </main>
+
+      {/* Modal pour afficher les médias en grand */}
+      {modalItem && (
+        <MediaModal
+          item={modalItem}
+          onClose={handleCloseModal}
+          isMobile={isMobile}
+        />
+      )}
     </div>
   );
 }
@@ -482,6 +495,156 @@ function Card({ item, sectionColor, isMobile, isHovered, onHover, onLeave, onCli
   );
 }
 
+// Composant Modal pour afficher les médias en grand
+function MediaModal({ item, onClose, isMobile }) {
+  /**
+   * Fonction pour extraire l'ID YouTube depuis une URL
+   */
+  const getYouTubeId = (url) => {
+    if (!url) return null;
+    const regExp = /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|&v=)([^#&?]*).*/;
+    const match = url.match(regExp);
+    return (match && match[2].length === 11) ? match[2] : null;
+  };
+
+  /**
+   * Fonction pour extraire l'ID Vimeo depuis une URL
+   */
+  const getVimeoId = (url) => {
+    if (!url) return null;
+    const regExp = /vimeo.com\/(\d+)/;
+    const match = url.match(regExp);
+    return match ? match[1] : null;
+  };
+
+  /**
+   * Fonction pour extraire l'URI Spotify depuis une URL
+   */
+  const getSpotifyUri = (url) => {
+    if (!url) return null;
+    const regExp = /spotify\.com\/(track|album|playlist)\/([a-zA-Z0-9]+)/;
+    const match = url.match(regExp);
+    return match ? `${match[1]}/${match[2]}` : null;
+  };
+
+  const renderModalContent = () => {
+    // YouTube embed
+    if (item.type === "youtube") {
+      const videoId = item.youtubeId || getYouTubeId(item.src);
+      return (
+        <iframe
+          src={`https://www.youtube.com/embed/${videoId}?autoplay=1`}
+          style={styles.modalMedia}
+          frameBorder="0"
+          allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+          allowFullScreen
+          title={item.title}
+        />
+      );
+    }
+
+    // Vimeo embed
+    if (item.type === "vimeo") {
+      const videoId = item.vimeoId || getVimeoId(item.src);
+      return (
+        <iframe
+          src={`https://player.vimeo.com/video/${videoId}?autoplay=1`}
+          style={styles.modalMedia}
+          frameBorder="0"
+          allow="autoplay; fullscreen; picture-in-picture"
+          allowFullScreen
+          title={item.title}
+        />
+      );
+    }
+
+    // Spotify embed
+    if (item.type === "spotify") {
+      const spotifyUri = item.spotifyUri || getSpotifyUri(item.src);
+      return (
+        <iframe
+          src={`https://open.spotify.com/embed/${spotifyUri}?utm_source=generator&theme=0`}
+          style={styles.modalMedia}
+          frameBorder="0"
+          allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture"
+          title={item.title}
+        />
+      );
+    }
+
+    // Vidéo locale ou Cloudinary
+    if (item.type === "video") {
+      const optimizedSrc = item.src.includes('cloudinary.com')
+        ? item.src.replace('/upload/', '/upload/q_auto,f_auto/')
+        : item.src;
+
+      return (
+        <video
+          src={optimizedSrc}
+          style={styles.modalMedia}
+          controls
+          autoPlay
+          loop
+        />
+      );
+    }
+
+    // Image
+    if (item.type === "image") {
+      const optimizedSrc = item.src.includes('cloudinary.com')
+        ? item.src.replace('/upload/', '/upload/w_auto,q_auto,f_auto/')
+        : item.src;
+
+      return (
+        <img
+          src={optimizedSrc}
+          alt={item.title}
+          style={styles.modalMedia}
+        />
+      );
+    }
+
+    return null;
+  };
+
+  return (
+    <div
+      style={styles.modalOverlay}
+      onClick={onClose}
+    >
+      <div
+        style={{
+          ...styles.modalContent,
+          ...(isMobile ? styles.modalContentMobile : {}),
+        }}
+        onClick={(e) => e.stopPropagation()}
+      >
+        {/* Bouton de fermeture */}
+        <button
+          onClick={onClose}
+          style={styles.closeButton}
+        >
+          ✕
+        </button>
+
+        {/* Média */}
+        {renderModalContent()}
+
+        {/* Informations */}
+        <div style={styles.modalInfo}>
+          <h3 style={styles.modalTitle}>{item.title}</h3>
+          {item.artist && (
+            <p style={styles.modalArtist}>{item.artist}</p>
+          )}
+          {item.description && (
+            <p style={styles.modalDescription}>{item.description}</p>
+          )}
+        </div>
+      </div>
+    </div>
+  );
+}
+
 const styles = {
   container: {
     minHeight: "calc(100vh - 70px)",
@@ -527,12 +690,15 @@ const styles = {
   },
   cardsContainer: {
     display: "flex",
+    flexDirection: "row",
     gap: "1rem",
     overflowX: "auto",
+    overflowY: "hidden",
     scrollSnapType: "x mandatory",
     paddingBottom: "1rem",
     scrollbarWidth: "thin",
     scrollbarColor: "rgba(255, 255, 255, 0.3) transparent",
+    WebkitOverflowScrolling: "touch",
   },
   card: {
     position: "relative",
@@ -623,5 +789,82 @@ const styles = {
     fontSize: "14px",
     backdropFilter: "blur(10px)",
     WebkitBackdropFilter: "blur(10px)",
+  },
+  // Styles pour le modal
+  modalOverlay: {
+    position: "fixed",
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+    backgroundColor: "rgba(0, 0, 0, 0.95)",
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "center",
+    zIndex: 1000,
+    padding: "2rem",
+    backdropFilter: "blur(10px)",
+    WebkitBackdropFilter: "blur(10px)",
+  },
+  modalContent: {
+    position: "relative",
+    maxWidth: "1200px",
+    maxHeight: "90vh",
+    width: "100%",
+    backgroundColor: "#1a1a1a",
+    borderRadius: "16px",
+    overflow: "hidden",
+    boxShadow: "0 24px 48px rgba(0, 0, 0, 0.8)",
+  },
+  modalContentMobile: {
+    maxHeight: "95vh",
+    borderRadius: "12px",
+  },
+  closeButton: {
+    position: "absolute",
+    top: "1rem",
+    right: "1rem",
+    width: "40px",
+    height: "40px",
+    borderRadius: "50%",
+    backgroundColor: "rgba(0, 0, 0, 0.8)",
+    border: "2px solid rgba(255, 255, 255, 0.3)",
+    color: "#fff",
+    fontSize: "20px",
+    cursor: "pointer",
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "center",
+    zIndex: 10,
+    transition: "all 0.2s ease",
+  },
+  modalMedia: {
+    width: "100%",
+    maxHeight: "70vh",
+    objectFit: "contain",
+    backgroundColor: "#000",
+  },
+  modalInfo: {
+    padding: "1.5rem",
+    backgroundColor: "#1a1a1a",
+  },
+  modalTitle: {
+    fontSize: "20px",
+    fontWeight: 600,
+    margin: 0,
+    marginBottom: "0.5rem",
+    color: "#ffffff",
+  },
+  modalArtist: {
+    fontSize: "16px",
+    margin: 0,
+    marginBottom: "0.5rem",
+    color: "#a0a0a0",
+  },
+  modalDescription: {
+    fontSize: "14px",
+    margin: 0,
+    color: "#808080",
+    lineHeight: "1.6",
   },
 };
