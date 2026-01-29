@@ -98,28 +98,49 @@ export default function WelcomePage() {
         </button>
 
         {/* Menu discret en bas */}
-        <div style={styles.bottomMenu}>
-          <button
-            onClick={() => alert("En utilisant Genius.Harmony, vous acceptez nos conditions d'utilisation. Pour toute question, contactez-nous.")}
-            style={styles.menuButton}
+        <div style={{
+          ...styles.bottomMenu,
+          ...(isMobile ? styles.bottomMenuMobile : {}),
+        }}>
+          <a
+            href="/documents/conditions-utilisation.md"
+            target="_blank"
+            rel="noopener noreferrer"
+            style={{
+              ...styles.menuButton,
+              ...(isMobile ? styles.menuTextMobile : {}),
+              textDecoration: "none",
+            }}
           >
-            Conditions d'utilisation
-          </button>
-          <span style={styles.menuSeparator}>•</span>
+            CGU
+          </a>
+          <span style={{
+            ...styles.menuSeparator,
+            ...(isMobile ? styles.menuTextMobile : {}),
+          }}>•</span>
           <a
             href="mailto:contact@genius-harmony.com"
-            style={styles.menuLink}
+            style={{
+              ...styles.menuLink,
+              ...(isMobile ? styles.menuTextMobile : {}),
+            }}
           >
             contact@genius-harmony.com
           </a>
-          <span style={styles.menuSeparator}>•</span>
+          <span style={{
+            ...styles.menuSeparator,
+            ...(isMobile ? styles.menuTextMobile : {}),
+          }}>•</span>
           <a
             href="https://www.instagram.com/geniusharmony"
             target="_blank"
             rel="noopener noreferrer"
-            style={styles.menuLink}
+            style={{
+              ...styles.menuLink,
+              ...(isMobile ? styles.menuTextMobile : {}),
+            }}
           >
-            insta: @geniusharmony
+            @geniusharmony
           </a>
         </div>
       </div>
@@ -220,6 +241,15 @@ const styles = {
     alignItems: "center",
     gap: "1rem",
     zIndex: 10,
+    flexWrap: "nowrap",
+    whiteSpace: "nowrap",
+  },
+  bottomMenuMobile: {
+    bottom: "1rem",
+    gap: "0.5rem",
+    padding: "0 1rem",
+    maxWidth: "100vw",
+    overflow: "hidden",
   },
   menuButton: {
     background: "transparent",
@@ -241,5 +271,8 @@ const styles = {
   menuSeparator: {
     color: "rgba(255, 255, 255, 0.3)",
     fontSize: "14px",
+  },
+  menuTextMobile: {
+    fontSize: "11px",
   },
 };
