@@ -212,35 +212,6 @@ export default function UniversePage() {
 
   return (
     <div style={styles.container}>
-      {/* Header fixe */}
-      <header style={styles.header}>
-        <div style={styles.headerContent}>
-          <h1 style={styles.logo}>
-            <span style={{ color: "#8B5CF6" }}>Genius</span>
-            <span style={{ color: "#ffffff" }}>.Harmony</span>
-          </h1>
-          <div style={styles.headerRight}>
-            <input
-              type="search"
-              placeholder="Rechercher..."
-              style={styles.searchInput}
-            />
-            <button
-              onClick={() => navigate("/profile")}
-              style={styles.iconButton}
-            >
-              👤
-            </button>
-            <button
-              onClick={() => navigate("/notifications")}
-              style={styles.iconButton}
-            >
-              🔔
-            </button>
-          </div>
-        </div>
-      </header>
-
       {/* Contenu principal */}
       <main style={styles.main}>
         {sections.map((section) => (
@@ -513,53 +484,8 @@ function Card({ item, sectionColor, isMobile, isHovered, onHover, onLeave, onCli
 
 const styles = {
   container: {
-    minHeight: "100vh",
-    backgroundColor: "#0A0A0F",
+    minHeight: "calc(100vh - 70px)",
     color: "#ffffff",
-  },
-  header: {
-    position: "sticky",
-    top: 0,
-    background: "rgba(0, 0, 0, 0.8)",
-    backdropFilter: "blur(10px)",
-    WebkitBackdropFilter: "blur(10px)",
-    borderBottom: "1px solid rgba(255, 255, 255, 0.1)",
-    zIndex: 100,
-    padding: "1rem 2rem",
-  },
-  headerContent: {
-    display: "flex",
-    alignItems: "center",
-    justifyContent: "space-between",
-    maxWidth: "1400px",
-    margin: "0 auto",
-  },
-  logo: {
-    fontSize: "24px",
-    fontWeight: 600,
-    margin: 0,
-  },
-  headerRight: {
-    display: "flex",
-    alignItems: "center",
-    gap: "1rem",
-  },
-  searchInput: {
-    background: "rgba(255, 255, 255, 0.1)",
-    border: "1px solid rgba(255, 255, 255, 0.2)",
-    borderRadius: "8px",
-    padding: "0.5rem 1rem",
-    color: "#ffffff",
-    fontSize: "14px",
-    outline: "none",
-  },
-  iconButton: {
-    background: "transparent",
-    border: "none",
-    fontSize: "20px",
-    cursor: "pointer",
-    padding: "0.5rem",
-    transition: "transform 0.2s ease",
   },
   main: {
     padding: "2rem 0",

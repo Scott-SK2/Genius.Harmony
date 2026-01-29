@@ -45,7 +45,9 @@ function App() {
               path="/universe"
               element={
                 <ProtectedRoute>
-                  <UniversePage />
+                  <AdminLayout pageTitle="Univers Genius.Harmony">
+                    <UniversePage />
+                  </AdminLayout>
                 </ProtectedRoute>
               }
             />
