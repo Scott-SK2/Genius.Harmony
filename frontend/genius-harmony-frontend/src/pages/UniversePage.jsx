@@ -660,24 +660,15 @@ const styles = {
     padding: "2rem 0",
   },
   mainMobile: {
-    display: "flex",
-    flexDirection: "row",
-    overflowX: "auto",
-    overflowY: "hidden",
     padding: "1rem 0",
-    scrollSnapType: "x mandatory",
-    WebkitOverflowScrolling: "touch",
   },
   section: {
     marginBottom: "3rem",
     padding: "0 2rem",
   },
   sectionMobile: {
-    minWidth: "100vw",
-    marginBottom: 0,
+    marginBottom: "2rem",
     padding: "0 1rem",
-    scrollSnapAlign: "start",
-    flexShrink: 0,
   },
   sectionHeader: {
     display: "flex",
