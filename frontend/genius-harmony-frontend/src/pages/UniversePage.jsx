@@ -301,7 +301,10 @@ function Section({ section, isMobile, hoveredCard, setHoveredCard, onCardClick }
       {/* Container de cartes scrollable */}
       <div
         ref={scrollContainerRef}
-        style={styles.cardsContainer}
+        style={{
+          ...styles.cardsContainer,
+          ...(isMobile ? styles.cardsContainerMobile : {}),
+        }}
       >
         {section.items.map((item) => (
           <Card
@@ -748,6 +751,12 @@ const styles = {
     scrollbarWidth: "thin",
     scrollbarColor: "rgba(255, 255, 255, 0.3) transparent",
     WebkitOverflowScrolling: "touch",
+  },
+  cardsContainerMobile: {
+    gap: "0.75rem",
+    paddingRight: "1rem",
+    scrollbarWidth: "none",
+    msOverflowStyle: "none",
   },
   card: {
     position: "relative",
