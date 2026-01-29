@@ -44,12 +44,12 @@ export default function WelcomePage() {
         style={styles.video}
       >
         <source
-          src="/videos/welcome-background.mp4"
+          src="https://res.cloudinary.com/djvkp74yf/video/upload/w_1280,q_auto,f_auto/v1769614904/Succes_team_socials_ellxat.mp4"
           type="video/mp4"
         />
-        {/* Fallback image si la vidéo ne charge pas */}
+        {/* Fallback image si la vidéo ne charge pas - première frame de la vidéo */}
         <img
-          src="/images/welcome-fallback.jpg"
+          src="https://res.cloudinary.com/djvkp74yf/video/upload/so_0/Succes_team_socials_ellxat.jpg"
           alt="Background"
           style={styles.fallbackImage}
         />
