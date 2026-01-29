@@ -223,6 +223,23 @@ export default function UniversePage() {
             0% { transform: rotate(0deg); }
             100% { transform: rotate(360deg); }
           }
+
+          /* Force horizontal scrolling for cards */
+          .cards-container-horizontal {
+            display: flex !important;
+            flex-direction: row !important;
+            flex-wrap: nowrap !important;
+            overflow-x: auto !important;
+            overflow-y: hidden !important;
+            -webkit-overflow-scrolling: touch !important;
+          }
+
+          /* Hide scrollbar on mobile */
+          @media (max-width: 768px) {
+            .cards-container-horizontal::-webkit-scrollbar {
+              display: none;
+            }
+          }
         `}
       </style>
 
@@ -301,6 +318,7 @@ function Section({ section, isMobile, hoveredCard, setHoveredCard, onCardClick }
       {/* Container de cartes scrollable */}
       <div
         ref={scrollContainerRef}
+        className="cards-container-horizontal"
         style={{
           ...styles.cardsContainer,
           ...(isMobile ? styles.cardsContainerMobile : {}),
@@ -743,6 +761,7 @@ const styles = {
   cardsContainer: {
     display: "flex",
     flexDirection: "row",
+    flexWrap: "nowrap",
     gap: "1rem",
     overflowX: "auto",
     overflowY: "hidden",
@@ -751,6 +770,7 @@ const styles = {
     scrollbarWidth: "thin",
     scrollbarColor: "rgba(255, 255, 255, 0.3) transparent",
     WebkitOverflowScrolling: "touch",
+    width: "100%",
   },
   cardsContainerMobile: {
     gap: "0.75rem",
