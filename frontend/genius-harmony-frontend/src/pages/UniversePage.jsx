@@ -216,6 +216,16 @@ export default function UniversePage() {
 
   return (
     <div style={styles.container}>
+      {/* Animation CSS pour le spinner */}
+      <style>
+        {`
+          @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+          }
+        `}
+      </style>
+
       {/* Contenu principal */}
       <main style={{
         ...styles.main,
@@ -503,6 +513,8 @@ function Card({ item, sectionColor, isMobile, isHovered, onHover, onLeave, onCli
 
 // Composant Modal pour afficher les médias en grand
 function MediaModal({ item, onClose, isMobile }) {
+  const [isLoading, setIsLoading] = useState(true);
+
   /**
    * Fonction pour extraire l'ID YouTube depuis une URL
    */
@@ -585,28 +597,52 @@ function MediaModal({ item, onClose, isMobile }) {
         : item.src;
 
       return (
-        <video
-          src={optimizedSrc}
-          style={styles.modalMedia}
-          controls
-          autoPlay
-          loop
-        />
+        <>
+          {isLoading && (
+            <div style={styles.loader}>
+              <div style={styles.spinner}></div>
+              <p style={styles.loadingText}>Chargement de la vidéo...</p>
+            </div>
+          )}
+          <video
+            src={optimizedSrc}
+            style={{
+              ...styles.modalMedia,
+              display: isLoading ? 'none' : 'block',
+            }}
+            controls
+            autoPlay
+            loop
+            onLoadedData={() => setIsLoading(false)}
+          />
+        </>
       );
     }
 
     // Image
     if (item.type === "image") {
       const optimizedSrc = item.src.includes('cloudinary.com')
-        ? item.src.replace('/upload/', '/upload/w_auto,q_auto,f_auto/')
+        ? item.src.replace('/upload/', '/upload/w_1920,q_auto,f_auto/')
         : item.src;
 
       return (
-        <img
-          src={optimizedSrc}
-          alt={item.title}
-          style={styles.modalMedia}
-        />
+        <>
+          {isLoading && (
+            <div style={styles.loader}>
+              <div style={styles.spinner}></div>
+              <p style={styles.loadingText}>Chargement...</p>
+            </div>
+          )}
+          <img
+            src={optimizedSrc}
+            alt={item.title}
+            style={{
+              ...styles.modalMedia,
+              display: isLoading ? 'none' : 'block',
+            }}
+            onLoad={() => setIsLoading(false)}
+          />
+        </>
       );
     }
 
@@ -879,5 +915,27 @@ const styles = {
     margin: 0,
     color: "#808080",
     lineHeight: "1.6",
+  },
+  // Styles pour le loader
+  loader: {
+    display: "flex",
+    flexDirection: "column",
+    alignItems: "center",
+    justifyContent: "center",
+    minHeight: "400px",
+    backgroundColor: "#000",
+  },
+  spinner: {
+    width: "50px",
+    height: "50px",
+    border: "4px solid rgba(255, 255, 255, 0.1)",
+    borderTop: "4px solid #ffffff",
+    borderRadius: "50%",
+    animation: "spin 1s linear infinite",
+  },
+  loadingText: {
+    marginTop: "1rem",
+    color: "#ffffff",
+    fontSize: "14px",
   },
 };
